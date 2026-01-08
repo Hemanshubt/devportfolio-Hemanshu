@@ -6,7 +6,8 @@ const navLinks = [
   { name: 'About', href: '#about' },
   { name: 'Skills', href: '#skills' },
   { name: 'Projects', href: '#projects' },
-  { name: 'Experience', href: '#experience' },
+  { name: 'Certifications', href: '#certifications' },
+  { name: 'Education', href: '#education' },
   { name: 'Contact', href: '#contact' },
 ];
 
@@ -31,16 +32,16 @@ export default function Navigation() {
         scrolled ? 'bg-background/80 backdrop-blur-lg' : ''
       }`}
     >
-      <div className="mx-auto max-w-7xl px-6 py-4">
+      <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 sm:py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <a href="#" className="flex items-center gap-2 font-mono text-lg font-bold text-primary">
-            <Terminal className="h-6 w-6" />
-            <span className="hidden sm:inline">devops.engineer</span>
+          <a href="#" className="flex items-center gap-2 font-mono text-base font-bold text-primary sm:text-lg">
+            <Terminal className="h-5 w-5 sm:h-6 sm:w-6" />
+            <span className="hidden xs:inline">devops.engineer</span>
           </a>
 
           {/* Desktop Nav */}
-          <div className="hidden items-center gap-8 md:flex">
+          <div className="hidden items-center gap-6 lg:flex lg:gap-8">
             {navLinks.map((link) => (
               <a
                 key={link.name}
@@ -59,7 +60,7 @@ export default function Navigation() {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="relative z-50 md:hidden"
+            className="relative z-50 p-1 lg:hidden"
             aria-label="Toggle menu"
           >
             {isOpen ? (
@@ -79,9 +80,9 @@ export default function Navigation() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.2 }}
-            className="absolute left-0 right-0 top-full bg-background/95 backdrop-blur-lg md:hidden"
+            className="absolute left-0 right-0 top-full bg-background/95 backdrop-blur-lg lg:hidden"
           >
-            <div className="flex flex-col gap-4 px-6 py-6">
+            <div className="flex flex-col gap-3 px-4 py-4 sm:gap-4 sm:px-6 sm:py-6">
               {navLinks.map((link, i) => (
                 <motion.a
                   key={link.name}
@@ -90,7 +91,7 @@ export default function Navigation() {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.1 }}
                   onClick={() => setIsOpen(false)}
-                  className="text-lg font-medium text-muted-foreground transition-colors hover:text-foreground"
+                  className="text-base font-medium text-muted-foreground transition-colors hover:text-foreground sm:text-lg"
                 >
                   {link.name}
                 </motion.a>
@@ -103,7 +104,7 @@ export default function Navigation() {
                 onClick={() => setIsOpen(false)}
                 className="btn-primary mt-2 text-center"
               >
-                Hire Me
+                Connect
               </motion.a>
             </div>
           </motion.div>

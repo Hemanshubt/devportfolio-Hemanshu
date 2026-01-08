@@ -1,15 +1,56 @@
-import { useRef, useMemo } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { useRef, useMemo, useState, useEffect } from 'react';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Float, Sphere, Box, Torus, MeshDistortMaterial, Stars } from '@react-three/drei';
 import * as THREE from 'three';
 
-function CloudNode({ position, color, size = 0.3 }: { position: [number, number, number]; color: string; size?: number }) {
+// Mouse position context for parallax
+function useMousePosition() {
+  const [mouse, setMouse] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMouse({
+        x: (e.clientX / window.innerWidth) * 2 - 1,
+        y: -(e.clientY / window.innerHeight) * 2 + 1,
+      });
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
+  return mouse;
+}
+
+function CloudNode({ 
+  position, 
+  color, 
+  size = 0.3,
+  mouseX,
+  mouseY,
+  parallaxStrength = 0.3
+}: { 
+  position: [number, number, number]; 
+  color: string; 
+  size?: number;
+  mouseX: number;
+  mouseY: number;
+  parallaxStrength?: number;
+}) {
   const meshRef = useRef<THREE.Mesh>(null);
+  const initialPosition = useRef(position);
   
   useFrame((state) => {
     if (meshRef.current) {
       meshRef.current.rotation.x = state.clock.elapsedTime * 0.2;
       meshRef.current.rotation.y = state.clock.elapsedTime * 0.3;
+      
+      // Parallax effect based on mouse position
+      const targetX = initialPosition.current[0] + mouseX * parallaxStrength;
+      const targetY = initialPosition.current[1] + mouseY * parallaxStrength;
+      
+      meshRef.current.position.x = THREE.MathUtils.lerp(meshRef.current.position.x, targetX, 0.05);
+      meshRef.current.position.y = THREE.MathUtils.lerp(meshRef.current.position.y, targetY, 0.05);
     }
   });
 
@@ -29,12 +70,30 @@ function CloudNode({ position, color, size = 0.3 }: { position: [number, number,
   );
 }
 
-function ServerBlock({ position }: { position: [number, number, number] }) {
+function ServerBlock({ 
+  position,
+  mouseX,
+  mouseY,
+  parallaxStrength = 0.2
+}: { 
+  position: [number, number, number];
+  mouseX: number;
+  mouseY: number;
+  parallaxStrength?: number;
+}) {
   const groupRef = useRef<THREE.Group>(null);
+  const initialPosition = useRef(position);
 
   useFrame((state) => {
     if (groupRef.current) {
       groupRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.5) * 0.1;
+      
+      // Parallax effect
+      const targetX = initialPosition.current[0] + mouseX * parallaxStrength;
+      const targetY = initialPosition.current[1] + mouseY * parallaxStrength;
+      
+      groupRef.current.position.x = THREE.MathUtils.lerp(groupRef.current.position.x, targetX, 0.03);
+      groupRef.current.position.y = THREE.MathUtils.lerp(groupRef.current.position.y, targetY, 0.03);
     }
   });
 
@@ -93,83 +152,121 @@ function NetworkConnection({ start, end }: { start: [number, number, number]; en
   );
 }
 
-function CentralOrb() {
+function CentralOrb({ mouseX, mouseY }: { mouseX: number; mouseY: number }) {
   const meshRef = useRef<THREE.Mesh>(null);
+  const groupRef = useRef<THREE.Group>(null);
 
   useFrame((state) => {
     if (meshRef.current) {
       meshRef.current.rotation.x = state.clock.elapsedTime * 0.1;
       meshRef.current.rotation.y = state.clock.elapsedTime * 0.15;
     }
+    
+    if (groupRef.current) {
+      // Subtle rotation based on mouse
+      const targetRotX = mouseY * 0.2;
+      const targetRotY = mouseX * 0.2;
+      
+      groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, targetRotX, 0.05);
+      groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, targetRotY, 0.05);
+    }
   });
 
   return (
     <Float speed={1} rotationIntensity={0.2} floatIntensity={0.3}>
-      <mesh ref={meshRef} position={[0, 0, 0]}>
-        <icosahedronGeometry args={[1.2, 1]} />
-        <MeshDistortMaterial
-          color="#00d4ff"
-          emissive="#00d4ff"
-          emissiveIntensity={0.1}
-          metalness={0.9}
-          roughness={0.1}
-          distort={0.3}
-          speed={2}
-          transparent
-          opacity={0.8}
-        />
-      </mesh>
-      <Torus args={[1.8, 0.02, 16, 100]} rotation={[Math.PI / 2, 0, 0]}>
-        <meshStandardMaterial 
-          color="#22c55e" 
-          emissive="#22c55e"
-          emissiveIntensity={0.5}
-          transparent
-          opacity={0.6}
-        />
-      </Torus>
-      <Torus args={[2.2, 0.015, 16, 100]} rotation={[Math.PI / 3, Math.PI / 4, 0]}>
-        <meshStandardMaterial 
-          color="#8b5cf6" 
-          emissive="#8b5cf6"
-          emissiveIntensity={0.5}
-          transparent
-          opacity={0.4}
-        />
-      </Torus>
+      <group ref={groupRef}>
+        <mesh ref={meshRef} position={[0, 0, 0]}>
+          <icosahedronGeometry args={[1.2, 1]} />
+          <MeshDistortMaterial
+            color="#00d4ff"
+            emissive="#00d4ff"
+            emissiveIntensity={0.1}
+            metalness={0.9}
+            roughness={0.1}
+            distort={0.3}
+            speed={2}
+            transparent
+            opacity={0.8}
+          />
+        </mesh>
+        <Torus args={[1.8, 0.02, 16, 100]} rotation={[Math.PI / 2, 0, 0]}>
+          <meshStandardMaterial 
+            color="#22c55e" 
+            emissive="#22c55e"
+            emissiveIntensity={0.5}
+            transparent
+            opacity={0.6}
+          />
+        </Torus>
+        <Torus args={[2.2, 0.015, 16, 100]} rotation={[Math.PI / 3, Math.PI / 4, 0]}>
+          <meshStandardMaterial 
+            color="#8b5cf6" 
+            emissive="#8b5cf6"
+            emissiveIntensity={0.5}
+            transparent
+            opacity={0.4}
+          />
+        </Torus>
+      </group>
     </Float>
   );
 }
 
-function Scene() {
+function Scene({ mouseX, mouseY }: { mouseX: number; mouseY: number }) {
   const groupRef = useRef<THREE.Group>(null);
 
   useFrame((state) => {
     if (groupRef.current) {
-      groupRef.current.rotation.y = state.clock.elapsedTime * 0.05;
+      // Base rotation plus mouse influence
+      const baseRotation = state.clock.elapsedTime * 0.05;
+      const mouseInfluence = mouseX * 0.1;
+      
+      groupRef.current.rotation.y = THREE.MathUtils.lerp(
+        groupRef.current.rotation.y,
+        baseRotation + mouseInfluence,
+        0.02
+      );
     }
   });
 
   const nodes = [
-    { position: [-2.5, 1.5, -1] as [number, number, number], color: "#00d4ff" },
-    { position: [2.5, 1, -1.5] as [number, number, number], color: "#22c55e" },
-    { position: [-2, -1.5, -0.5] as [number, number, number], color: "#8b5cf6" },
-    { position: [2.2, -1.2, -1] as [number, number, number], color: "#00d4ff" },
-    { position: [0, 2.5, -2] as [number, number, number], color: "#22c55e" },
-    { position: [-3, 0, -2] as [number, number, number], color: "#8b5cf6" },
-    { position: [3, 0.5, -1.5] as [number, number, number], color: "#00d4ff" },
+    { position: [-2.5, 1.5, -1] as [number, number, number], color: "#00d4ff", parallax: 0.4 },
+    { position: [2.5, 1, -1.5] as [number, number, number], color: "#22c55e", parallax: 0.35 },
+    { position: [-2, -1.5, -0.5] as [number, number, number], color: "#8b5cf6", parallax: 0.5 },
+    { position: [2.2, -1.2, -1] as [number, number, number], color: "#00d4ff", parallax: 0.3 },
+    { position: [0, 2.5, -2] as [number, number, number], color: "#22c55e", parallax: 0.25 },
+    { position: [-3, 0, -2] as [number, number, number], color: "#8b5cf6", parallax: 0.2 },
+    { position: [3, 0.5, -1.5] as [number, number, number], color: "#00d4ff", parallax: 0.45 },
   ];
 
   return (
     <group ref={groupRef}>
-      <CentralOrb />
+      <CentralOrb mouseX={mouseX} mouseY={mouseY} />
       
       {nodes.map((node, i) => (
-        <CloudNode key={i} position={node.position} color={node.color} size={0.25 + Math.random() * 0.15} />
+        <CloudNode 
+          key={i} 
+          position={node.position} 
+          color={node.color} 
+          size={0.25 + Math.random() * 0.15}
+          mouseX={mouseX}
+          mouseY={mouseY}
+          parallaxStrength={node.parallax}
+        />
       ))}
 
-      <ServerBlock position={[-3.5, -0.5, -2]} />
-      <ServerBlock position={[3.5, 0.8, -2.5]} />
+      <ServerBlock 
+        position={[-3.5, -0.5, -2]} 
+        mouseX={mouseX} 
+        mouseY={mouseY}
+        parallaxStrength={0.15}
+      />
+      <ServerBlock 
+        position={[3.5, 0.8, -2.5]} 
+        mouseX={mouseX} 
+        mouseY={mouseY}
+        parallaxStrength={0.18}
+      />
 
       {nodes.slice(0, 4).map((node, i) => (
         <NetworkConnection 
@@ -182,6 +279,11 @@ function Scene() {
       <Stars radius={50} depth={50} count={1000} factor={3} saturation={0} fade speed={1} />
     </group>
   );
+}
+
+function SceneWrapper() {
+  const mouse = useMousePosition();
+  return <Scene mouseX={mouse.x} mouseY={mouse.y} />;
 }
 
 export default function CloudScene() {
@@ -200,7 +302,7 @@ export default function CloudScene() {
         <pointLight position={[-10, -10, -10]} intensity={0.3} color="#8b5cf6" />
         <pointLight position={[0, 5, 5]} intensity={0.4} color="#22c55e" />
         
-        <Scene />
+        <SceneWrapper />
       </Canvas>
     </div>
   );

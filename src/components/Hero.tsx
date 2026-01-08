@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { ArrowDown, Cloud, Server, GitBranch } from 'lucide-react';
 import CloudScene from './CloudScene';
+import ResumeButton from './ResumeButton';
 
 export default function Hero() {
   return (
@@ -13,13 +14,13 @@ export default function Hero() {
       {/* Gradient overlay */}
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-background/50 to-background" />
 
-      <div className="relative z-10 mx-auto max-w-5xl px-6 text-center">
+      <div className="relative z-10 mx-auto max-w-5xl px-4 text-center sm:px-6">
         {/* Terminal-style intro */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 px-4 py-2 font-mono text-sm text-primary"
+          className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 px-3 py-1.5 font-mono text-xs text-primary sm:mb-6 sm:px-4 sm:py-2 sm:text-sm"
         >
           <span className="h-2 w-2 animate-pulse rounded-full bg-secondary" />
           <span>System Status: Online</span>
@@ -30,22 +31,32 @@ export default function Hero() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="mb-6 text-5xl font-bold leading-tight md:text-7xl lg:text-8xl"
+          className="mb-4 text-4xl font-bold leading-tight sm:mb-6 sm:text-5xl md:text-7xl lg:text-8xl"
         >
           <span className="text-glow text-primary">DevOps</span>
           <br />
           <span className="text-foreground">Engineer</span>
         </motion.h1>
 
+        {/* Name */}
+        <motion.p
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.3 }}
+          className="mb-3 text-xl font-semibold text-foreground sm:mb-4 sm:text-2xl md:text-3xl"
+        >
+          Hemanshu Mahajan
+        </motion.p>
+
         {/* Subtitle */}
         <motion.p
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4 }}
-          className="mx-auto mb-8 max-w-2xl text-xl text-muted-foreground md:text-2xl"
+          className="mx-auto mb-6 max-w-2xl text-sm text-muted-foreground sm:mb-8 sm:text-lg md:text-xl lg:text-2xl"
         >
-          <span className="font-mono text-secondary">Automating Infrastructure.</span>{' '}
-          <span className="font-mono text-accent">Scaling Systems.</span>
+          <span className="block font-mono text-secondary sm:inline">Passionate about CI/CD & Cloud.</span>{' '}
+          <span className="block font-mono text-accent sm:inline">Ready to Build & Learn.</span>
         </motion.p>
 
         {/* Feature tags */}
@@ -53,7 +64,7 @@ export default function Hero() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.6 }}
-          className="mb-10 flex flex-wrap items-center justify-center gap-4"
+          className="mb-8 flex flex-wrap items-center justify-center gap-2 sm:mb-10 sm:gap-4"
         >
           {[
             { icon: Cloud, label: 'Cloud Native' },
@@ -62,10 +73,10 @@ export default function Hero() {
           ].map((item, i) => (
             <div
               key={i}
-              className="flex items-center gap-2 rounded-lg border border-border bg-card/50 px-4 py-2 backdrop-blur-sm"
+              className="flex items-center gap-1.5 rounded-lg border border-border bg-card/50 px-2.5 py-1.5 backdrop-blur-sm sm:gap-2 sm:px-4 sm:py-2"
             >
-              <item.icon className="h-4 w-4 text-primary" />
-              <span className="text-sm font-medium text-foreground">{item.label}</span>
+              <item.icon className="h-3 w-3 text-primary sm:h-4 sm:w-4" />
+              <span className="text-xs font-medium text-foreground sm:text-sm">{item.label}</span>
             </div>
           ))}
         </motion.div>
@@ -75,14 +86,15 @@ export default function Hero() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.8 }}
-          className="flex flex-wrap items-center justify-center gap-4"
+          className="flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4"
         >
-          <a href="#projects" className="btn-primary">
+          <a href="#projects" className="btn-primary w-full sm:w-auto">
             View Projects
           </a>
-          <a href="#contact" className="btn-outline">
+          <a href="#contact" className="btn-outline w-full sm:w-auto">
             Get in Touch
           </a>
+          <ResumeButton />
         </motion.div>
       </div>
 
@@ -91,7 +103,7 @@ export default function Hero() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.5, duration: 0.8 }}
-        className="absolute bottom-10 left-1/2 -translate-x-1/2"
+        className="absolute bottom-6 left-1/2 -translate-x-1/2 sm:bottom-10"
       >
         <motion.div
           animate={{ y: [0, 10, 0] }}

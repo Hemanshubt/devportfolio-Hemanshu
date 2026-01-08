@@ -1,27 +1,72 @@
 import { motion, useInView } from 'framer-motion';
 import { useRef, useState } from 'react';
-import { Send, Mail, MapPin, Github, Linkedin, Twitter } from 'lucide-react';
+import { Send, Mail, MapPin, CheckCircle, AlertCircle } from 'lucide-react';
+import { FaGithub, FaLinkedin, FaTelegram } from 'react-icons/fa';
 
 export default function Contact() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
   const [formState, setFormState] = useState({ name: '', email: '', message: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    setIsSubmitting(false);
-    setFormState({ name: '', email: '', message: '' });
+    setSubmitStatus('idle');
+
+    const TELEGRAM_BOT_TOKEN = '7822240165:AAF_cjy66yJy6vqR5cbDXf9Z0JoCXpPTCwk';
+    const TELEGRAM_CHAT_ID = '556010535';
+
+    try {
+      // Send Telegram Notification
+      const telegramMessage = `🔔 New Contact Form Submission
+
+👤 Name: ${formState.name}
+📧 Email: ${formState.email}
+
+💬 Message:
+${formState.message}`;
+
+      const telegramUrl = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage?chat_id=${TELEGRAM_CHAT_ID}&text=${encodeURIComponent(telegramMessage)}`;
+      
+      // Send to Telegram
+      const telegramPromise = fetch(telegramUrl);
+
+      // Send Email via Vercel serverless function (production) or local server (dev)
+      const emailEndpoint = import.meta.env.DEV 
+        ? 'http://localhost:3001/api/contact' 
+        : '/api/contact';
+      
+      const emailPromise = fetch(emailEndpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formState),
+      }).catch(() => null); // Don't fail if email server is not running
+
+      const [telegramResult] = await Promise.all([telegramPromise, emailPromise]);
+      const telegramData = await telegramResult.json();
+
+      if (telegramData.ok) {
+        setSubmitStatus('success');
+        setFormState({ name: '', email: '', message: '' });
+      } else {
+        setSubmitStatus('error');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      setSubmitStatus('error');
+    } finally {
+      setIsSubmitting(false);
+      setTimeout(() => setSubmitStatus('idle'), 5000);
+    }
   };
 
   return (
-    <section id="contact" className="relative py-32">
+    <section id="contact" className="relative py-16 md:py-32">
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-card/20 to-background" />
       
-      <div className="relative mx-auto max-w-6xl px-6">
+      <div className="relative mx-auto max-w-6xl px-4 sm:px-6">
         <motion.div
           ref={ref}
           initial={{ opacity: 0, y: 30 }}
@@ -30,15 +75,15 @@ export default function Contact() {
           className="text-center"
         >
           <span className="section-heading">Get in Touch</span>
-          <h2 className="mt-4 text-4xl font-bold md:text-5xl">
-            Let's Build <span className="gradient-text">Together</span>
+          <h2 className="mt-4 text-3xl font-bold sm:text-4xl md:text-5xl">
+            Let's <span className="gradient-text">Connect</span>
           </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
-            Have a project in mind or need help with your infrastructure? Let's talk.
+          <p className="mx-auto mt-4 max-w-2xl text-base text-muted-foreground sm:text-lg">
+            Looking for opportunities to grow as a DevOps Engineer. Let's discuss how I can contribute to your team.
           </p>
         </motion.div>
 
-        <div className="mt-16 grid gap-12 lg:grid-cols-2">
+        <div className="mt-10 grid gap-8 sm:mt-16 sm:gap-12 lg:grid-cols-2">
           {/* Contact Form */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
@@ -53,48 +98,62 @@ export default function Contact() {
                 <span className="ml-4 text-xs text-muted-foreground">contact.sh</span>
               </div>
               
-              <form onSubmit={handleSubmit} className="p-6">
-                <div className="mb-4">
-                  <label className="mb-2 block font-mono text-sm text-muted-foreground">
+              <form onSubmit={handleSubmit} className="p-4 sm:p-6">
+                <div className="mb-3 sm:mb-4">
+                  <label className="mb-1.5 block font-mono text-xs text-muted-foreground sm:mb-2 sm:text-sm">
                     <span className="text-secondary">$</span> name
                   </label>
                   <input
                     type="text"
                     value={formState.name}
                     onChange={(e) => setFormState({ ...formState, name: e.target.value })}
-                    className="w-full rounded-lg border border-border bg-muted/30 px-4 py-3 font-mono text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                    className="w-full rounded-lg border border-border bg-muted/30 px-3 py-2.5 font-mono text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:px-4 sm:py-3"
                     placeholder="Your name"
                     required
                   />
                 </div>
 
-                <div className="mb-4">
-                  <label className="mb-2 block font-mono text-sm text-muted-foreground">
+                <div className="mb-3 sm:mb-4">
+                  <label className="mb-1.5 block font-mono text-xs text-muted-foreground sm:mb-2 sm:text-sm">
                     <span className="text-secondary">$</span> email
                   </label>
                   <input
                     type="email"
                     value={formState.email}
                     onChange={(e) => setFormState({ ...formState, email: e.target.value })}
-                    className="w-full rounded-lg border border-border bg-muted/30 px-4 py-3 font-mono text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                    className="w-full rounded-lg border border-border bg-muted/30 px-3 py-2.5 font-mono text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:px-4 sm:py-3"
                     placeholder="you@example.com"
                     required
                   />
                 </div>
 
-                <div className="mb-6">
-                  <label className="mb-2 block font-mono text-sm text-muted-foreground">
+                <div className="mb-4 sm:mb-6">
+                  <label className="mb-1.5 block font-mono text-xs text-muted-foreground sm:mb-2 sm:text-sm">
                     <span className="text-secondary">$</span> message
                   </label>
                   <textarea
                     value={formState.message}
                     onChange={(e) => setFormState({ ...formState, message: e.target.value })}
                     rows={4}
-                    className="w-full resize-none rounded-lg border border-border bg-muted/30 px-4 py-3 font-mono text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-                    placeholder="Tell me about your project..."
+                    className="w-full resize-none rounded-lg border border-border bg-muted/30 px-3 py-2.5 font-mono text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:px-4 sm:py-3"
+                    placeholder="Tell me about the opportunity..."
                     required
                   />
                 </div>
+
+                {/* Status Messages */}
+                {submitStatus === 'success' && (
+                  <div className="mb-4 flex items-center gap-2 rounded-lg bg-green-500/10 px-4 py-3 text-green-500">
+                    <CheckCircle className="h-4 w-4" />
+                    <span className="text-sm">Message sent successfully!</span>
+                  </div>
+                )}
+                {submitStatus === 'error' && (
+                  <div className="mb-4 flex items-center gap-2 rounded-lg bg-red-500/10 px-4 py-3 text-red-500">
+                    <AlertCircle className="h-4 w-4" />
+                    <span className="text-sm">Failed to send. Please try again.</span>
+                  </div>
+                )}
 
                 <button
                   type="submit"
@@ -124,47 +183,60 @@ export default function Contact() {
             transition={{ duration: 0.6, delay: 0.3 }}
             className="flex flex-col justify-center"
           >
-            <div className="space-y-8">
-              <div className="flex items-start gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
-                  <Mail className="h-6 w-6 text-primary" />
+            <div className="space-y-6 sm:space-y-8">
+              <div className="flex items-start gap-3 sm:gap-4">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 sm:h-12 sm:w-12">
+                  <Mail className="h-5 w-5 text-primary sm:h-6 sm:w-6" />
                 </div>
                 <div>
                   <h3 className="font-semibold text-foreground">Email</h3>
-                  <a href="mailto:hello@devops.engineer" className="text-muted-foreground transition-colors hover:text-primary">
-                    hello@devops.engineer
+                  <a href="mailto:hemanshumahajan55@gmail.com" className="text-sm text-muted-foreground transition-colors hover:text-primary sm:text-base">
+                    hemanshumahajan55@gmail.com
                   </a>
                 </div>
               </div>
 
-              <div className="flex items-start gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-secondary/10">
-                  <MapPin className="h-6 w-6 text-secondary" />
+              <div className="flex items-start gap-3 sm:gap-4">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-secondary/10 sm:h-12 sm:w-12">
+                  <MapPin className="h-5 w-5 text-secondary sm:h-6 sm:w-6" />
                 </div>
                 <div>
                   <h3 className="font-semibold text-foreground">Location</h3>
-                  <p className="text-muted-foreground">Remote / Worldwide</p>
+                  <p className="text-sm text-muted-foreground sm:text-base">Shirpur, Maharashtra, India</p>
                 </div>
               </div>
 
               {/* Social links */}
-              <div className="pt-4">
-                <h3 className="mb-4 font-semibold text-foreground">Connect</h3>
-                <div className="flex gap-4">
-                  {[
-                    { icon: Github, href: '#', label: 'GitHub' },
-                    { icon: Linkedin, href: '#', label: 'LinkedIn' },
-                    { icon: Twitter, href: '#', label: 'Twitter' },
-                  ].map((social, i) => (
-                    <a
-                      key={i}
-                      href={social.href}
-                      aria-label={social.label}
-                      className="flex h-12 w-12 items-center justify-center rounded-xl border border-border bg-card transition-all duration-300 hover:border-primary/50 hover:bg-primary/5 hover:text-primary"
-                    >
-                      <social.icon className="h-5 w-5" />
-                    </a>
-                  ))}
+              <div className="pt-2 sm:pt-4">
+                <h3 className="mb-3 font-semibold text-foreground sm:mb-4">Connect</h3>
+                <div className="flex gap-3 sm:gap-4">
+                  <a
+                    href="https://github.com/Hemanshubt"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="GitHub"
+                    className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-card transition-all duration-300 hover:border-primary/50 hover:bg-primary/5 hover:text-primary sm:h-12 sm:w-12"
+                  >
+                    <FaGithub className="h-4 w-4 sm:h-5 sm:w-5" />
+                  </a>
+                  <a
+                    href="https://www.linkedin.com/in/hemanshu-mahajan/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="LinkedIn"
+                    className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-card transition-all duration-300 hover:border-blue-500/50 hover:bg-blue-500/5 hover:text-blue-500 sm:h-12 sm:w-12"
+                  >
+                    <FaLinkedin className="h-4 w-4 sm:h-5 sm:w-5" />
+                  </a>
+                  <a
+                    href="https://t.me/yourusername"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Telegram"
+                    className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-card transition-all duration-300 hover:border-sky-500/50 hover:bg-sky-500/5 hover:text-sky-500 sm:h-12 sm:w-12"
+                  >
+                    <FaTelegram className="h-4 w-4 sm:h-5 sm:w-5" />
+                  </a>
                 </div>
               </div>
             </div>
