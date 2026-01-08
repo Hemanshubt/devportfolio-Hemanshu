@@ -1,13 +1,18 @@
 import { motion } from 'framer-motion';
 import { ArrowDown, Cloud, Server, GitBranch } from 'lucide-react';
-import { FaGithub, FaLinkedin, FaTelegram, FaTwitter } from 'react-icons/fa';
-import CloudScene from './CloudScene';
+import { FaGithub, FaLinkedin, FaTwitter } from 'react-icons/fa';
+import { lazy, Suspense } from 'react';
 import ResumeButton from './ResumeButton';
+
+// Lazy load heavy 3D scene
+const CloudScene = lazy(() => import('./CloudScene'));
 
 export default function Hero() {
   return (
     <section className="relative flex min-h-screen items-center justify-center overflow-hidden">
-      <CloudScene />
+      <Suspense fallback={<div className="absolute inset-0 -z-10 bg-[#080d16]" />}>
+        <CloudScene />
+      </Suspense>
       
       {/* Grid overlay */}
       <div className="bg-grid pointer-events-none absolute inset-0 opacity-30" />

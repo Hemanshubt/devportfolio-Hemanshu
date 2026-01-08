@@ -1,7 +1,7 @@
 import { motion, useInView } from 'framer-motion';
 import { useRef, useState } from 'react';
 import { Send, Mail, MapPin, CheckCircle, AlertCircle } from 'lucide-react';
-import { FaGithub, FaLinkedin, FaTelegram } from 'react-icons/fa';
+import { FaGithub, FaLinkedin } from 'react-icons/fa';
 
 export default function Contact() {
   const ref = useRef(null);
