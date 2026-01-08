@@ -51,6 +51,60 @@ const skills = [
   { name: 'MySQL', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg', category: 'Database' },
 ];
 
+function FlipCard({ skill }: { skill: typeof skills[0] }) {
+  const [isFlipped, setIsFlipped] = useState(false);
+
+  return (
+    <div 
+      className="group perspective-1000 h-24 sm:h-32 md:h-36 lg:h-40 cursor-pointer"
+      onMouseEnter={() => setIsFlipped(true)}
+      onMouseLeave={() => setIsFlipped(false)}
+    >
+      <motion.div
+        className="relative h-full w-full"
+        initial={false}
+        animate={{ rotateY: isFlipped ? 180 : 0 }}
+        transition={{ duration: 0.6, type: 'spring', stiffness: 100 }}
+        style={{ transformStyle: 'preserve-3d' }}
+      >
+        {/* Front */}
+        <div 
+          className="absolute inset-0 flex flex-col items-center justify-center rounded-xl border border-border bg-card/80 p-3 backdrop-blur-sm sm:p-4 md:p-5 lg:p-6"
+          style={{ backfaceVisibility: 'hidden' }}
+        >
+          <div className="mb-2 flex h-8 w-8 items-center justify-center sm:h-12 sm:w-12 md:h-14 md:w-14 lg:h-16 lg:w-16">
+            <img
+              src={skill.logo}
+              alt={skill.name}
+              className="h-full w-full object-contain"
+            />
+          </div>
+          <h3 className="text-center text-[10px] font-medium text-foreground sm:text-xs md:text-sm lg:text-base">
+            {skill.name}
+          </h3>
+        </div>
+
+        {/* Back */}
+        <div 
+          className="absolute inset-0 flex flex-col items-center justify-center rounded-xl border border-primary/50 bg-gradient-to-br from-primary/20 to-purple-500/20 p-3 backdrop-blur-sm sm:p-4 md:p-5 lg:p-6"
+          style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
+        >
+          <div className="mb-2 flex h-8 w-8 items-center justify-center sm:h-12 sm:w-12 md:h-14 md:w-14 lg:h-16 lg:w-16">
+            <img
+              src={skill.logo}
+              alt={skill.name}
+              className="h-full w-full object-contain"
+            />
+          </div>
+          <span className="rounded-full bg-primary/20 px-1.5 py-0.5 text-[8px] font-medium text-primary sm:px-2 sm:text-[10px] md:text-xs lg:text-sm">
+            {skill.category}
+          </span>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
 export default function Skills() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
@@ -103,43 +157,30 @@ export default function Skills() {
         {/* Skills Grid */}
         <motion.div
           layout
-          className="mt-8 grid grid-cols-2 gap-4 sm:mt-12 sm:grid-cols-3 md:grid-cols-4 lg:gap-6"
+          className="mt-8 grid grid-cols-3 gap-2 sm:mt-12 sm:grid-cols-4 sm:gap-3 md:grid-cols-4 md:gap-4 lg:grid-cols-5 lg:gap-5"
         >
           <AnimatePresence mode="popLayout">
-            {filteredSkills.map((skill) => (
+            {filteredSkills.map((skill, index) => (
               <motion.div
                 key={skill.name}
                 layout
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-                transition={{ duration: 0.3 }}
-                className="group relative"
+                initial={{ opacity: 0, rotateY: -90 }}
+                animate={{ opacity: 1, rotateY: 0 }}
+                exit={{ opacity: 0, rotateY: 90 }}
+                transition={{ duration: 0.4, delay: index * 0.05 }}
               >
-                <div className="relative flex flex-col items-center justify-center rounded-2xl border border-border bg-card/80 p-6 backdrop-blur-sm transition-all duration-300 hover:border-primary/50 hover:bg-card hover:shadow-xl hover:shadow-primary/10 sm:p-8">
-                  {/* Corner dots */}
-                  <div className="absolute right-3 top-3 h-2 w-2 rounded-full bg-primary/50" />
-                  <div className="absolute bottom-3 left-3 h-2 w-2 rounded-full bg-primary/50" />
-                  
-                  {/* Skill Icon */}
-                  <div className="mb-4 flex h-16 w-16 items-center justify-center transition-transform duration-300 group-hover:scale-110 sm:h-20 sm:w-20">
-                    <img
-                      src={skill.logo}
-                      alt={skill.name}
-                      className="h-full w-full object-contain"
-                    />
-                  </div>
-                  
-                  {/* Skill Name */}
-                  <h3 className="text-center font-medium text-foreground sm:text-lg">
-                    {skill.name}
-                  </h3>
-                </div>
+                <FlipCard skill={skill} />
               </motion.div>
             ))}
           </AnimatePresence>
         </motion.div>
       </div>
+
+      <style>{`
+        .perspective-1000 {
+          perspective: 1000px;
+        }
+      `}</style>
     </section>
   );
 }
