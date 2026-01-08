@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { ArrowDown, Cloud, Server, GitBranch } from 'lucide-react';
+import { FaGithub, FaLinkedin, FaTelegram } from 'react-icons/fa';
 import CloudScene from './CloudScene';
 import ResumeButton from './ResumeButton';
 
@@ -81,11 +82,47 @@ export default function Hero() {
           ))}
         </motion.div>
 
-        {/* CTA Buttons */}
+        {/* Social Links */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.8 }}
+          className="mb-6 flex items-center justify-center gap-4 sm:mb-8"
+        >
+          <a
+            href="https://github.com/Hemanshubt"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="GitHub"
+            className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-card/50 backdrop-blur-sm transition-all duration-300 hover:border-primary/50 hover:bg-primary/10 hover:text-primary sm:h-12 sm:w-12"
+          >
+            <FaGithub className="h-5 w-5 sm:h-6 sm:w-6" />
+          </a>
+          <a
+            href="https://www.linkedin.com/in/hemanshu-mahajan/"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="LinkedIn"
+            className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-card/50 backdrop-blur-sm transition-all duration-300 hover:border-blue-500/50 hover:bg-blue-500/10 hover:text-blue-500 sm:h-12 sm:w-12"
+          >
+            <FaLinkedin className="h-5 w-5 sm:h-6 sm:w-6" />
+          </a>
+          {/* <a
+            href="https://t.me/Hemanshu_Mahajan"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Telegram"
+            className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-card/50 backdrop-blur-sm transition-all duration-300 hover:border-sky-500/50 hover:bg-sky-500/10 hover:text-sky-500 sm:h-12 sm:w-12"
+          >
+            <FaTelegram className="h-5 w-5 sm:h-6 sm:w-6" />
+          </a> */}
+        </motion.div>
+
+        {/* CTA Buttons */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 1 }}
           className="flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4"
         >
           <a href="#projects" className="btn-primary w-full sm:w-auto">

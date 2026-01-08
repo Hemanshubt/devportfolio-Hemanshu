@@ -15,39 +15,17 @@ export default function Contact() {
     setIsSubmitting(true);
     setSubmitStatus('idle');
 
-    const TELEGRAM_BOT_TOKEN = '7822240165:AAF_cjy66yJy6vqR5cbDXf9Z0JoCXpPTCwk';
-    const TELEGRAM_CHAT_ID = '556010535';
-
     try {
-      // Send Telegram Notification
-      const telegramMessage = `🔔 New Contact Form Submission
-
-👤 Name: ${formState.name}
-📧 Email: ${formState.email}
-
-💬 Message:
-${formState.message}`;
-
-      const telegramUrl = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage?chat_id=${TELEGRAM_CHAT_ID}&text=${encodeURIComponent(telegramMessage)}`;
-      
-      // Send to Telegram
-      const telegramPromise = fetch(telegramUrl);
-
-      // Send Email via Vercel serverless function (production) or local server (dev)
-      const emailEndpoint = import.meta.env.DEV 
-        ? 'http://localhost:3001/api/contact' 
-        : '/api/contact';
-      
-      const emailPromise = fetch(emailEndpoint, {
+      // Send via secure serverless function (handles both Telegram & Email)
+      const response = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formState),
-      }).catch(() => null); // Don't fail if email server is not running
+      });
 
-      const [telegramResult] = await Promise.all([telegramPromise, emailPromise]);
-      const telegramData = await telegramResult.json();
+      const data = await response.json();
 
-      if (telegramData.ok) {
+      if (response.ok && data.success) {
         setSubmitStatus('success');
         setFormState({ name: '', email: '', message: '' });
       } else {
@@ -228,7 +206,7 @@ ${formState.message}`;
                   >
                     <FaLinkedin className="h-4 w-4 sm:h-5 sm:w-5" />
                   </a>
-                  <a
+                  {/* <a
                     href="https://t.me/yourusername"
                     target="_blank"
                     rel="noopener noreferrer"
@@ -236,7 +214,7 @@ ${formState.message}`;
                     className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-card transition-all duration-300 hover:border-sky-500/50 hover:bg-sky-500/5 hover:text-sky-500 sm:h-12 sm:w-12"
                   >
                     <FaTelegram className="h-4 w-4 sm:h-5 sm:w-5" />
-                  </a>
+                  </a> */}
                 </div>
               </div>
             </div>
