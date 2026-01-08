@@ -1,5 +1,5 @@
-import { useRef, useMemo } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { useRef, useMemo, useEffect, useState } from 'react';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Float, Sphere, Box, Torus, MeshDistortMaterial, Stars } from '@react-three/drei';
 import * as THREE from 'three';
 
@@ -141,12 +141,18 @@ function CentralOrb() {
   );
 }
 
-function Scene() {
+function Scene({ mousePosition }: { mousePosition: { x: number; y: number } }) {
   const groupRef = useRef<THREE.Group>(null);
+  const targetRotation = useRef({ x: 0, y: 0 });
 
   useFrame((state) => {
     if (groupRef.current) {
-      groupRef.current.rotation.y = state.clock.elapsedTime * 0.05;
+      // Smooth lerp towards target rotation based on mouse
+      targetRotation.current.x = mousePosition.y * 0.3;
+      targetRotation.current.y = state.clock.elapsedTime * 0.05 + mousePosition.x * 0.5;
+      
+      groupRef.current.rotation.x += (targetRotation.current.x - groupRef.current.rotation.x) * 0.05;
+      groupRef.current.rotation.y += (targetRotation.current.y - groupRef.current.rotation.y) * 0.05;
     }
   });
 
@@ -185,6 +191,20 @@ function Scene() {
 }
 
 export default function CloudScene() {
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      // Normalize mouse position to -1 to 1 range
+      const x = (e.clientX / window.innerWidth) * 2 - 1;
+      const y = -(e.clientY / window.innerHeight) * 2 + 1;
+      setMousePosition({ x, y });
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
   return (
     <div className="absolute inset-0 -z-10">
       <Canvas
@@ -200,7 +220,7 @@ export default function CloudScene() {
         <pointLight position={[-10, -10, -10]} intensity={0.3} color="#8b5cf6" />
         <pointLight position={[0, 5, 5]} intensity={0.4} color="#22c55e" />
         
-        <Scene />
+        <Scene mousePosition={mousePosition} />
       </Canvas>
     </div>
   );
