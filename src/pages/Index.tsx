@@ -12,6 +12,7 @@ import Certifications from '@/components/Certifications';
 import Timeline from '@/components/Timeline';
 import Contact from '@/components/Contact';
 import Footer from '@/components/Footer';
+import ScrollToTop from '@/components/ScrollToTop';
 
 const Index = () => {
   const location = useLocation();
@@ -60,6 +61,7 @@ const Index = () => {
           <Timeline />
           <Contact />
           <Footer />
+          <ScrollToTop />
         </div>
       )}
     </>

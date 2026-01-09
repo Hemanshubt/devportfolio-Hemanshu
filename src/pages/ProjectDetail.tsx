@@ -4,6 +4,7 @@ import { ArrowLeft, Github, ExternalLink, Server, Zap, GitBranch, Shield, Calend
 import { useEffect } from 'react';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
+import ScrollToTop from '@/components/ScrollToTop';
 import { projects } from '@/data/projects';
 
 export default function ProjectDetail() {
@@ -284,6 +285,7 @@ export default function ProjectDetail() {
       </section>
 
       <Footer />
+      <ScrollToTop />
     </div>
   );
 }
