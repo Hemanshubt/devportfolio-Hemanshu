@@ -32,7 +32,7 @@ A professional portfolio website built with **React 18**, **Vite 7**, **TypeScri
 ## Demo :movie_camera:
 
 <p align="center">
-  <a href="https://hemanshu.dev" target="_blank">
+  <a href="https://devportfolio-hemanshuu.vercel.app/" target="_blank">
     <strong>🚀 View Live Demo</strong>
   </a>
 </p>
