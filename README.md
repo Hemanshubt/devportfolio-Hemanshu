@@ -79,8 +79,8 @@ A professional portfolio website built with **React 18**, **Vite 7**, **TypeScri
 | **Framer Motion** | 11.18.2 | Animation library |
 | **React Router** | 6.30.1 | Client-side routing |
 | **shadcn/ui** | Latest | UI component library |
-| **Express** | 4.18.2 | Backend server |
-| **Nodemailer** | 6.9.7 | Email sending functionality |
+| **Express** | 4.21.0 | Local API server |
+| **Nodemailer** | 6.9.16 | Email sending functionality |
 
 ---
 
@@ -90,7 +90,7 @@ A professional portfolio website built with **React 18**, **Vite 7**, **TypeScri
 
 | Tool | Minimum Version | Download Link |
 | --- | --- | --- |
-| **Node.js** | v24.x | [Download](https://nodejs.org/en/download/) |
+| **Node.js** | v18.x or higher | [Download](https://nodejs.org/en/download/) |
 | **npm** or **bun** | Latest | Included with Node.js |
 | **Git** | Latest | [Download](https://git-scm.com/downloads) |
 
@@ -109,8 +109,8 @@ git --version
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/Hemanshubt/devportfolio-Hemanshuu.git
-cd portfolio
+git clone https://github.com/Hemanshubt/devportfolio-Hemanshu.git
+cd devportfolio-Hemanshu
 ```
 
 ### 2. Install Dependencies
