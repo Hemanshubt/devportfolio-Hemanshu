@@ -63,60 +63,31 @@ export default function Hero() {
         <CloudScene />
       </Suspense>
 
-      {/* Floating Tech Icons */}
-      {floatingIcons.map(({ Icon, color, delay, position }, index) => (
-        <motion.div
+      {/* Floating Tech Icons - Static with CSS animation */}
+      {floatingIcons.map(({ Icon, color, position }, index) => (
+        <div
           key={index}
-          initial={{ opacity: 0, scale: 0 }}
-          animate={{
-            opacity: [0.3, 0.6, 0.3],
-            scale: [1, 1.1, 1],
-            y: [0, -20, 0],
+          className="pointer-events-none absolute hidden animate-float md:block"
+          style={{
+            ...position,
+            animationDelay: `${index * 0.5}s`,
+            animationDuration: `${4 + index * 0.5}s`
           }}
-          transition={{
-            delay,
-            duration: 4,
-            repeat: Infinity,
-            ease: 'easeInOut',
-          }}
-          className="pointer-events-none absolute hidden md:block"
-          style={position}
         >
           <div
             className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm"
-            style={{ boxShadow: `0 0 30px ${color}20` }}
+            style={{ boxShadow: `0 0 20px ${color}15` }}
           >
-            <Icon className="h-8 w-8" style={{ color }} />
+            <Icon className="h-6 w-6" style={{ color }} />
           </div>
-        </motion.div>
+        </div>
       ))}
 
-      {/* Glowing Orbs */}
+      {/* Glowing Orbs - Static CSS only */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <motion.div
-          animate={{
-            x: [0, 100, 0],
-            y: [0, -50, 0],
-          }}
-          transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute -left-20 top-1/4 h-72 w-72 rounded-full bg-primary/20 blur-[100px]"
-        />
-        <motion.div
-          animate={{
-            x: [0, -80, 0],
-            y: [0, 60, 0],
-          }}
-          transition={{ duration: 25, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute -right-20 top-1/3 h-96 w-96 rounded-full bg-secondary/20 blur-[120px]"
-        />
-        <motion.div
-          animate={{
-            x: [0, 60, 0],
-            y: [0, -40, 0],
-          }}
-          transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute bottom-1/4 left-1/3 h-64 w-64 rounded-full bg-accent/15 blur-[80px]"
-        />
+        <div className="absolute -left-20 top-1/4 h-72 w-72 animate-pulse rounded-full bg-primary/10 blur-[100px]" />
+        <div className="absolute -right-20 top-1/3 h-96 w-96 animate-pulse rounded-full bg-secondary/10 blur-[120px]" style={{ animationDelay: '2s' }} />
+        <div className="absolute bottom-1/4 left-1/3 h-64 w-64 animate-pulse rounded-full bg-accent/10 blur-[80px]" style={{ animationDelay: '4s' }} />
       </div>
 
       {/* Grid overlay */}

@@ -22,7 +22,7 @@ export default function ResumeButton() {
 
   const handleDownload = async () => {
     if (isDownloading) return;
-    
+
     setIsDownloading(true);
     setDownloadComplete(false);
     setTerminalLines([]);
@@ -35,15 +35,15 @@ export default function ResumeButton() {
 
     // Trigger actual download
     await new Promise(resolve => setTimeout(resolve, 300));
-    
+
     // Create download link
     const link = document.createElement('a');
-    link.href = '/Hemanshu.pdf';
-    link.download = 'Hemanshu.pdf';
+    link.href = '/Hemanshu_Mahajan.pdf';
+    link.download = 'Hemanshu_Mahajan.pdf';
     link.click();
 
     setDownloadComplete(true);
-    
+
     // Reset after delay
     setTimeout(() => {
       setIsDownloading(false);
@@ -77,7 +77,7 @@ export default function ResumeButton() {
                   <div className="h-2.5 w-2.5 rounded-full bg-green-500 sm:h-3 sm:w-3" />
                   <span className="ml-2 font-mono text-[10px] text-muted-foreground sm:text-xs">download.sh</span>
                 </div>
-                
+
                 {/* Terminal content */}
                 <div className="p-3 font-mono text-[11px] text-left leading-relaxed sm:p-4 sm:text-sm sm:leading-loose">
                   {terminalLines.map((line, i) => (
@@ -85,13 +85,12 @@ export default function ResumeButton() {
                       key={i}
                       initial={{ opacity: 0, x: -5 }}
                       animate={{ opacity: 1, x: 0 }}
-                      className={`${
-                        line.startsWith('$') ? 'text-secondary' :
-                        line.startsWith('✓') ? 'text-green-500' :
-                        line.startsWith('█') ? 'text-primary' :
-                        line.includes('200 OK') ? 'text-green-500' :
-                        'text-muted-foreground'
-                      }`}
+                      className={`${line.startsWith('$') ? 'text-secondary' :
+                          line.startsWith('✓') ? 'text-green-500' :
+                            line.startsWith('█') ? 'text-primary' :
+                              line.includes('200 OK') ? 'text-green-500' :
+                                'text-muted-foreground'
+                        }`}
                     >
                       {line || '\u00A0'}
                     </motion.div>
@@ -135,7 +134,7 @@ export default function ResumeButton() {
             </>
           )}
         </span>
-        
+
         {/* Animated background */}
         <motion.div
           className="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20"

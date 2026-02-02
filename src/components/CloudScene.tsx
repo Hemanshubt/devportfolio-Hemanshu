@@ -153,7 +153,7 @@ function CentralCore({ mouseX, mouseY }: { mouseX: number; mouseY: number }) {
           opacity={0.8}
         />
       </mesh>
-      
+
       <Torus ref={ringRef} args={[1.6, 0.02, 12, 60]} rotation={[Math.PI / 2, 0, 0]}>
         <meshStandardMaterial color="#22c55e" transparent opacity={0.7} />
       </Torus>
@@ -164,8 +164,8 @@ function CentralCore({ mouseX, mouseY }: { mouseX: number; mouseY: number }) {
 // Optimized Data Particles - reduced count
 function DataParticles() {
   const particlesRef = useRef<THREE.Points>(null);
-  const count = 100; // Reduced from 250
-  
+  const count = 50; // Reduced for performance
+
   const positions = useMemo(() => {
     const pos = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
@@ -216,22 +216,22 @@ function Scene({ mouseX, mouseY }: { mouseX: number; mouseY: number }) {
   return (
     <group ref={sceneRef}>
       <CentralCore mouseX={mouseX} mouseY={mouseY} />
-      
+
       <DockerContainer position={[-3, 0.5, -1]} mouseX={mouseX} />
       <DockerContainer position={[3, -0.3, -1.5]} mouseX={mouseX} />
-      
+
       <KubernetesPod position={[2.2, 2, -1]} mouseX={mouseX} />
       <KubernetesPod position={[-2.2, -1.2, -1]} mouseX={mouseX} />
-      
+
       <AWSCloud position={[0, 2.5, -1.5]} />
-      
+
       <GitNode position={[-2.2, 1.5, -0.8]} color="#f05032" />
       <GitNode position={[2.5, 1.2, -1]} color="#22c55e" />
       <GitNode position={[-2, -1.5, -0.5]} color="#8b5cf6" />
       <GitNode position={[2.2, -1.3, -0.8]} color="#00d4ff" />
-      
+
       <DataParticles />
-      <Stars radius={50} depth={40} count={800} factor={3} fade speed={0.3} />
+      <Stars radius={50} depth={40} count={400} factor={3} fade speed={0.2} />
     </group>
   );
 }
@@ -257,24 +257,24 @@ export default function CloudScene() {
     <div className="absolute inset-0 -z-10">
       <Canvas
         camera={{ position: [0, 0, 7], fov: 50 }}
-        gl={{ 
+        gl={{
           antialias: false, // Disable for performance
           alpha: true,
           powerPreference: 'high-performance',
           stencil: false,
           depth: true,
         }}
-        dpr={[1, 1.5]} // Reduced max DPR
+        dpr={[1, 1.2]} // Low DPR for performance
         frameloop={isVisible ? 'always' : 'never'}
       >
         <color attach="background" args={['#080d16']} />
         <fog attach="fog" args={['#080d16', 6, 25]} />
-        
+
         <ambientLight intensity={0.15} />
         <pointLight position={[8, 8, 8]} intensity={0.6} color="#00d4ff" />
         <pointLight position={[-8, -8, -8]} intensity={0.4} color="#8b5cf6" />
         <pointLight position={[0, 6, 4]} intensity={0.5} color="#22c55e" />
-        
+
         <SceneWrapper />
       </Canvas>
     </div>
