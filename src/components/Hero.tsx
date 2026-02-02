@@ -1,8 +1,8 @@
 import { motion } from 'framer-motion';
-import { ArrowDown, Cloud, Server, GitBranch, Container, Cpu, Database, Shield, Zap } from 'lucide-react';
+import { Cloud, Server, GitBranch, Container, Shield } from 'lucide-react';
 import { FaGithub, FaLinkedin, FaTwitter, FaDocker, FaAws } from 'react-icons/fa';
 import { SiKubernetes, SiTerraform } from 'react-icons/si';
-import { lazy, Suspense, useEffect, useState } from 'react';
+import { lazy, Suspense } from 'react';
 import ResumeButton from './ResumeButton';
 
 // Lazy load heavy 3D scene
@@ -18,44 +18,9 @@ const floatingIcons = [
   { Icon: Shield, color: '#10B981', delay: 2.5, position: { bottom: '30%', right: '20%' } },
 ];
 
-// Typing animation texts
-const typingTexts = [
-  'Building CI/CD Pipelines',
-  'Automating Infrastructure',
-  'Deploying to Cloud',
-  'Containerizing Applications',
-  'Monitoring Systems',
-];
+
 
 export default function Hero() {
-  const [currentTextIndex, setCurrentTextIndex] = useState(0);
-  const [displayText, setDisplayText] = useState('');
-  const [isDeleting, setIsDeleting] = useState(false);
-
-  // Typing effect
-  useEffect(() => {
-    const currentFullText = typingTexts[currentTextIndex];
-    const typingSpeed = isDeleting ? 50 : 100;
-
-    const timeout = setTimeout(() => {
-      if (!isDeleting) {
-        if (displayText.length < currentFullText.length) {
-          setDisplayText(currentFullText.slice(0, displayText.length + 1));
-        } else {
-          setTimeout(() => setIsDeleting(true), 2000);
-        }
-      } else {
-        if (displayText.length > 0) {
-          setDisplayText(displayText.slice(0, -1));
-        } else {
-          setIsDeleting(false);
-          setCurrentTextIndex((prev) => (prev + 1) % typingTexts.length);
-        }
-      }
-    }, typingSpeed);
-
-    return () => clearTimeout(timeout);
-  }, [displayText, isDeleting, currentTextIndex]);
 
   return (
     <section id="hero" className="relative flex min-h-screen items-center justify-center overflow-hidden">
@@ -143,33 +108,7 @@ export default function Hero() {
           <span className="block font-mono text-accent sm:inline">Ready to Build & Learn.</span>
         </motion.p>
 
-        {/* Animated Typing Terminal */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.5 }}
-          className="mx-auto mb-8 max-w-md"
-        >
-          <div className="overflow-hidden rounded-xl border border-white/20 bg-white/5 backdrop-blur-xl">
-            <div className="flex items-center gap-2 border-b border-white/10 bg-white/5 px-4 py-2">
-              <div className="h-3 w-3 rounded-full bg-red-500/80" />
-              <div className="h-3 w-3 rounded-full bg-yellow-500/80" />
-              <div className="h-3 w-3 rounded-full bg-green-500/80" />
-              <span className="ml-2 font-mono text-xs text-muted-foreground">terminal</span>
-            </div>
-            <div className="p-4">
-              <div className="flex items-center gap-2 font-mono text-sm">
-                <span className="text-secondary">$</span>
-                <span className="text-primary">{displayText}</span>
-                <motion.span
-                  animate={{ opacity: [1, 0] }}
-                  transition={{ repeat: Infinity, duration: 0.8 }}
-                  className="inline-block h-5 w-2 bg-primary"
-                />
-              </div>
-            </div>
-          </div>
-        </motion.div>
+
 
         {/* Feature tags */}
         <motion.div
