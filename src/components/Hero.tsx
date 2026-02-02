@@ -1,22 +1,127 @@
 import { motion } from 'framer-motion';
-import { ArrowDown, Cloud, Server, GitBranch } from 'lucide-react';
-import { FaGithub, FaLinkedin, FaTwitter } from 'react-icons/fa';
-import { lazy, Suspense } from 'react';
+import { ArrowDown, Cloud, Server, GitBranch, Container, Cpu, Database, Shield, Zap } from 'lucide-react';
+import { FaGithub, FaLinkedin, FaTwitter, FaDocker, FaAws } from 'react-icons/fa';
+import { SiKubernetes, SiTerraform } from 'react-icons/si';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import ResumeButton from './ResumeButton';
 
 // Lazy load heavy 3D scene
 const CloudScene = lazy(() => import('./CloudScene'));
 
+// Floating icons data
+const floatingIcons = [
+  { Icon: FaDocker, color: '#2496ED', delay: 0, position: { top: '15%', left: '10%' } },
+  { Icon: SiKubernetes, color: '#326CE5', delay: 0.5, position: { top: '20%', right: '15%' } },
+  { Icon: SiTerraform, color: '#7B42BC', delay: 1, position: { top: '60%', left: '5%' } },
+  { Icon: FaAws, color: '#FF9900', delay: 1.5, position: { top: '70%', right: '10%' } },
+  { Icon: Container, color: '#00D4AA', delay: 2, position: { bottom: '25%', left: '15%' } },
+  { Icon: Shield, color: '#10B981', delay: 2.5, position: { bottom: '30%', right: '20%' } },
+];
+
+// Typing animation texts
+const typingTexts = [
+  'Building CI/CD Pipelines',
+  'Automating Infrastructure',
+  'Deploying to Cloud',
+  'Containerizing Applications',
+  'Monitoring Systems',
+];
+
 export default function Hero() {
+  const [currentTextIndex, setCurrentTextIndex] = useState(0);
+  const [displayText, setDisplayText] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  // Typing effect
+  useEffect(() => {
+    const currentFullText = typingTexts[currentTextIndex];
+    const typingSpeed = isDeleting ? 50 : 100;
+
+    const timeout = setTimeout(() => {
+      if (!isDeleting) {
+        if (displayText.length < currentFullText.length) {
+          setDisplayText(currentFullText.slice(0, displayText.length + 1));
+        } else {
+          setTimeout(() => setIsDeleting(true), 2000);
+        }
+      } else {
+        if (displayText.length > 0) {
+          setDisplayText(displayText.slice(0, -1));
+        } else {
+          setIsDeleting(false);
+          setCurrentTextIndex((prev) => (prev + 1) % typingTexts.length);
+        }
+      }
+    }, typingSpeed);
+
+    return () => clearTimeout(timeout);
+  }, [displayText, isDeleting, currentTextIndex]);
+
   return (
     <section id="hero" className="relative flex min-h-screen items-center justify-center overflow-hidden">
       <Suspense fallback={<div className="absolute inset-0 -z-10 bg-[#080d16]" />}>
         <CloudScene />
       </Suspense>
-      
+
+      {/* Floating Tech Icons */}
+      {floatingIcons.map(({ Icon, color, delay, position }, index) => (
+        <motion.div
+          key={index}
+          initial={{ opacity: 0, scale: 0 }}
+          animate={{
+            opacity: [0.3, 0.6, 0.3],
+            scale: [1, 1.1, 1],
+            y: [0, -20, 0],
+          }}
+          transition={{
+            delay,
+            duration: 4,
+            repeat: Infinity,
+            ease: 'easeInOut',
+          }}
+          className="pointer-events-none absolute hidden md:block"
+          style={position}
+        >
+          <div
+            className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm"
+            style={{ boxShadow: `0 0 30px ${color}20` }}
+          >
+            <Icon className="h-8 w-8" style={{ color }} />
+          </div>
+        </motion.div>
+      ))}
+
+      {/* Glowing Orbs */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <motion.div
+          animate={{
+            x: [0, 100, 0],
+            y: [0, -50, 0],
+          }}
+          transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut' }}
+          className="absolute -left-20 top-1/4 h-72 w-72 rounded-full bg-primary/20 blur-[100px]"
+        />
+        <motion.div
+          animate={{
+            x: [0, -80, 0],
+            y: [0, 60, 0],
+          }}
+          transition={{ duration: 25, repeat: Infinity, ease: 'easeInOut' }}
+          className="absolute -right-20 top-1/3 h-96 w-96 rounded-full bg-secondary/20 blur-[120px]"
+        />
+        <motion.div
+          animate={{
+            x: [0, 60, 0],
+            y: [0, -40, 0],
+          }}
+          transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut' }}
+          className="absolute bottom-1/4 left-1/3 h-64 w-64 rounded-full bg-accent/15 blur-[80px]"
+        />
+      </div>
+
       {/* Grid overlay */}
       <div className="bg-grid pointer-events-none absolute inset-0 opacity-30" />
-      
+
       {/* Gradient overlay */}
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-background/50 to-background" />
 
@@ -66,6 +171,34 @@ export default function Hero() {
           <span className="block font-mono text-secondary sm:inline">Passionate about CI/CD & Cloud.</span>{' '}
           <span className="block font-mono text-accent sm:inline">Ready to Build & Learn.</span>
         </motion.p>
+
+        {/* Animated Typing Terminal */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.5 }}
+          className="mx-auto mb-8 max-w-md"
+        >
+          <div className="overflow-hidden rounded-xl border border-white/10 bg-black/40 backdrop-blur-sm">
+            <div className="flex items-center gap-2 border-b border-white/10 bg-white/5 px-4 py-2">
+              <div className="h-3 w-3 rounded-full bg-red-500/80" />
+              <div className="h-3 w-3 rounded-full bg-yellow-500/80" />
+              <div className="h-3 w-3 rounded-full bg-green-500/80" />
+              <span className="ml-2 font-mono text-xs text-muted-foreground">terminal</span>
+            </div>
+            <div className="p-4">
+              <div className="flex items-center gap-2 font-mono text-sm">
+                <span className="text-secondary">$</span>
+                <span className="text-primary">{displayText}</span>
+                <motion.span
+                  animate={{ opacity: [1, 0] }}
+                  transition={{ repeat: Infinity, duration: 0.8 }}
+                  className="inline-block h-5 w-2 bg-primary"
+                />
+              </div>
+            </div>
+          </div>
+        </motion.div>
 
         {/* Feature tags */}
         <motion.div
@@ -151,22 +284,7 @@ export default function Hero() {
         </motion.div>
       </div>
 
-      {/* Scroll indicator */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.5, duration: 0.8 }}
-        className="absolute bottom-6 left-1/2 -translate-x-1/2 sm:bottom-10"
-      >
-        <motion.div
-          animate={{ y: [0, 10, 0] }}
-          transition={{ repeat: Infinity, duration: 1.5, ease: 'easeInOut' }}
-          className="flex flex-col items-center gap-2 text-muted-foreground"
-        >
-          <span className="font-mono text-xs">scroll</span>
-          <ArrowDown className="h-4 w-4" />
-        </motion.div>
-      </motion.div>
+
     </section>
   );
 }
