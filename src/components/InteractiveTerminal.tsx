@@ -198,14 +198,31 @@ export default function InteractiveTerminal() {
                 lines.push({ type: 'output', text: 'hello 👋' });
                 break;
 
+            case 'ai help':
+            case 'ai questions':
+                lines.push({ type: 'info', text: '🤖 AI Assistant - Sample Questions:' });
+                lines.push({ type: 'info', text: ' ' });
+                lines.push({ type: 'info', text: '📌 Personal' });
+                lines.push({ type: 'info', text: '  • Who is Hemanshu?' });
+                lines.push({ type: 'info', text: '  • What is his education?' });
+                lines.push({ type: 'info', text: ' ' });
+                lines.push({ type: 'info', text: '💻 Technical' });
+                lines.push({ type: 'info', text: '  • List his DevOps skills' });
+                lines.push({ type: 'info', text: '  • Does he know Kubernetes?' });
+                lines.push({ type: 'info', text: ' ' });
+                lines.push({ type: 'info', text: '🚀 Projects' });
+                lines.push({ type: 'info', text: '  • Explain the "Scalable AWS Deployment" project' });
+                lines.push({ type: 'info', text: '  • Link to the Flask app repo' });
+                lines.push({ type: 'info', text: ' ' });
+                lines.push({ type: 'info', text: '📄 Contact' });
+                lines.push({ type: 'info', text: '  • Show me his LinkedIn' });
+                lines.push({ type: 'info', text: '  • How can I contact him?' });
+                break;
+
             case 'ai':
                 lines.push({ type: 'error', text: 'Usage: ai <your question>' });
-                lines.push({ type: 'info', text: 'Try asking:' });
-                lines.push({ type: 'info', text: '  • ai who is hemanshu?' });
-                lines.push({ type: 'info', text: '  • ai list technical skills' });
-                lines.push({ type: 'info', text: '  • ai explain the microservices project' });
-                lines.push({ type: 'info', text: '  • ai generate a deployment script' });
-                lines.push({ type: 'info', text: '  • ai what is his cgpa?' });
+                lines.push({ type: 'info', text: 'Try: ai who is hemanshu?' });
+                lines.push({ type: 'info', text: '💡 Type "ai help" for more sample questions.' });
                 break;
 
             case '':
@@ -476,6 +493,13 @@ Visitor Question: ${question}
                                 } else {
                                     result.push({ type: 'info', text: msg });
                                 }
+                            } else if (msg.startsWith('API_KEY_RESTRICTED: ')) {
+                                result.push({ type: 'error', text: '🛑 API Key Restriction: Domain Blocked' });
+                                result.push({ type: 'info', text: 'This API Key only allows specific websites.' });
+                                result.push({ type: 'info', text: '👉 Go to Google Cloud Console > Credentials' });
+                                result.push({ type: 'info', text: '👉 Add these to "Website restrictions":' });
+                                result.push({ type: 'output', text: '   - http://localhost:5173', color: '#60a5fa' });
+                                result.push({ type: 'output', text: '   - https://www.hemanshudev.cloud', color: '#60a5fa' });
                             } else {
                                 result.push({ type: 'error', text: `Error: ${msg}. Check console for details.` });
                             }
