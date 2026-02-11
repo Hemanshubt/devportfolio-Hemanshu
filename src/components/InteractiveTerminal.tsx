@@ -352,6 +352,7 @@ Visitor Question: ${question}
                             const modelsToTry = [
                                 'gemini-1.5-flash',
                                 'gemini-1.5-flash-latest',
+                                'gemini-2.0-flash-exp',
                                 'gemini-1.5-flash-001',
                                 'gemini-pro',
                                 'gemini-1.0-pro'
@@ -370,9 +371,14 @@ Visitor Question: ${question}
                                         })
                                     });
 
-                                    if (!response.ok) {
+                                     if (!response.ok) {
                                         const errorText = await response.text();
                                         console.warn(`[Terminal] Model ${model} failed:`, errorText);
+
+                                        // Check if rate limited (429)
+                                        if (response.status === 429) {
+                                            throw new Error('API_RATE_LIMIT: AI is currently overloaded. Please wait a minute.');
+                                        }
 
                                         // Check if API is disabled (403 Service Disabled)
                                         if (response.status === 403 && errorText.includes('Enable it by visiting')) {
@@ -473,12 +479,16 @@ Visitor Question: ${question}
                                                     }
                                                     return;
                                                 }
+                                            } else {
+                                                // If auto-discovered model fails, capture its error status
+                                                throw new Error(`API Error: ${response.status}`);
                                             }
                                         }
                                     }
                                 }
-                            } catch (e) {
-                                // ignore list error
+                            } catch (e: any) {
+                                if (e.message?.startsWith('API_DISABLED:') || e.message?.startsWith('API_RATE_LIMIT:')) throw e;
+                                lastError = e;
                             }
 
                             throw lastError;
@@ -543,6 +553,10 @@ Visitor Question: ${question}
                                 result.push({ type: 'info', text: '👉 Add these to "Website restrictions":' });
                                 result.push({ type: 'output', text: '   - http://localhost:5173', color: '#60a5fa' });
                                 result.push({ type: 'output', text: '   - https://www.hemanshudev.cloud', color: '#60a5fa' });
+                            } else if (msg.startsWith('API_RATE_LIMIT: ')) {
+                                result.push({ type: 'error', text: '🚨 AI is currently overloaded (Rate Limit).' });
+                                result.push({ type: 'info', text: 'Please wait a minute and try again.' });
+                                result.push({ type: 'info', text: 'This usually happens with free Gemini API keys during peak usage.' });
                             } else {
                                 result.push({ type: 'error', text: `Error: ${msg}. Check console for details.` });
                             }
