@@ -51,31 +51,47 @@ export default function KonamiEasterEgg() {
             const tag = (e.target as HTMLElement)?.tagName;
             if (tag === 'INPUT' || tag === 'TEXTAREA') return;
 
-            const expected = KONAMI_CODE[codeIndex.current];
+            // Alternative shortcut: Ctrl+Shift+K triggers directly
+            if (e.ctrlKey && e.shiftKey && e.key === 'K') {
+                e.preventDefault();
+                console.log('🎮 Easter egg triggered via Ctrl+Shift+K!');
+                setActivated(true);
+                codeIndex.current = 0;
+                return;
+            }
 
-            // Arrow keys are case-sensitive (e.key = "ArrowUp"), letters need case-insensitive
-            const keyMatches = expected.startsWith('Arrow')
-                ? e.key === expected
-                : e.key.toLowerCase() === expected.toLowerCase();
+            const expected = KONAMI_CODE[codeIndex.current];
+            const pressedKey = e.key;
+
+            // Match the key
+            const keyMatches = pressedKey === expected ||
+                pressedKey.toLowerCase() === expected.toLowerCase();
+
+            console.log(`🎮 Key pressed: "${pressedKey}" | Expected: "${expected}" | Match: ${keyMatches} | Progress: ${codeIndex.current}/${KONAMI_CODE.length}`);
 
             if (keyMatches) {
-                e.preventDefault(); // Prevent page scrolling on arrow keys
+                e.preventDefault();
                 codeIndex.current++;
+                console.log(`🎮 Progress: ${codeIndex.current}/${KONAMI_CODE.length}`);
                 if (codeIndex.current === KONAMI_CODE.length) {
+                    console.log('🎮 KONAMI CODE ACTIVATED! 🚀');
                     setActivated(true);
                     codeIndex.current = 0;
                 }
             } else {
-                codeIndex.current = 0;
-                // Check if the pressed key is the start of the code
-                if (e.key === KONAMI_CODE[0]) {
-                    codeIndex.current = 1;
+                // Only reset if it's not a modifier key
+                if (!['Shift', 'Control', 'Alt', 'Meta'].includes(pressedKey)) {
+                    codeIndex.current = 0;
+                    // Check if the pressed key is the start of the code
+                    if (pressedKey === KONAMI_CODE[0]) {
+                        codeIndex.current = 1;
+                    }
                 }
             }
         };
 
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
+        window.addEventListener('keydown', handleKeyDown, true); // use capture phase
+        return () => window.removeEventListener('keydown', handleKeyDown, true);
     }, []);
 
     // Animate deploy lines
