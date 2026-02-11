@@ -273,7 +273,7 @@ export default function InteractiveTerminal() {
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
                         onClick={() => setIsOpen(true)}
-                        className="fixed top-6 right-6 z-50 flex h-12 w-12 items-center justify-center rounded-full border border-primary/30 bg-black/80 text-primary shadow-lg shadow-primary/20 backdrop-blur-xl transition-colors hover:border-primary/60 hover:bg-black/90 sm:h-14 sm:w-14"
+                        className="fixed bottom-20 right-6 z-50 flex h-12 w-12 items-center justify-center rounded-full border border-primary/30 bg-black/80 text-primary shadow-lg shadow-primary/20 backdrop-blur-xl transition-colors hover:border-primary/60 hover:bg-black/90 sm:bottom-24 sm:right-8 sm:h-14 sm:w-14"
                         title="Open Terminal (Ctrl+`)"
                     >
                         <Terminal className="h-5 w-5 sm:h-6 sm:w-6" />
@@ -293,7 +293,7 @@ export default function InteractiveTerminal() {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 40, scale: 0.95 }}
                         transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                        className="fixed top-4 right-4 z-50 w-[360px] overflow-hidden rounded-xl border border-white/10 bg-[#0a0e17]/95 shadow-2xl shadow-black/50 backdrop-blur-xl sm:top-6 sm:right-6 sm:w-[480px]"
+                        className="fixed bottom-4 right-4 z-50 w-[360px] overflow-hidden rounded-xl border border-white/10 bg-[#0a0e17]/95 shadow-2xl shadow-black/50 backdrop-blur-xl sm:bottom-6 sm:right-6 sm:w-[480px]"
                         onClick={() => inputRef.current?.focus()}
                     >
                         {/* Title Bar */}
