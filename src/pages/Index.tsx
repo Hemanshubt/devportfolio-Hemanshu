@@ -7,6 +7,7 @@ import Hero from '@/components/Hero';
 import Marquee from '@/components/Marquee';
 import About from '@/components/About';
 import Skills from '@/components/Skills';
+
 import Projects from '@/components/Projects';
 import Blog from '@/components/Blog';
 import Certifications from '@/components/Certifications';
@@ -15,6 +16,9 @@ import Contact from '@/components/Contact';
 import Footer from '@/components/Footer';
 import ScrollToTop from '@/components/ScrollToTop';
 import SEOHead from '@/components/SEOHead';
+import InteractiveTerminal from '@/components/InteractiveTerminal';
+import CursorTrail from '@/components/CursorTrail';
+import KonamiEasterEgg from '@/components/KonamiEasterEgg';
 
 const Index = () => {
   const location = useLocation();
@@ -55,13 +59,14 @@ const Index = () => {
         author="Hemanshu Mahajan"
         tags={['DevOps', 'AWS', 'Kubernetes', 'Docker', 'CI/CD', 'Terraform', 'Ansible', 'Cloud Engineer', 'Infrastructure as Code']}
       />
-      
+
       <AnimatePresence mode="wait">
         {isLoading && <LoadingScreen onComplete={() => setIsLoading(false)} />}
       </AnimatePresence>
 
       {!isLoading && (
         <div className="min-h-screen bg-background">
+          <CursorTrail />
           <Navigation />
           <Hero />
           <Marquee />
@@ -74,6 +79,8 @@ const Index = () => {
           <Contact />
           <Footer />
           <ScrollToTop />
+          <InteractiveTerminal />
+          <KonamiEasterEgg />
         </div>
       )}
     </>
@@ -81,3 +88,4 @@ const Index = () => {
 };
 
 export default Index;
+
