@@ -62,6 +62,9 @@ export default function InteractiveTerminal() {
     ]);
     const [commandHistory, setCommandHistory] = useState<string[]>([]);
     const [historyIndex, setHistoryIndex] = useState(-1);
+    const [isMatrix, setIsMatrix] = useState(false);
+    // Add fake file system for cd/ls
+    const [currentPath, setCurrentPath] = useState('~');
     const inputRef = useRef<HTMLInputElement>(null);
     const scrollRef = useRef<HTMLDivElement>(null);
     const startTimeRef = useRef(Date.now());
@@ -199,24 +202,36 @@ export default function InteractiveTerminal() {
                 break;
 
             case 'hack':
-                setHistory(prev => [...prev, 
-                    { type: 'command', text: `$ ${trimmed}` },
-                    { type: 'output', text: '🔒 Initiating brute force attack...', color: '#ef4444' }
+                setHistory(prev => [...prev,
+                { type: 'command', text: `$ ${trimmed}` },
+                { type: 'output', text: '🔒 Initiating brute force attack...', color: '#ef4444' }
                 ]);
-                
+
                 await new Promise(r => setTimeout(r, 1000));
                 setHistory(prev => [...prev, { type: 'output', text: '🔓 Bypassing firewall (Port 443)...', color: '#f59e0b' }]);
-                
+
                 await new Promise(r => setTimeout(r, 1200));
                 setHistory(prev => [...prev, { type: 'output', text: '💻 Accessing mainframe...', color: '#22c55e' }]);
-                
+
                 await new Promise(r => setTimeout(r, 1200));
-                setHistory(prev => [...prev, 
-                    { type: 'output', text: 'ACCESS GRANTED 🔓', color: '#00ff00' },
-                    { type: 'info', text: 'Congratulations! You are officially a hacker now. 😎' },
-                    { type: 'blank', text: '' }
+                setHistory(prev => [...prev,
+                { type: 'output', text: 'ACCESS GRANTED 🔓', color: '#00ff00' },
+                { type: 'info', text: 'Congratulations! You are officially a hacker now. 😎' },
+                { type: 'blank', text: '' }
                 ]);
                 return;
+
+            case 'matrix':
+                setIsMatrix(prev => !prev);
+                lines.push({ type: 'output', text: isMatrix ? 'Deactivating Matrix mode...' : 'Entering the Matrix... 🟢' });
+                break;
+
+            case 'sudo rm -rf /':
+                lines.push(
+                    { type: 'error', text: '🚨 PERMISSION DENIED: Nice try! You cannot delete Hemanshu\'s hard work.' },
+                    { type: 'info', text: '   (Did you really think that would work? 😉)' }
+                );
+                break;
 
             case 'echo hello':
             case 'echo "hello"':
@@ -621,6 +636,7 @@ Visitor Question: ${question}
     };
 
     const getLineColor = (line: OutputLine) => {
+        if (isMatrix) return '#00ff00';
         if (line.color) return line.color;
         switch (line.type) {
             case 'command': return '#22c55e';
@@ -734,8 +750,12 @@ Visitor Question: ${question}
                         <div
                             ref={scrollRef}
                             onPointerDown={(e) => e.stopPropagation()}
-                            className="h-[300px] overflow-y-auto p-4 font-mono text-xs leading-relaxed sm:h-[350px] sm:text-sm"
-                            style={{ scrollbarWidth: 'thin', scrollbarColor: '#333 transparent' }}
+                            className={`h-[300px] overflow-y-auto p-4 font-mono text-xs leading-relaxed sm:h-[350px] sm:text-sm transition-all duration-300 ${isMatrix ? 'bg-black tracking-wider' : ''}`}
+                            style={{
+                                scrollbarWidth: 'thin',
+                                scrollbarColor: isMatrix ? '#00ff00 #000' : '#333 transparent',
+                                textShadow: isMatrix ? '0 0 5px rgba(0, 255, 0, 0.7)' : 'none'
+                            }}
                         >
                             {history.map((line, i) => (
                                 <div key={i} style={{ color: getLineColor(line) }} className="whitespace-pre-wrap">

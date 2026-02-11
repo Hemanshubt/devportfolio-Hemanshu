@@ -44,6 +44,8 @@ A professional portfolio website built with **React 18**, **Vite 7**, **TypeScri
 - ✅ **Modern Tech Stack**: React 18, Vite 7, TypeScript, Tailwind CSS
 - ✅ **3D Animations**: Interactive cloud scene with Three.js & React Three Fiber
 - ✅ **Smooth Animations**: Framer Motion for fluid transitions
+- ✅ **AI-Powered Terminal**: Context-aware assistant powered by Google Gemini (Flash 1.5)
+- ✅ **Interactive Commands**: Custom terminal commands (`matrix`, `hack`, `coffee`, etc.)
 - ✅ **Fully Responsive**: Optimized for all devices and screen sizes
 - ✅ **Dark Theme**: Beautiful gradient design with glowing effects
 - ✅ **Contact Form**: Integrated Email (Gmail) and Telegram notifications
@@ -77,6 +79,7 @@ A professional portfolio website built with **React 18**, **Vite 7**, **TypeScri
 | **Tailwind CSS** | 3.4.17 | Utility-first CSS framework |
 | **Three.js** | 0.160.1 | 3D graphics and animations |
 | **Framer Motion** | 11.18.2 | Animation library |
+| **Google Gemini** | 1.5 Flash | AI-powered terminal assistant |
 | **React Router** | 6.30.1 | Client-side routing |
 | **shadcn/ui** | Latest | UI component library |
 | **Express** | 4.21.0 | Local API server |
@@ -137,6 +140,9 @@ GMAIL_PASSKEY=your-gmail-app-password
 # Telegram Configuration
 TELEGRAM_BOT_TOKEN=your-telegram-bot-token
 TELEGRAM_CHAT_ID=your-telegram-chat-id
+
+# Gemini AI Configuration
+VITE_GEMINI_API_KEY=your-gemini-api-key
 ```
 
 ### 4. Run the Development Server
@@ -178,8 +184,30 @@ TELEGRAM_CHAT_ID=your-telegram-chat-id
 | `GMAIL_PASSKEY` | Yes | Gmail app password (16 characters) |
 | `TELEGRAM_BOT_TOKEN` | Yes | Token for Telegram bot notifications |
 | `TELEGRAM_CHAT_ID` | Yes | Your Telegram chat ID for receiving messages |
+| `VITE_GEMINI_API_KEY` | Yes | Your Google Gemini API Key (for AI terminal) |
 
-> **Note**: Both Email and Telegram run in parallel for faster delivery. At least one must be configured for the contact form to work.
+> **Note**: Both Email and Telegram run in parallel for faster delivery. At least one must be configured for the contact form to work. The terminal AI requires a valid Gemini API key.
+
+---
+
+## Interactive Terminal Commands :terminal:
+
+The portfolio features a built-in terminal with AI capabilities and fun Easter eggs.
+
+| Command | Category | Description |
+| --- | --- | --- |
+| `ai <question>` | **AI** | Ask Gemini about Hemanshu's skills, projects, or background |
+| `ai help` | **AI** | List sample questions the AI can answer |
+| `matrix` | **Theme** | Toggle "Matrix Mode" (Green flickering text theme) |
+| `hack` | **Fun** | Trigger a simulated hacking animaion |
+| `coffee` | **Fun** | Developer coffee break Easter egg |
+| `whoami` | **Info** | Quick overview of the candidate |
+| `neofetch` | **Info** | Stylezed system information display |
+| `ls`, `pwd`, `cd` | **System** | Basic file system navigation simulation |
+| `clear`, `date` | **System** | Standard console utilities |
+| `sudo hire` | **Easter Egg** | The ultimate command for recruiters |
+
+**Pro Tip:** Use the `Tab` key to autocomplete commands or cycle through AI question suggestions!
 
 ---
 
@@ -255,6 +283,21 @@ TELEGRAM_CHAT_ID=123456789
 
 ---
 
+### 🧠 Get a Google Gemini API Key
+
+1.  Go to [Google AI Studio](https://aistudio.google.com/app/apikey)
+2.  Click **Create API key**
+3.  Copy the generated key
+4.  Add to `.env` file:
+
+```env
+VITE_GEMINI_API_KEY=AIzaSy...your-key-here
+```
+
+> **Note**: The terminal is configured with automatic fallback models. If `gemini-1.5-flash` is unavailable, it will automatically attempt to use other available models associated with your key.
+
+---
+
 ## Troubleshooting :wrench:
 
 <details>
@@ -289,15 +332,21 @@ npm run dev -- --port 3000
 </details>
 
 <details>
-<summary><strong>❌ Module not found errors</strong></summary>
+<summary><strong>❌ Gemini AI: 403 Forbidden / Referrer Blocked</strong></summary>
 
 **Solution:**
-```bash
-# Clear cache and reinstall
-rm -rf node_modules package-lock.json
-npm cache clean --force
-npm install
-```
+- Go to [Google Cloud Console > Credentials](https://console.cloud.google.com/apis/credentials)
+- Find your API Key and click **Edit API Key**
+- Under **Application restrictions**, verify that `http://localhost:5173` (for development) and your production domain are whitelisted.
+- Alternatively, set to "None" during initial setup to test connectivity.
+</details>
+
+<details>
+<summary><strong>❌ Terminal Autocomplete not working</strong></summary>
+
+**Solution:**
+- Click inside the terminal to ensure it has focus.
+- Autocomplete cycles through options; continue pressing **Tab** to see more matches.
 </details>
 
 ---
