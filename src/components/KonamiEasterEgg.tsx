@@ -1,235 +1,214 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// Konami Code: ↑ ↑ ↓ ↓ ← → ← → B A
-const KONAMI_CODE = [
-    'ArrowUp', 'ArrowUp',
-    'ArrowDown', 'ArrowDown',
-    'ArrowLeft', 'ArrowRight',
-    'ArrowLeft', 'ArrowRight',
-    'b', 'a',
-];
-
-interface Confetti {
-    id: number;
-    x: number;
-    y: number;
-    color: string;
-    rotation: number;
-    size: number;
-    vx: number;
-    vy: number;
-}
+// Type "deploy" anywhere on the page to trigger!
+const SECRET_WORD = 'deploy';
 
 const CONFETTI_COLORS = ['#00d4ff', '#22c55e', '#8b5cf6', '#ff9900', '#ef4444', '#ffd43b', '#f472b6'];
 
 const DEPLOY_LINES = [
-    '$ git push origin main',
-    '🔄 Triggering CI/CD pipeline...',
-    '✅ Build passed',
-    '✅ Tests passed (42/42)',
-    '✅ Security scan clean',
-    '✅ Docker image built',
-    '✅ Pushed to registry',
-    '🚀 Deploying to production...',
-    '',
-    '🎉 Production Deployed Successfully!',
-    '🌍 https://hemanshudev.cloud/is live!',
+    { text: '$ git push origin main', color: 'text-green-400' },
+    { text: '🔄 Triggering CI/CD pipeline...', color: 'text-yellow-400' },
+    { text: '✅ Build passed', color: 'text-emerald-400' },
+    { text: '✅ Tests passed (42/42)', color: 'text-emerald-400' },
+    { text: '✅ Security scan clean', color: 'text-emerald-400' },
+    { text: '✅ Docker image built', color: 'text-emerald-400' },
+    { text: '✅ Pushed to registry', color: 'text-emerald-400' },
+    { text: '🚀 Deploying to production...', color: 'text-cyan-400' },
+    { text: '', color: '' },
+    { text: '🎉 Production Deployed Successfully!', color: 'text-lg font-bold text-emerald-400' },
+    { text: '🌍 https://hemanshudev.cloud/ is live!', color: 'text-purple-400' },
 ];
+
+// ─── Confetti particle type ──────────────────────────────────────────
+interface ConfettiPiece {
+    id: number;
+    x: number;
+    color: string;
+    size: number;
+    drift: number;
+}
 
 export default function KonamiEasterEgg() {
     const [activated, setActivated] = useState(false);
     const [visibleLines, setVisibleLines] = useState(0);
-    const [confetti, setConfetti] = useState<Confetti[]>([]);
-    const codeIndex = useRef(0);
-    const confettiId = useRef(0);
+    const [confetti, setConfetti] = useState<ConfettiPiece[]>([]);
+    const sequencePos = useRef(0);
+    const confettiCounter = useRef(0);
 
-    // Listen for Konami Code
+    // ─── Keyboard listener using e.code for reliability ──────────────
     useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            // Don't capture if user is typing in an input
-            const tag = (e.target as HTMLElement)?.tagName;
-            if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+        const onKeyDown = (e: KeyboardEvent) => {
+            // Skip if typing in form fields
+            const el = e.target as HTMLElement;
+            if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable) return;
 
-            // Alternative shortcut: Ctrl+Shift+K triggers directly
-            if (e.ctrlKey && e.shiftKey && e.key === 'K') {
+            // Quick trigger: Ctrl+Shift+K
+            if (e.ctrlKey && e.shiftKey && e.code === 'KeyK') {
                 e.preventDefault();
-                console.log('🎮 Easter egg triggered via Ctrl+Shift+K!');
                 setActivated(true);
-                codeIndex.current = 0;
+                sequencePos.current = 0;
                 return;
             }
 
-            const expected = KONAMI_CODE[codeIndex.current];
-            const pressedKey = e.key;
+            // Match typed letters against SECRET_WORD ("deploy")
+            const expected = SECRET_WORD[sequencePos.current];
+            const pressed = e.key.toLowerCase();
 
-            // Match the key
-            const keyMatches = pressedKey === expected ||
-                pressedKey.toLowerCase() === expected.toLowerCase();
+            // Only care about single letter keys
+            if (pressed.length !== 1) return;
 
-            console.log(`🎮 Key pressed: "${pressedKey}" | Expected: "${expected}" | Match: ${keyMatches} | Progress: ${codeIndex.current}/${KONAMI_CODE.length}`);
+            if (pressed === expected) {
+                sequencePos.current++;
 
-            if (keyMatches) {
-                e.preventDefault();
-                codeIndex.current++;
-                console.log(`🎮 Progress: ${codeIndex.current}/${KONAMI_CODE.length}`);
-                if (codeIndex.current === KONAMI_CODE.length) {
-                    console.log('🎮 KONAMI CODE ACTIVATED! 🚀');
+                if (sequencePos.current >= SECRET_WORD.length) {
                     setActivated(true);
-                    codeIndex.current = 0;
+                    sequencePos.current = 0;
                 }
             } else {
-                // Only reset if it's not a modifier key
-                if (!['Shift', 'Control', 'Alt', 'Meta'].includes(pressedKey)) {
-                    codeIndex.current = 0;
-                    // Check if the pressed key is the start of the code
-                    if (pressedKey === KONAMI_CODE[0]) {
-                        codeIndex.current = 1;
-                    }
+                sequencePos.current = 0;
+                // Re-check if this letter starts the word
+                if (pressed === SECRET_WORD[0]) {
+                    sequencePos.current = 1;
                 }
             }
         };
 
-        window.addEventListener('keydown', handleKeyDown, true); // use capture phase
-        return () => window.removeEventListener('keydown', handleKeyDown, true);
+        document.addEventListener('keydown', onKeyDown, true);
+        return () => document.removeEventListener('keydown', onKeyDown, true);
     }, []);
 
-    // Animate deploy lines
+    // ─── Animate deploy lines when activated ─────────────────────────
     useEffect(() => {
         if (!activated) return;
 
-        let lineIndex = 0;
-        const interval = setInterval(() => {
-            lineIndex++;
-            setVisibleLines(lineIndex);
-            if (lineIndex >= DEPLOY_LINES.length) {
-                clearInterval(interval);
-                // Start confetti after all lines
-                generateConfetti();
+        setVisibleLines(0);
+        setConfetti([]);
+
+        let line = 0;
+        const timer = setInterval(() => {
+            line++;
+            setVisibleLines(line);
+            if (line >= DEPLOY_LINES.length) {
+                clearInterval(timer);
+                // Launch confetti
+                const pieces: ConfettiPiece[] = [];
+                for (let i = 0; i < 80; i++) {
+                    pieces.push({
+                        id: confettiCounter.current++,
+                        x: Math.random() * 100,
+                        color: CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)],
+                        size: Math.random() * 8 + 4,
+                        drift: (Math.random() - 0.5) * 40,
+                    });
+                }
+                setConfetti(pieces);
             }
-        }, 300);
+        }, 350);
 
-        return () => clearInterval(interval);
-    }, [activated]);
-
-    const generateConfetti = useCallback(() => {
-        const newConfetti: Confetti[] = [];
-        for (let i = 0; i < 100; i++) {
-            newConfetti.push({
-                id: confettiId.current++,
-                x: Math.random() * 100,
-                y: -10 - Math.random() * 20,
-                color: CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)],
-                rotation: Math.random() * 360,
-                size: Math.random() * 10 + 5,
-                vx: (Math.random() - 0.5) * 4,
-                vy: Math.random() * 3 + 2,
-            });
-        }
-        setConfetti(newConfetti);
-
-        // Auto-close after 6 seconds
-        setTimeout(() => {
+        // Auto-dismiss after 8 seconds
+        const dismiss = setTimeout(() => {
             setActivated(false);
             setVisibleLines(0);
             setConfetti([]);
-        }, 6000);
-    }, []);
+        }, 8000);
 
-    if (!activated) return null;
+        return () => {
+            clearInterval(timer);
+            clearTimeout(dismiss);
+        };
+    }, [activated]);
+
+    const close = useCallback(() => {
+        setActivated(false);
+        setVisibleLines(0);
+        setConfetti([]);
+    }, []);
 
     return (
         <AnimatePresence>
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md"
-                onClick={() => {
-                    setActivated(false);
-                    setVisibleLines(0);
-                    setConfetti([]);
-                }}
-            >
-                {/* Confetti */}
-                {confetti.map((c) => (
-                    <motion.div
-                        key={c.id}
-                        initial={{ x: `${c.x}vw`, y: `${c.y}vh`, rotate: 0 }}
-                        animate={{
-                            x: `${c.x + c.vx * 20}vw`,
-                            y: '110vh',
-                            rotate: c.rotation + 720,
-                        }}
-                        transition={{ duration: 3 + Math.random() * 2, ease: 'linear' }}
-                        className="pointer-events-none absolute"
-                        style={{
-                            width: c.size,
-                            height: c.size,
-                            backgroundColor: c.color,
-                            borderRadius: Math.random() > 0.5 ? '50%' : '2px',
-                        }}
-                    />
-                ))}
-
-                {/* Terminal Window */}
+            {activated && (
                 <motion.div
-                    initial={{ scale: 0.8, opacity: 0, y: 40 }}
-                    animate={{ scale: 1, opacity: 1, y: 0 }}
-                    transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-                    className="relative mx-4 w-full max-w-lg overflow-hidden rounded-xl border border-white/20 bg-[#0a0e17] shadow-2xl"
-                    onClick={(e) => e.stopPropagation()}
+                    key="konami-overlay"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="fixed inset-0 z-[200] flex items-center justify-center bg-black/85 backdrop-blur-md"
+                    onClick={close}
                 >
-                    {/* Title bar */}
-                    <div className="flex items-center gap-2 border-b border-white/10 bg-white/5 px-4 py-3">
-                        <div className="flex gap-1.5">
-                            <div className="h-3 w-3 rounded-full bg-[#ff5f57]" />
-                            <div className="h-3 w-3 rounded-full bg-[#ffbd2e]" />
-                            <div className="h-3 w-3 rounded-full bg-[#28c840]" />
-                        </div>
-                        <span className="ml-2 font-mono text-xs text-white/50">deploy.sh — production</span>
-                    </div>
-
-                    {/* Deploy output */}
-                    <div className="space-y-2 p-5 font-mono text-sm">
-                        {DEPLOY_LINES.slice(0, visibleLines).map((line, i) => (
-                            <motion.div
-                                key={i}
-                                initial={{ opacity: 0, x: -10 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ duration: 0.2 }}
-                                className={`${line.includes('🎉') ? 'text-lg font-bold text-emerald-400' :
-                                    line.includes('✅') ? 'text-emerald-400' :
-                                        line.includes('🚀') ? 'text-cyan-400' :
-                                            line.includes('🔄') ? 'text-yellow-400' :
-                                                line.includes('$') ? 'text-green-400' :
-                                                    line.includes('🌍') ? 'text-purple-400' :
-                                                        'text-white/70'
-                                    }`}
-                            >
-                                {line || <br />}
-                            </motion.div>
-                        ))}
-                        {visibleLines < DEPLOY_LINES.length && (
-                            <span className="inline-flex animate-pulse text-primary">▋</span>
-                        )}
-                    </div>
-
-                    {/* Celebration banner */}
-                    {visibleLines >= DEPLOY_LINES.length && (
+                    {/* Confetti pieces */}
+                    {confetti.map((c) => (
                         <motion.div
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: 'auto' }}
-                            className="border-t border-emerald-500/30 bg-emerald-500/10 p-4 text-center"
-                        >
-                            <span className="text-2xl">🚀🎉✨</span>
-                            <p className="mt-1 font-mono text-xs text-emerald-400">
-                                You found the easter egg! (click anywhere to close)
-                            </p>
-                        </motion.div>
-                    )}
+                            key={c.id}
+                            initial={{ y: '-10vh', x: `${c.x}vw`, opacity: 1 }}
+                            animate={{ y: '110vh', x: `${c.x + c.drift}vw`, rotate: 720 }}
+                            transition={{ duration: 3 + Math.random() * 2, ease: 'linear' }}
+                            className="pointer-events-none absolute"
+                            style={{
+                                width: c.size,
+                                height: c.size,
+                                backgroundColor: c.color,
+                                borderRadius: c.id % 2 === 0 ? '50%' : '2px',
+                            }}
+                        />
+                    ))}
+
+                    {/* Deploy terminal */}
+                    <motion.div
+                        initial={{ scale: 0.7, opacity: 0, y: 60 }}
+                        animate={{ scale: 1, opacity: 1, y: 0 }}
+                        exit={{ scale: 0.7, opacity: 0, y: 60 }}
+                        transition={{ type: 'spring', stiffness: 250, damping: 22 }}
+                        className="relative mx-4 w-full max-w-lg overflow-hidden rounded-xl border border-white/20 bg-[#0a0e17] shadow-2xl"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* macOS title bar */}
+                        <div className="flex items-center gap-2 border-b border-white/10 bg-white/5 px-4 py-3">
+                            <div className="flex gap-1.5">
+                                <button onClick={close} className="h-3 w-3 rounded-full bg-[#ff5f57] transition hover:brightness-125" />
+                                <div className="h-3 w-3 rounded-full bg-[#ffbd2e]" />
+                                <div className="h-3 w-3 rounded-full bg-[#28c840]" />
+                            </div>
+                            <span className="ml-2 font-mono text-xs text-white/50">deploy.sh — production</span>
+                        </div>
+
+                        {/* Line-by-line deploy output */}
+                        <div className="space-y-2 p-5 font-mono text-sm">
+                            {DEPLOY_LINES.slice(0, visibleLines).map((line, i) => (
+                                <motion.div
+                                    key={i}
+                                    initial={{ opacity: 0, x: -10 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ duration: 0.15 }}
+                                    className={line.color}
+                                >
+                                    {line.text || <br />}
+                                </motion.div>
+                            ))}
+                            {visibleLines < DEPLOY_LINES.length && (
+                                <span className="inline-flex animate-pulse text-cyan-400">▋</span>
+                            )}
+                        </div>
+
+                        {/* Celebration banner */}
+                        <AnimatePresence>
+                            {visibleLines >= DEPLOY_LINES.length && (
+                                <motion.div
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: 'auto' }}
+                                    className="border-t border-emerald-500/30 bg-emerald-500/10 p-4 text-center"
+                                >
+                                    <span className="text-2xl">🚀🎉✨</span>
+                                    <p className="mt-1 font-mono text-xs text-emerald-400">
+                                        You found the easter egg! (click anywhere to close)
+                                    </p>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </motion.div>
                 </motion.div>
-            </motion.div>
+            )}
         </AnimatePresence>
     );
 }
