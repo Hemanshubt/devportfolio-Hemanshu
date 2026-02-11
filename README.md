@@ -44,12 +44,13 @@ A professional portfolio website built with **React 18**, **Vite 7**, **TypeScri
 - ✅ **Modern Tech Stack**: React 18, Vite 7, TypeScript, Tailwind CSS
 - ✅ **3D Animations**: Interactive cloud scene with Three.js & React Three Fiber
 - ✅ **Smooth Animations**: Framer Motion for fluid transitions
-- ✅ **AI-Powered Terminal**: Context-aware assistant powered by Google Gemini (Flash 1.5/2.0) with robust fallback and auto-discovery mechanisms.
+- ✅ **Performance Optimized**: React lazy loading, code splitting, and Suspense for faster initial load
+- ✅ **AI-Powered Terminal**: Context-aware assistant powered by Google Gemini (Flash 1.5/2.0) with robust fallback and auto-discovery mechanisms
 - ✅ **Interactive Commands**: Custom terminal commands (`matrix`, `hack`, `coffee`, etc.)
 - ✅ **Fully Responsive**: Optimized for all devices and screen sizes
 - ✅ **Dark Theme**: Beautiful gradient design with glowing effects
 - ✅ **Contact Form**: Integrated Email (Gmail) and Telegram notifications
-- ✅ **Performance Optimized**: Code splitting and lazy loading
+- ✅ **Blog Integration**: Dynamic blog posts fetched from Hashnode
 - ✅ **SEO Ready**: Meta tags and semantic HTML
 - ✅ **Downloadable Resume**: PDF resume download functionality
 
@@ -64,6 +65,7 @@ A professional portfolio website built with **React 18**, **Vite 7**, **TypeScri
 | 💼 **Timeline** | Work experience and education history |
 | 🛠️ **Skills** | Technical skills with animated marquee display |
 | 🚀 **Projects** | DevOps & Cloud projects with details |
+| 📝 **Blog** | Latest articles from Hashnode with caching |
 | 🏆 **Certifications** | AWS, Kubernetes, and other certifications |
 | 📧 **Contact** | Contact form with Email/Telegram integration |
 
@@ -141,7 +143,7 @@ GMAIL_PASSKEY=your-gmail-app-password
 TELEGRAM_BOT_TOKEN=your-telegram-bot-token
 TELEGRAM_CHAT_ID=your-telegram-chat-id
 
-# Gemini AI Configuration
+# Gemini AI Configuration (for Interactive Terminal)
 VITE_GEMINI_API_KEY=your-gemini-api-key
 ```
 
@@ -222,7 +224,10 @@ The portfolio features a built-in terminal with AI capabilities and fun Easter e
 │   ├── data/           # Static data (projects, skills, certifications)
 │   ├── hooks/          # Custom React hooks
 │   ├── lib/            # Utility functions
-│   └── pages/          # Page components (Index, ProjectDetail, NotFound)
+│   ├── pages/          # Page components (Index, ProjectDetail, BlogPost, NotFound)
+│   ├── services/       # API services (Hashnode, cache)
+│   ├── types/          # TypeScript type definitions
+│   └── utils/          # Helper utilities
 ├── api/                # Contact form API (Express for local, Vercel serverless for prod)
 │   ├── contact.js      # Contact form handler (Email + Telegram)
 │   ├── server.js       # Local Express server
@@ -230,6 +235,14 @@ The portfolio features a built-in terminal with AI capabilities and fun Easter e
 ├── public/             # Static assets (images, resume PDF)
 └── ...config files
 ```
+
+### Performance Optimizations
+
+- **React Lazy Loading**: Below-the-fold components load on-demand
+- **Code Splitting**: Automatic bundle splitting by route
+- **Suspense Boundaries**: Graceful loading states for async components
+- **Caching**: Blog posts cached in localStorage with TTL
+- **Image Optimization**: Lazy loading for images and 3D scenes
 
 ---
 

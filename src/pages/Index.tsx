@@ -1,24 +1,25 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import LoadingScreen from '@/components/LoadingScreen';
 import Navigation from '@/components/Navigation';
 import Hero from '@/components/Hero';
 import Marquee from '@/components/Marquee';
-import About from '@/components/About';
-import Skills from '@/components/Skills';
-
-import Projects from '@/components/Projects';
-import Blog from '@/components/Blog';
-import Certifications from '@/components/Certifications';
-import Timeline from '@/components/Timeline';
-import Contact from '@/components/Contact';
-import Footer from '@/components/Footer';
-import ScrollToTop from '@/components/ScrollToTop';
 import SEOHead from '@/components/SEOHead';
-import InteractiveTerminal from '@/components/InteractiveTerminal';
 import CursorTrail from '@/components/CursorTrail';
-import KonamiEasterEgg from '@/components/KonamiEasterEgg';
+
+// Lazy load below-the-fold components
+const About = lazy(() => import('@/components/About'));
+const Skills = lazy(() => import('@/components/Skills'));
+const Projects = lazy(() => import('@/components/Projects'));
+const Blog = lazy(() => import('@/components/Blog'));
+const Certifications = lazy(() => import('@/components/Certifications'));
+const Timeline = lazy(() => import('@/components/Timeline'));
+const Contact = lazy(() => import('@/components/Contact'));
+const Footer = lazy(() => import('@/components/Footer'));
+const ScrollToTop = lazy(() => import('@/components/ScrollToTop'));
+const InteractiveTerminal = lazy(() => import('@/components/InteractiveTerminal'));
+const KonamiEasterEgg = lazy(() => import('@/components/KonamiEasterEgg'));
 
 const Index = () => {
   const location = useLocation();
@@ -70,17 +71,19 @@ const Index = () => {
           <Navigation />
           <Hero />
           <Marquee />
-          <About />
-          <Skills />
-          <Projects />
-          <Blog />
-          <Certifications />
-          <Timeline />
-          <Contact />
-          <Footer />
-          <ScrollToTop />
-          <InteractiveTerminal />
-          <KonamiEasterEgg />
+          <Suspense fallback={<div className="min-h-screen" />}>
+            <About />
+            <Skills />
+            <Projects />
+            <Blog />
+            <Certifications />
+            <Timeline />
+            <Contact />
+            <Footer />
+            <ScrollToTop />
+            <InteractiveTerminal />
+            <KonamiEasterEgg />
+          </Suspense>
         </div>
       )}
     </>
