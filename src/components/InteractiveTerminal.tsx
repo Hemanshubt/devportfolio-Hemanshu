@@ -46,6 +46,7 @@ const HELP_OUTPUT: OutputLine[] = [
     { type: 'info', text: '  clear       — Clear terminal output' },
     { type: 'info', text: '  date        — Show current date & time' },
     { type: 'info', text: '  ai <query>  — Ask AI about Hemanshu' },
+    { type: 'info', text: '  ai help     — Show sample AI questions' },
     { type: 'info', text: '  sudo hire   — 😉' },
     { type: 'output', text: '╚══════════════════════════════════════════════╝' },
 ];
@@ -56,7 +57,7 @@ export default function InteractiveTerminal() {
     const [input, setInput] = useState('');
     const [history, setHistory] = useState<OutputLine[]>([
         { type: 'output', text: '🖥️  Welcome to Hemanshu\'s Terminal v1.0.0' },
-        { type: 'output', text: 'Type "help" for commands or "ai <query>" to chat.' },
+        { type: 'output', text: 'Type "help" to start, or "ai help" for questions.' },
         { type: 'blank', text: '' },
     ]);
     const [commandHistory, setCommandHistory] = useState<string[]>([]);
@@ -193,6 +194,30 @@ export default function InteractiveTerminal() {
                 lines.push({ type: 'output', text: '/home/hemanshu/portfolio' });
                 break;
 
+            case 'coffee':
+                lines.push({ type: 'output', text: '☕ Brewing Java... Done!', color: '#fbbf24' });
+                break;
+
+            case 'hack':
+                setHistory(prev => [...prev, 
+                    { type: 'command', text: `$ ${trimmed}` },
+                    { type: 'output', text: '🔒 Initiating brute force attack...', color: '#ef4444' }
+                ]);
+                
+                await new Promise(r => setTimeout(r, 1000));
+                setHistory(prev => [...prev, { type: 'output', text: '🔓 Bypassing firewall (Port 443)...', color: '#f59e0b' }]);
+                
+                await new Promise(r => setTimeout(r, 1200));
+                setHistory(prev => [...prev, { type: 'output', text: '💻 Accessing mainframe...', color: '#22c55e' }]);
+                
+                await new Promise(r => setTimeout(r, 1200));
+                setHistory(prev => [...prev, 
+                    { type: 'output', text: 'ACCESS GRANTED 🔓', color: '#00ff00' },
+                    { type: 'info', text: 'Congratulations! You are officially a hacker now. 😎' },
+                    { type: 'blank', text: '' }
+                ]);
+                return;
+
             case 'echo hello':
             case 'echo "hello"':
                 lines.push({ type: 'output', text: 'hello 👋' });
@@ -221,8 +246,11 @@ export default function InteractiveTerminal() {
 
             case 'ai':
                 lines.push({ type: 'error', text: 'Usage: ai <your question>' });
-                lines.push({ type: 'info', text: 'Try: ai who is hemanshu?' });
-                lines.push({ type: 'info', text: '💡 Type "ai help" for more sample questions.' });
+                lines.push({ type: 'info', text: 'Try asking:' });
+                lines.push({ type: 'info', text: '  • ai who is hemanshu?' });
+                lines.push({ type: 'info', text: '  • ai list technical skills' });
+                lines.push({ type: 'info', text: '  • ai show me his linkedin' });
+                lines.push({ type: 'info', text: '💡 Type "ai help" for a full list.' });
                 break;
 
             case '':
@@ -532,6 +560,46 @@ Visitor Question: ${question}
     };
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter') {
+            return; // Handled by form submit
+        }
+
+        // Tab Autocomplete
+        if (e.key === 'Tab') {
+            e.preventDefault();
+            const lower = input.toLowerCase().trim();
+
+            // AI Question Cycling
+            const AI_QUESTIONS = [
+                'ai who is hemanshu?',
+                'ai list his technical skills',
+                'ai show me his linkedin',
+                'ai explain the scalable aws project',
+                'ai what is his cgpa?',
+                'ai where is he based?',
+                'ai help'
+            ];
+
+            if (lower === 'ai' || AI_QUESTIONS.includes(input)) {
+                const currentIndex = AI_QUESTIONS.indexOf(input);
+                const nextIndex = (currentIndex + 1) % AI_QUESTIONS.length;
+                setInput(AI_QUESTIONS[nextIndex]);
+                return;
+            }
+
+            // Standard Command Autocomplete
+            const COMMANDS = ['help', 'about', 'skills', 'projects', 'blog', 'contact', 'whoami', 'neofetch', 'uptime', 'clear', 'date', 'ai', 'sudo'];
+            const matches = COMMANDS.filter(c => c.startsWith(lower));
+
+            if (matches.length === 1) {
+                setInput(matches[0]);
+            } else if (matches.length > 1) {
+                // If multiple matches (e.g. s -> skills, sudo), maybe do nothing or cycle?
+                // For now, simple completion for unique prefix
+            }
+            return;
+        }
+
         if (e.key === 'ArrowUp') {
             e.preventDefault();
             if (historyIndex < commandHistory.length - 1) {
