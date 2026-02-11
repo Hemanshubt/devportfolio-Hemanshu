@@ -45,6 +45,7 @@ const HELP_OUTPUT: OutputLine[] = [
     { type: 'info', text: '  uptime      — Time spent on this site' },
     { type: 'info', text: '  clear       — Clear terminal output' },
     { type: 'info', text: '  date        — Show current date & time' },
+    { type: 'info', text: '  ai <query>  — Ask AI about Hemanshu' },
     { type: 'info', text: '  sudo hire   — 😉' },
     { type: 'output', text: '╚══════════════════════════════════════════════╝' },
 ];
@@ -55,7 +56,7 @@ export default function InteractiveTerminal() {
     const [input, setInput] = useState('');
     const [history, setHistory] = useState<OutputLine[]>([
         { type: 'output', text: '🖥️  Welcome to Hemanshu\'s Terminal v1.0.0' },
-        { type: 'output', text: 'Type "help" for available commands.' },
+        { type: 'output', text: 'Type "help" for commands or "ai <query>" to chat.' },
         { type: 'blank', text: '' },
     ]);
     const [commandHistory, setCommandHistory] = useState<string[]>([]);
@@ -112,7 +113,7 @@ export default function InteractiveTerminal() {
         return `${seconds}s`;
     }, []);
 
-    const executeCommand = useCallback((cmd: string) => {
+    const executeCommand = useCallback(async (cmd: string) => {
         const trimmed = cmd.trim().toLowerCase();
         const lines: OutputLine[] = [
             { type: 'command', text: `$ ${cmd}` },
@@ -197,6 +198,16 @@ export default function InteractiveTerminal() {
                 lines.push({ type: 'output', text: 'hello 👋' });
                 break;
 
+            case 'ai':
+                lines.push({ type: 'error', text: 'Usage: ai <your question>' });
+                lines.push({ type: 'info', text: 'Try asking:' });
+                lines.push({ type: 'info', text: '  • ai who is hemanshu?' });
+                lines.push({ type: 'info', text: '  • ai list technical skills' });
+                lines.push({ type: 'info', text: '  • ai explain the microservices project' });
+                lines.push({ type: 'info', text: '  • ai generate a deployment script' });
+                lines.push({ type: 'info', text: '  • ai what is his cgpa?' });
+                break;
+
             case '':
                 return;
 
@@ -210,6 +221,270 @@ export default function InteractiveTerminal() {
                     } else {
                         lines.push({ type: 'error', text: `bash: cd: ${section}: No such directory` });
                     }
+                } else if (trimmed.startsWith('ai ')) {
+                    const question = cmd.slice(3);
+                    lines.push({ type: 'info', text: '🤔 Thinking...' });
+
+                    // We need to update state immediately to show "Thinking..."
+                    // ensuring lines are added to history before async operation
+                    setHistory(prev => [...prev, ...lines]);
+
+                    try {
+                        const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+                        console.log("[Terminal] Check API Key:", apiKey ? "Loaded" : "Not Found");
+
+                        if (!apiKey) {
+                            throw new Error('API key not configured in .env');
+                        }
+
+                        // Structured System Prompt
+                        const context = `
+You are an AI assistant for Hemanshu Mahajan's portfolio (hemanshudev.cloud).
+Role: DevOps Engineer & Cloud Specialist based in India.
+
+Details:
+- **Education**: Integrated MCA at Acropolis Institute (2020-2025), SGPA 8.78.
+- **Goal**: Aspiring DevOps Engineer building scalable cloud infrastructure, CI/CD pipelines, and secure systems.
+
+**Technical Skills**:
+- **Cloud**: AWS (EC2, S3, RDS, Lambda, EKS, VPC, IAM), Google Cloud.
+- **DevOps Tools**: Docker, Kubernetes, Helm, Terraform, Ansible, Jenkins, GitLab CI, GitHub Actions.
+- **Monitoring**: Prometheus, Grafana, ELK Stack, CloudWatch.
+- **Languages**: Python, Bash, Java, JavaScript/TypeScript, SQL.
+- **OS**: Linux (RHEL, Ubuntu), Windows.
+
+**Key Projects**:
+1. **Two-tier Flaskapp Deployment**
+   - CI/CD pipeline for a 2-tier Flask app using Docker & K8s.
+   - Tech: Python, Flask, MySQL, Jenkins, Helm.
+   - Link: [Two-tier Flask Repo](https://github.com/Hemanshubt/two-tier-flaskapp)
+
+2. **Node.js To-Do CI/CD Pipeline**
+   - Automated pipeline for Node.js app using Jenkins, Docker, AWS & Terraform.
+   - Highlights: Cost optimized, automated testing.
+   - Link: [Node To-Do Repo](https://github.com/Hemanshubt/Node-todo-app-main)
+
+3. **Scalable AWS Deployment with Kubernetes**
+   - Designed CI/CD for Flask/MySQL, doubling capacity to 20k users with 99.9% uptime.
+   - Tech: EKS, Helm, Terraform, VPC.
+
+4. **Cost-Efficient CI/CD Pipeline Management**
+   - Achieved 40% cost reduction using Jenkins, Terraform, and AWS Lambda.
+
+**Social Links**:
+- GitHub: [github.com/Hemanshubt](https://github.com/Hemanshubt)
+- LinkedIn: [linkedin.com/in/hemanshu-mahajan](https://www.linkedin.com/in/hemanshu-mahajan/)
+- Twitter/X: [x.com/Hemanshubtc](https://x.com/Hemanshubtc)
+
+**Format Guidelines**:
+- Use **bold** for key terms.
+- Use [Link Text](URL) for links.
+- Keep answers professional, concise, and helpful.
+- If asked about "Resume", suggest clicking the "Resume" button in the Hero section or checking LinkedIn.
+
+Visitor Question: ${question}
+`;
+
+                        console.log("[Terminal] Sending request to Gemini...");
+
+                        // Helper to try multiple models with streaming support
+                        const tryGeminiWithFallback = async (onChunk: (text: string) => void) => {
+                            const modelsToTry = [
+                                'gemini-1.5-flash',
+                                'gemini-1.5-flash-latest',
+                                'gemini-1.5-flash-001',
+                                'gemini-pro',
+                                'gemini-1.0-pro'
+                            ];
+
+                            let lastError: any = null;
+
+                            for (const model of modelsToTry) {
+                                try {
+                                    console.log(`[Terminal] Trying model (streaming): ${model}`);
+                                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${apiKey}`, {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({
+                                            contents: [{ parts: [{ text: context }] }]
+                                        })
+                                    });
+
+                                    if (!response.ok) {
+                                        const errorText = await response.text();
+                                        console.warn(`[Terminal] Model ${model} failed:`, errorText);
+
+                                        // Check if API is disabled (403 Service Disabled)
+                                        if (response.status === 403 && errorText.includes('Enable it by visiting')) {
+                                            try {
+                                                const errJson = JSON.parse(errorText);
+                                                throw new Error(`API_DISABLED: ${errJson.error.message}`);
+                                            } catch (parseError) {
+                                                // continue
+                                            }
+                                        }
+                                        throw new Error(`API Error: ${response.status}`);
+                                    }
+
+                                    // Process the stream
+                                    const reader = response.body?.getReader();
+                                    if (!reader) throw new Error("No response body");
+
+                                    const decoder = new TextDecoder();
+                                    let buffer = '';
+
+                                    while (true) {
+                                        const { done, value } = await reader.read();
+                                        if (done) break;
+
+                                        buffer += decoder.decode(value, { stream: true });
+                                        const lines = buffer.split('\n');
+                                        buffer = lines.pop() || ''; // Keep the last incomplete line in buffer
+
+                                        for (const line of lines) {
+                                            if (line.startsWith('data: ')) {
+                                                const jsonStr = line.slice(6);
+                                                if (jsonStr.trim() === '[DONE]') continue; // End of stream
+                                                try {
+                                                    const json = JSON.parse(jsonStr);
+                                                    const text = json.candidates?.[0]?.content?.parts?.[0]?.text;
+                                                    if (text) onChunk(text);
+                                                } catch (e) {
+                                                    // ignore parsing errors for partial JSON
+                                                }
+                                            }
+                                        }
+                                    }
+                                    return; // Success!
+
+                                } catch (e: any) {
+                                    if (e.message?.startsWith('API_DISABLED:')) throw e;
+                                    lastError = e;
+                                    continue; // Try next model
+                                }
+                            }
+
+                            // Fallback: List models and try first valid one (streaming)
+                            try {
+                                console.log("[Terminal] All models failed. Fetching list...");
+                                const listResp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+                                if (listResp.ok) {
+                                    const listData = await listResp.json();
+                                    if (listData.models) {
+                                        const validModels = listData.models
+                                            .filter((m: any) => m.supportedGenerationMethods?.includes('generateContent'))
+                                            .map((m: any) => m.name.replace('models/', ''));
+
+                                        lines.push({ type: 'info', text: `Debug: Found available models: ${validModels.join(', ')}` });
+
+                                        if (validModels.length > 0) {
+                                            const fallbackModel = validModels[0];
+                                            console.log(`[Terminal] Attempting auto-discovered model: ${fallbackModel}`);
+                                            lines.push({ type: 'info', text: `Attempting auto-discovered model: ${fallbackModel}` });
+
+                                            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${fallbackModel}:streamGenerateContent?alt=sse&key=${apiKey}`, {
+                                                method: 'POST',
+                                                headers: { 'Content-Type': 'application/json' },
+                                                body: JSON.stringify({
+                                                    contents: [{ parts: [{ text: context }] }]
+                                                })
+                                            });
+
+                                            if (response.ok) {
+                                                const reader = response.body?.getReader();
+                                                if (reader) {
+                                                    const decoder = new TextDecoder();
+                                                    let buffer = '';
+                                                    while (true) {
+                                                        const { done, value } = await reader.read();
+                                                        if (done) break;
+                                                        buffer += decoder.decode(value, { stream: true });
+                                                        const lines = buffer.split('\n');
+                                                        buffer = lines.pop() || '';
+                                                        for (const line of lines) {
+                                                            if (line.startsWith('data: ')) {
+                                                                try {
+                                                                    const json = JSON.parse(line.slice(6));
+                                                                    const text = json.candidates?.[0]?.content?.parts?.[0]?.text;
+                                                                    if (text) onChunk(text);
+                                                                } catch (e) { }
+                                                            }
+                                                        }
+                                                    }
+                                                    return;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            } catch (e) {
+                                // ignore list error
+                            }
+
+                            throw lastError;
+                        };
+
+                        // Start streaming response
+                        let currentText = '';
+                        // Initialize empty output line
+                        setHistory(prev => {
+                            const newHistory = [...prev];
+                            // Remove thinking
+                            if (newHistory[newHistory.length - 1].text === '🤔 Thinking...') {
+                                newHistory.pop();
+                            }
+                            newHistory.push({ type: 'output', text: '', color: '#a78bfa' });
+                            return newHistory;
+                        });
+
+                        await tryGeminiWithFallback((chunk) => {
+                            currentText += chunk;
+                            setHistory(prev => {
+                                const newHistory = [...prev];
+                                // Update the last line (which is our output line)
+                                const lastIndex = newHistory.length - 1;
+                                if (lastIndex >= 0 && newHistory[lastIndex].type === 'output') {
+                                    newHistory[lastIndex] = { ...newHistory[lastIndex], text: `🤖 ${currentText.trim()}` };
+                                }
+                                return newHistory;
+                            });
+                        });
+
+                        return; // Return early to avoid adding extra blank line from main function
+
+                    } catch (error) {
+                        console.error("[Terminal] Error:", error);
+                        setHistory(prev => {
+                            const newHistory = [...prev];
+                            if (newHistory[newHistory.length - 1].text === '🤔 Thinking...') {
+                                newHistory.pop();
+                            }
+
+                            const result = [...newHistory];
+
+                            let msg = error instanceof Error ? error.message : 'Failed to fetch AI response';
+
+                            // Specific handling for API Disabled
+                            if (msg.startsWith('API_DISABLED: ')) {
+                                msg = msg.replace('API_DISABLED: ', '');
+                                result.push({ type: 'error', text: '🛑 Generative Language API is not enabled for this project.' });
+                                result.push({ type: 'info', text: 'To fix this, please visit the URL below and click "Enable":' });
+                                // Extract the URL from the message if possible, otherwise just show message
+                                const urlMatch = msg.match(/https:\/\/console\.developers\.google\.com\/[^\s]+/);
+                                if (urlMatch) {
+                                    result.push({ type: 'output', text: urlMatch[0], color: '#60a5fa' });
+                                } else {
+                                    result.push({ type: 'info', text: msg });
+                                }
+                            } else {
+                                result.push({ type: 'error', text: `Error: ${msg}. Check console for details.` });
+                            }
+
+                            result.push({ type: 'blank', text: '' });
+                            return result;
+                        });
+                        return;
+                    }
                 } else {
                     lines.push({ type: 'error', text: `bash: ${trimmed}: command not found. Type "help" for available commands.` });
                 }
@@ -217,6 +492,9 @@ export default function InteractiveTerminal() {
 
         lines.push({ type: 'blank', text: '' });
         setHistory(prev => [...prev, ...lines]);
+
+
+
     }, [scrollToSection, getUptime]);
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -261,6 +539,41 @@ export default function InteractiveTerminal() {
         }
     };
 
+    const formatText = (text: string) => {
+        // First split by links [Text](URL)
+        const parts = text.split(/(\[[^\]]+\]\([^)]+\))/g);
+
+        return parts.map((part, i) => {
+            const linkMatch = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
+            if (linkMatch) {
+                return (
+                    <a
+                        key={i}
+                        href={linkMatch[2]}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-400 hover:text-blue-300 underline underline-offset-4 transition-colors"
+                    >
+                        {linkMatch[1]}
+                    </a>
+                );
+            }
+
+            // If not a link, parse bold **Text**
+            const boldParts = part.split(/(\*\*.*?\*\*)/g);
+            return (
+                <span key={i}>
+                    {boldParts.map((subPart, j) => {
+                        if (subPart.startsWith('**') && subPart.endsWith('**')) {
+                            return <strong key={j} className="text-white font-bold">{subPart.slice(2, -2)}</strong>;
+                        }
+                        return subPart;
+                    })}
+                </span>
+            );
+        });
+    };
+
     return (
         <>
             {/* Floating Terminal Toggle Button */}
@@ -293,21 +606,31 @@ export default function InteractiveTerminal() {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 40, scale: 0.95 }}
                         transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                        drag
+                        dragMomentum={false}
+                        dragConstraints={{
+                            top: -window.innerHeight + 200,
+                            left: -window.innerWidth + 200,
+                            right: 0,
+                            bottom: 0,
+                        }}
                         className="fixed bottom-4 right-4 z-50 w-[360px] overflow-hidden rounded-xl border border-white/10 bg-[#0a0e17]/95 shadow-2xl shadow-black/50 backdrop-blur-xl sm:bottom-6 sm:right-6 sm:w-[480px]"
                         onClick={() => inputRef.current?.focus()}
                     >
-                        {/* Title Bar */}
-                        <div className="flex items-center justify-between border-b border-white/10 bg-white/5 px-4 py-2.5">
+                        {/* Title Bar — drag handle */}
+                        <div
+                            className="flex cursor-grab items-center justify-between border-b border-white/10 bg-white/5 px-4 py-2.5 active:cursor-grabbing"
+                        >
                             <div className="flex items-center gap-2">
                                 <div className="flex gap-1.5">
                                     <button onClick={() => setIsOpen(false)} className="group h-3 w-3 rounded-full bg-[#ff5f57] transition-all hover:brightness-110">
                                         <X className="h-3 w-3 text-[#4a0000] opacity-0 group-hover:opacity-100" />
                                     </button>
-                                    <button className="h-3 w-3 rounded-full bg-[#ffbd2e]">
-                                        <Minus className="h-3 w-3 text-[#4a3500] opacity-0" />
+                                    <button onClick={() => setIsOpen(false)} className="group h-3 w-3 rounded-full bg-[#ffbd2e] transition-all hover:brightness-110" title="Minimize">
+                                        <Minus className="h-3 w-3 text-[#4a3500] opacity-0 group-hover:opacity-100" />
                                     </button>
-                                    <button className="h-3 w-3 rounded-full bg-[#28c840]">
-                                        <Maximize2 className="h-3 w-3 text-[#003a0a] opacity-0" />
+                                    <button className="group h-3 w-3 rounded-full bg-[#28c840] transition-all hover:brightness-110">
+                                        <Maximize2 className="h-3 w-3 text-[#003a0a] opacity-0 group-hover:opacity-100" />
                                     </button>
                                 </div>
                                 <span className="ml-2 font-mono text-xs text-white/50">hemanshu@portfolio: ~</span>
@@ -315,15 +638,16 @@ export default function InteractiveTerminal() {
                             <span className="font-mono text-[10px] text-white/30">Ctrl+` to toggle</span>
                         </div>
 
-                        {/* Output Area */}
+                        {/* Output Area — not draggable */}
                         <div
                             ref={scrollRef}
+                            onPointerDown={(e) => e.stopPropagation()}
                             className="h-[300px] overflow-y-auto p-4 font-mono text-xs leading-relaxed sm:h-[350px] sm:text-sm"
                             style={{ scrollbarWidth: 'thin', scrollbarColor: '#333 transparent' }}
                         >
                             {history.map((line, i) => (
                                 <div key={i} style={{ color: getLineColor(line) }} className="whitespace-pre-wrap">
-                                    {line.type === 'blank' ? <br /> : line.text}
+                                    {line.type === 'blank' ? <br /> : (line.type === 'ascii' ? line.text : formatText(line.text))}
                                 </div>
                             ))}
 
