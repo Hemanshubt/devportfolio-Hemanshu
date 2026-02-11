@@ -29,19 +29,19 @@ export default function Projects() {
           </p>
         </motion.div>
 
-        <div className="mt-10 grid gap-5 sm:mt-16 sm:gap-6 md:grid-cols-2">
+        <div className="mt-10 grid grid-cols-1 gap-5 sm:mt-16 sm:gap-6 md:grid-cols-2">
           {projects.map((project, i) => (
             <motion.div
-              key={i}
+              key={project.slug}
               initial={{ opacity: 0, y: 30 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: i * 0.1 }}
-              className="border-gradient group"
+              className="border-gradient group flex flex-col"
             >
-              <div className="p-4 sm:p-6">
+              <div className="flex flex-1 flex-col p-4 sm:p-6">
                 {/* Header */}
-                <div className="mb-3 flex items-start justify-between">
-                  <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${project.color === 'primary' ? 'bg-primary/10' : 'bg-secondary/10'
+                <div className="mb-3 flex items-start justify-between gap-2">
+                  <div className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl ${project.color === 'primary' ? 'bg-primary/10' : 'bg-secondary/10'
                     }`}>
                     <project.icon className={`h-5 w-5 ${project.color === 'primary' ? 'text-primary' : 'text-secondary'
                       }`} />
@@ -51,19 +51,19 @@ export default function Projects() {
                       href={project.github}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-1.5 rounded-lg border border-primary/50 bg-primary/10 px-3 py-1.5 text-sm font-medium text-primary transition-all hover:bg-primary/20"
+                      className="flex flex-shrink-0 items-center gap-1.5 rounded-lg border border-primary/50 bg-primary/10 px-3 py-1.5 text-sm font-medium text-primary transition-all hover:bg-primary/20"
                     >
                       <Github className="h-4 w-4" />
-                      <span>Code</span>
+                      <span className="hidden xs:inline">Code</span>
                     </a>
                   )}
                 </div>
 
                 {/* Title & Description */}
-                <h3 className="mb-2 text-base font-bold text-foreground transition-colors group-hover:text-primary sm:text-lg">
+                <h3 className="mb-2 text-base font-bold leading-tight text-foreground transition-colors group-hover:text-primary sm:text-lg">
                   {project.title}
                 </h3>
-                <p className="mb-3 text-sm text-muted-foreground line-clamp-2">{project.description}</p>
+                <p className="mb-3 line-clamp-2 text-sm leading-relaxed text-muted-foreground">{project.description}</p>
 
                 {/* Highlights */}
                 <div className="mb-3 flex flex-wrap gap-1.5">
@@ -79,7 +79,7 @@ export default function Projects() {
                 </div>
 
                 {/* Tags */}
-                <div className="flex flex-wrap gap-1.5">
+                <div className="mb-4 flex flex-wrap gap-1.5">
                   {project.tags.slice(0, 4).map((tag, j) => (
                     <span
                       key={j}
@@ -90,19 +90,22 @@ export default function Projects() {
                   ))}
                   {project.tags.length > 4 && (
                     <span className="rounded-md border border-border bg-muted/30 px-1.5 py-0.5 font-mono text-xs text-muted-foreground">
-                      +{project.tags.length - 4}
+                      +{project.tags.length - 4} more
                     </span>
                   )}
                 </div>
 
                 {/* View Details Link */}
-                <Link
-                  to={`/project/${project.slug}`}
-                  className="mt-4 flex items-center gap-2 font-medium text-primary transition-all duration-300 hover:gap-3"
-                >
-                  <span className="text-sm">View Details</span>
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
+                <div className="mt-auto">
+                  <Link
+                    to={`/project/${project.slug}`}
+                    className="flex items-center gap-2 font-medium text-primary transition-all duration-300 hover:gap-3"
+                    aria-label={`View details for ${project.title}`}
+                  >
+                    <span className="text-sm">View Details</span>
+                    <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                  </Link>
+                </div>
               </div>
             </motion.div>
           ))}

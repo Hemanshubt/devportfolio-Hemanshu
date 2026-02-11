@@ -8,20 +8,22 @@ import Marquee from '@/components/Marquee';
 import About from '@/components/About';
 import Skills from '@/components/Skills';
 import Projects from '@/components/Projects';
+import Blog from '@/components/Blog';
 import Certifications from '@/components/Certifications';
 import Timeline from '@/components/Timeline';
 import Contact from '@/components/Contact';
 import Footer from '@/components/Footer';
 import ScrollToTop from '@/components/ScrollToTop';
+import SEOHead from '@/components/SEOHead';
 
 const Index = () => {
   const location = useLocation();
-  
+
   // Show loading only on page refresh, not on navigation from other pages
-  const isPageRefresh = performance.navigation?.type === 1 || 
+  const isPageRefresh = performance.navigation?.type === 1 ||
     (performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming)?.type === 'reload';
   const isFirstLoad = !sessionStorage.getItem('appLoaded');
-  
+
   const [isLoading, setIsLoading] = useState(isFirstLoad || isPageRefresh);
 
   useEffect(() => {
@@ -45,6 +47,15 @@ const Index = () => {
 
   return (
     <>
+      <SEOHead
+        title="Hemanshu Mahajan | DevOps Engineer & Cloud Specialist"
+        description="DevOps Engineer specializing in CI/CD, Kubernetes, AWS, Docker, Terraform, and Infrastructure as Code. Building scalable cloud solutions and automation pipelines."
+        url={window.location.origin}
+        type="website"
+        author="Hemanshu Mahajan"
+        tags={['DevOps', 'AWS', 'Kubernetes', 'Docker', 'CI/CD', 'Terraform', 'Ansible', 'Cloud Engineer', 'Infrastructure as Code']}
+      />
+      
       <AnimatePresence mode="wait">
         {isLoading && <LoadingScreen onComplete={() => setIsLoading(false)} />}
       </AnimatePresence>
@@ -57,6 +68,7 @@ const Index = () => {
           <About />
           <Skills />
           <Projects />
+          <Blog />
           <Certifications />
           <Timeline />
           <Contact />

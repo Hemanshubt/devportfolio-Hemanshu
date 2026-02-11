@@ -111,6 +111,10 @@ export default {
           "0%, 100%": { opacity: "1" },
           "50%": { opacity: "0" },
         },
+        "shimmer": {
+          "0%": { transform: "translateX(-100%)" },
+          "100%": { transform: "translateX(100%)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -125,6 +129,7 @@ export default {
         "glow-pulse": "glow-pulse 2s ease-in-out infinite",
         "typing": "typing 2s steps(20) forwards",
         "blink": "blink 1s step-end infinite",
+        "shimmer": "shimmer 2s infinite",
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
