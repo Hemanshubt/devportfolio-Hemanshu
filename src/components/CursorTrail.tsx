@@ -134,7 +134,7 @@ export default function CursorTrail() {
     return (
         <canvas
             ref={canvasRef}
-            className="pointer-events-none fixed inset-0 z-[45]"
+            className="pointer-events-none fixed inset-0 z-[10]"
             style={{ mixBlendMode: 'screen' }}
         />
     );
