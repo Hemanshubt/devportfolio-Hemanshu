@@ -548,14 +548,14 @@ export default function CodeShowcase() {
 
               {/* Code block */}
               <div className="max-h-[480px] overflow-auto p-5 [&::-webkit-scrollbar]:w-[6px] [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-primary/30 [&::-webkit-scrollbar-thumb:hover]:bg-primary/50 [scrollbar-width:thin] [scrollbar-color:hsl(191_100%_50%/0.3)_transparent]">
-                <pre className="font-mono text-[13px] leading-relaxed">
+                <pre className="font-mono text-[13px] leading-relaxed overflow-x-auto">
                   <code>
                     {activeSnippet.code.split('\n').map((line, i) => (
-                      <div key={`${activeSnippet.id}-${i}`} className="flex">
-                        <span className="mr-4 inline-block w-8 select-none text-right text-gray-600">
+                      <div key={`${activeSnippet.id}-${i}`} className="flex whitespace-pre">
+                        <span className="mr-4 inline-block w-8 flex-shrink-0 select-none text-right text-gray-600">
                           {i + 1}
                         </span>
-                        <span>{highlightLine(line, activeSnippet.language)}</span>
+                        <span className="flex-1">{highlightLine(line, activeSnippet.language)}</span>
                       </div>
                     ))}
                   </code>
