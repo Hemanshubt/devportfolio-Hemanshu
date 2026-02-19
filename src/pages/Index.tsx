@@ -11,6 +11,7 @@ import CursorTrail from '@/components/CursorTrail';
 // Lazy load below-the-fold components
 const About = lazy(() => import('@/components/About'));
 const Skills = lazy(() => import('@/components/Skills'));
+const CodeShowcase = lazy(() => import('@/components/CodeShowcase'));
 const Projects = lazy(() => import('@/components/Projects'));
 const Blog = lazy(() => import('@/components/Blog'));
 const Certifications = lazy(() => import('@/components/Certifications'));
@@ -74,6 +75,7 @@ const Index = () => {
           <Suspense fallback={<div className="min-h-screen" />}>
             <About />
             <Skills />
+            <CodeShowcase />
             <Projects />
             <Blog />
             <Certifications />

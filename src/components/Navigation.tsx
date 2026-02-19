@@ -17,6 +17,7 @@ import {
 const navLinks = [
   { name: 'About', href: '#about', icon: User },
   { name: 'Skills', href: '#skills', icon: Code2 },
+  { name: 'Code', href: '#code-showcase', icon: Terminal },
   { name: 'Projects', href: '#projects', icon: FolderGit2 },
   { name: 'Blog', href: '#blog', icon: BookOpen },
   { name: 'Certifications', href: '#certifications', icon: Award },
@@ -61,7 +62,7 @@ export default function Navigation() {
           { threshold: 0.1 } // Trigger when 10% of footer is visible
         );
         observer.observe(footer);
-        
+
         // Clear polling if successful
         if (intervalId) clearInterval(intervalId);
         return true;
