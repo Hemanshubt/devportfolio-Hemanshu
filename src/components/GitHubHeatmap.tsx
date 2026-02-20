@@ -1,11 +1,10 @@
 import { motion, useInView } from 'framer-motion';
-import { useRef, useState, useEffect, useMemo } from 'react';
-import { GitBranch, ExternalLink, Activity } from 'lucide-react';
+import { useRef, useState, useMemo } from 'react';
+import { GitBranch, ExternalLink } from 'lucide-react';
 
 // ─── Generate realistic-looking contribution data ────────────────────
 function generateContributions(): number[] {
     const data: number[] = [];
-    const today = new Date();
     const totalWeeks = 52;
 
     for (let week = 0; week < totalWeeks; week++) {
@@ -61,11 +60,6 @@ export default function GitHubHeatmap() {
     const contributions = useMemo(() => generateContributions(), []);
     const [hoveredCell, setHoveredCell] = useState<number | null>(null);
 
-    // Calculate total contributions
-    const totalContributions = useMemo(() => {
-        return contributions.reduce((sum, val) => sum + val, 0);
-    }, [contributions]);
-
     // Get month positions for labels
     const monthPositions = useMemo(() => {
         const today = new Date();
@@ -83,7 +77,7 @@ export default function GitHubHeatmap() {
     }, []);
 
     return (
-        <section className="relative py-16 md:py-24">
+        <section id="github" className="relative py-16 md:py-24">
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-background via-card/10 to-background" />
 
             <div className="relative mx-auto max-w-5xl px-4 sm:px-6">

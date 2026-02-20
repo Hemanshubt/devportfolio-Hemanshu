@@ -13,6 +13,7 @@ const About = lazy(() => import('@/components/About'));
 const Skills = lazy(() => import('@/components/Skills'));
 const CodeShowcase = lazy(() => import('@/components/CodeShowcase'));
 const Projects = lazy(() => import('@/components/Projects'));
+const GithubActivity = lazy(() => import('@/components/GithubActivity'));
 const Blog = lazy(() => import('@/components/Blog'));
 const Certifications = lazy(() => import('@/components/Certifications'));
 const Timeline = lazy(() => import('@/components/Timeline'));
@@ -77,6 +78,7 @@ const Index = () => {
             <Skills />
             <CodeShowcase />
             <Projects />
+            <GithubActivity />
             <Blog />
             <Certifications />
             <Timeline />

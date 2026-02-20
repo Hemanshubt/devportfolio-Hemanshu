@@ -50,7 +50,10 @@ A professional portfolio website built with **React 18**, **Vite 7**, **TypeScri
 - ✅ **Fully Responsive**: Optimized for all devices and screen sizes
 - ✅ **Dark Theme**: Beautiful gradient design with glowing effects
 - ✅ **Contact Form**: Integrated Email (Gmail) and Telegram notifications
-- ✅ **Blog Integration**: Dynamic blog posts fetched from Hashnode
+- ✅ **GitHub Dashboard**: Real-time contribution analytics via GitHub GraphQL API
+- ✅ **Dynamic Insights**: Personalized stats (Total Contributions, Active Days) with interactive heatmap
+- ✅ **Secure Connectivity**: Seamless integration using Personal Access Tokens (PAT)
+- ✅ **Hybrid Rendering**: Smart fallback to image-based heatmap if API access is restricted
 - ✅ **SEO Ready**: Meta tags and semantic HTML
 - ✅ **Downloadable Resume**: PDF resume download functionality
 
@@ -65,6 +68,7 @@ A professional portfolio website built with **React 18**, **Vite 7**, **TypeScri
 | 💼 **Timeline** | Work experience and education history |
 | 🛠️ **Skills** | Technical skills with animated marquee display |
 | 🚀 **Projects** | DevOps & Cloud projects with details |
+| 📊 **GitHub** | Real-time contribution dashboard with GraphQL |
 | 📝 **Blog** | Latest articles from Hashnode with caching |
 | 🏆 **Certifications** | AWS, Kubernetes, and other certifications |
 | 📧 **Contact** | Contact form with Email/Telegram integration |
@@ -86,6 +90,7 @@ A professional portfolio website built with **React 18**, **Vite 7**, **TypeScri
 | **shadcn/ui** | Latest | UI component library |
 | **Express** | 4.21.0 | Local API server |
 | **Nodemailer** | 6.9.16 | Email sending functionality |
+| **GitHub Graph** | v4 | GraphQL API for contribution data |
 
 ---
 
@@ -145,6 +150,9 @@ TELEGRAM_CHAT_ID=your-telegram-chat-id
 
 # Gemini AI Configuration (for Interactive Terminal)
 VITE_GEMINI_API_KEY=your-gemini-api-key
+
+# GitHub Configuration (for Contribution Dashboard)
+VITE_GITHUB_TOKEN=your-github-personal-access-token
 ```
 
 ### 4. Run the Development Server
@@ -187,6 +195,7 @@ TELEGRAM_CHAT_ID=your-telegram-chat-id
 | `TELEGRAM_BOT_TOKEN` | Yes | Token for Telegram bot notifications |
 | `TELEGRAM_CHAT_ID` | Yes | Your Telegram chat ID for receiving messages |
 | `VITE_GEMINI_API_KEY` | Yes | Your Google Gemini API Key (for AI terminal) |
+| `VITE_GITHUB_TOKEN` | Yes | GitHub Personal Access Token (for dashboard) |
 
 > **Note**: Both Email and Telegram run in parallel for faster delivery. At least one must be configured for the contact form to work. The terminal AI requires a valid Gemini API key.
 
@@ -201,10 +210,10 @@ The portfolio features a built-in terminal with AI capabilities and fun Easter e
 | `ai <question>` | **AI** | Ask Gemini about Hemanshu's skills, projects, or background |
 | `ai help` | **AI** | List sample questions the AI can answer |
 | `matrix` | **Theme** | Toggle "Matrix Mode" (Green flickering text theme) |
-| `hack` | **Fun** | Trigger a simulated hacking animaion |
+| `hack` | **Fun** | Trigger a simulated hacking animation |
 | `coffee` | **Fun** | Developer coffee break Easter egg |
 | `whoami` | **Info** | Quick overview of the candidate |
-| `neofetch` | **Info** | Stylezed system information display |
+| `neofetch` | **Info** | Stylized system information display |
 | `ls`, `pwd`, `cd` | **System** | Basic file system navigation simulation |
 | `clear`, `date` | **System** | Standard console utilities |
 | `sudo hire` | **Easter Egg** | The ultimate command for recruiters |
@@ -225,7 +234,7 @@ The portfolio features a built-in terminal with AI capabilities and fun Easter e
 │   ├── hooks/          # Custom React hooks
 │   ├── lib/            # Utility functions
 │   ├── pages/          # Page components (Index, ProjectDetail, BlogPost, NotFound)
-│   ├── services/       # API services (Hashnode, cache)
+│   ├── services/       # API services (Hashnode, GitHub, cache)
 │   ├── types/          # TypeScript type definitions
 │   └── utils/          # Helper utilities
 ├── api/                # Contact form API (Express for local, Vercel serverless for prod)
@@ -314,6 +323,23 @@ VITE_GEMINI_API_KEY=AIzaSy...your-key-here
 
 ---
 
+### 🐙 Get a GitHub Personal Access Token
+
+1.  Go to [GitHub Settings > Tokens](https://github.com/settings/tokens) (Classic)
+2.  Click **Generate new token (classic)**
+3.  Set a name and select the `read:user` scope
+4.  Copy the token (it starts with `ghp_`)
+5.  Add to `.env` file:
+
+```env
+VITE_GITHUB_TOKEN=ghp_your...token-here
+```
+
+> **Security Note**: This dashboard only requires READ access to your public (and private) contribution data. Never share this token or grant unnecessary permissions beyond `read:user`.
+
+
+---
+
 ## Troubleshooting :wrench:
 
 <details>
@@ -373,6 +399,17 @@ npm run dev -- --port 3000
 - **Wait 60 seconds** and try again.
 - The terminal is optimized to handle this gracefully and will inform you if the AI is currently overloaded.
 </details>
+
+<details>
+<summary><strong>❌ GitHub Dashboard: 401 Unauthorized / No Data</strong></summary>
+
+**Solution:**
+- Verify `VITE_GITHUB_TOKEN` is correctly set in your `.env` file.
+- Ensure the token has the `read:user` scope (Classic token).
+- Check that your username `Hemanshubt` matches your actual GitHub handle.
+- If using private contributions, ensure they are enabled in your GitHub profile settings.
+</details>
+
 
 ---
 
