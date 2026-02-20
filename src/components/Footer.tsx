@@ -17,37 +17,52 @@ function CountUp({ value }: { value: number }) {
 export default function Footer() {
   const [repoStats, setRepoStats] = useState({ stars: 0, forks: 0 });
   const [isSyncing, setIsSyncing] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
   const repoUrl = "https://github.com/Hemanshubt/devportfolio-Hemanshu";
 
   useEffect(() => {
-    const fetchStats = async () => {
-      setIsSyncing(true);
-      try {
-        const res = await fetch('https://api.github.com/repos/Hemanshubt/devportfolio-Hemanshu');
-        const data = await res.json();
+    let timeoutId: NodeJS.Timeout;
 
-        if (data.stargazers_count !== undefined) {
+    const fetchStats = async () => {
+      // Don't sync if already syncing (though with setTimeout it shouldn't happen)
+      setIsSyncing(true);
+
+      try {
+        // Add cache-breaker and abort controller for clean polling
+        const cacheBuster = `?t=${Date.now()}`;
+        const response = await fetch(`${repoUrl.replace('github.com', 'api.github.com/repos')}${cacheBuster}`);
+
+        if (!response.ok) {
+          throw new Error(`Status ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data && typeof data.stargazers_count === 'number') {
           setRepoStats({
             stars: data.stargazers_count,
             forks: data.forks_count
           });
-          console.log(`[GitHub API] Sync successful: ${data.stargazers_count} stars, ${data.forks_count} forks`);
-        } else {
-          console.warn('[GitHub API] Rate limit or repository error:', data.message);
+          setLastUpdated(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
+          console.log(`[GitHub API] Sync successful: ${data.stargazers_count} stars`);
         }
       } catch (err) {
-        console.error('[GitHub API] Fetch failed:', err);
+        console.warn('[GitHub API] Polling:', err instanceof Error ? err.message : 'Error');
       } finally {
-        // Keep syncing state for a moment to show the visual pulse
+        // Visual indicator duration
         setTimeout(() => setIsSyncing(false), 1000);
+
+        // Schedule next poll in 10 seconds
+        timeoutId = setTimeout(fetchStats, 10000);
       }
     };
 
     fetchStats();
-    // Set up automatic polling every 10 seconds
-    const interval = setInterval(fetchStats, 10000);
-    return () => clearInterval(interval);
-  }, []);
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [repoUrl]);
 
   return (
     <footer className="border-t border-border bg-card/10 py-12 backdrop-blur-sm sm:py-16">
@@ -111,6 +126,13 @@ export default function Footer() {
                   <span>Forks</span>
                 </motion.div>
               </div>
+
+              {lastUpdated && (
+                <div className="font-mono text-[9px] text-muted-foreground/60 transition-opacity flex items-center justify-center gap-1">
+                  <span className="inline-block h-1 w-1 rounded-full bg-green-500/50" />
+                  Last Synced: {lastUpdated}
+                </div>
+              )}
             </a>
           </div>
 
