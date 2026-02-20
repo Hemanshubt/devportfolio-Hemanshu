@@ -1,5 +1,6 @@
 import { motion, useInView, AnimatePresence } from 'framer-motion';
 import { useRef, useState, useMemo } from 'react';
+import { Orbit, LayoutGrid } from 'lucide-react';
 
 const categories = [
   'All',
@@ -151,7 +152,7 @@ function SkillPlanet({
 
   return (
     <motion.div
-      className="absolute flex flex-col items-center gap-1"
+      className="absolute"
       style={{
         zIndex: isHighlighted ? 20 : 5,
         left: '50%',
@@ -160,44 +161,47 @@ function SkillPlanet({
       animate={{
         x: xFrames,
         y: yFrames,
-        translateX: '-50%',
-        translateY: '-50%',
       }}
       transition={{
         x: { repeat: Infinity, duration, ease: 'linear' },
         y: { repeat: Infinity, duration, ease: 'linear' }
       }}
     >
-      <motion.div
-        className="relative flex items-center justify-center rounded-xl border bg-card/90 backdrop-blur-sm transition-all duration-300"
-        style={{
-          width: 56,
-          height: 56,
-          borderColor: isHighlighted ? color : 'hsl(217 33% 17%)',
-          boxShadow: isHighlighted ? `0 0 16px ${glow}, 0 0 32px ${glow}` : 'none',
-        }}
-        animate={isHighlighted ? { scale: [1, 1.15, 1] } : { scale: 1 }}
-        transition={isHighlighted ? { repeat: Infinity, duration: 2, ease: 'easeInOut' } : {}}
-        whileHover={{ scale: 1.3, zIndex: 30 }}
-        onMouseEnter={() => onHover(skill)}
-        onMouseLeave={() => onHover(null)}
-        onClick={() => onClick(skill)}
-        title={`${skill.name} — ${skill.category}`}
+      <div
+        className="flex flex-col items-center gap-1"
+        style={{ transform: 'translate(-50%, -50%)' }}
       >
-        <img
-          src={skill.logo}
-          alt={skill.name}
-          className="h-9 w-9 object-contain"
-          style={{ filter: isHighlighted ? 'none' : 'brightness(0.6)' }}
-        />
-      </motion.div>
-      <motion.span
-        className="whitespace-nowrap font-mono text-[9px] font-medium"
-        style={{ color: isHighlighted ? color : 'hsl(215 20% 55%)' }}
-        animate={{ opacity: isHighlighted ? 1 : 0.5 }}
-      >
-        {skill.name}
-      </motion.span>
+        <motion.div
+          className="relative flex items-center justify-center rounded-xl border bg-card/90 backdrop-blur-sm transition-all duration-300"
+          style={{
+            width: 56,
+            height: 56,
+            borderColor: isHighlighted ? color : 'hsl(217 33% 17%)',
+            boxShadow: isHighlighted ? `0 0 16px ${glow}, 0 0 32px ${glow}` : 'none',
+          }}
+          animate={isHighlighted ? { scale: [1, 1.15, 1] } : { scale: 1 }}
+          transition={isHighlighted ? { repeat: Infinity, duration: 2, ease: 'easeInOut' } : {}}
+          whileHover={{ scale: 1.3, zIndex: 30 }}
+          onMouseEnter={() => onHover(skill)}
+          onMouseLeave={() => onHover(null)}
+          onClick={() => onClick(skill)}
+          title={`${skill.name} — ${skill.category}`}
+        >
+          <img
+            src={skill.logo}
+            alt={skill.name}
+            className="h-9 w-9 object-contain"
+            style={{ filter: isHighlighted ? 'none' : 'brightness(0.6)' }}
+          />
+        </motion.div>
+        <motion.span
+          className="whitespace-nowrap font-mono text-[9px] font-medium"
+          style={{ color: isHighlighted ? color : 'hsl(215 20% 55%)' }}
+          animate={{ opacity: isHighlighted ? 1 : 0.5 }}
+        >
+          {skill.name}
+        </motion.span>
+      </div>
     </motion.div>
   );
 }
@@ -210,15 +214,15 @@ function SkillsOrbitSystem({ activeCategory }: { activeCategory: string }) {
   const displaySkill = hoveredSkill || selectedSkill;
 
   const orbitRings = [
-    { ring: 1, radius: 160, speed: 32 },
-    { ring: 2, radius: 215, speed: 36 },
-    { ring: 3, radius: 270, speed: 40 },
-    { ring: 4, radius: 325, speed: 44 },
-    { ring: 5, radius: 375, speed: 48 },
-    { ring: 6, radius: 420, speed: 52 },
-    { ring: 7, radius: 460, speed: 56 },
-    { ring: 8, radius: 495, speed: 60 },
-    { ring: 9, radius: 525, speed: 64 },
+    { ring: 1, radius: 150, speed: 32 },
+    { ring: 2, radius: 200, speed: 36 },
+    { ring: 3, radius: 250, speed: 40 },
+    { ring: 4, radius: 300, speed: 44 },
+    { ring: 5, radius: 350, speed: 48 },
+    { ring: 6, radius: 400, speed: 52 },
+    { ring: 7, radius: 450, speed: 56 },
+    { ring: 8, radius: 500, speed: 60 },
+    { ring: 9, radius: 550, speed: 64 },
   ];
 
   // Assign angles evenly per ring
@@ -255,7 +259,7 @@ function SkillsOrbitSystem({ activeCategory }: { activeCategory: string }) {
   }, []);
 
   return (
-    <div className="relative mx-auto flex items-center justify-center" style={{ width: 1100, height: 1100 }}>
+    <div className="relative mx-auto flex items-center justify-center" style={{ width: 1200, height: 1200 }}>
       {/* Orbit ring lines */}
       {orbitRings.map((o) => (
         <motion.div
@@ -264,13 +268,17 @@ function SkillsOrbitSystem({ activeCategory }: { activeCategory: string }) {
           style={{
             width: o.radius * 2,
             height: o.radius * 2,
-            borderColor: 'hsl(217 33% 17% / 0.5)',
+            borderColor: 'rgba(56, 189, 248, 0.15)',
+            borderWidth: '1px',
+            left: '50%',
+            top: '50%',
           }}
-          initial={{ opacity: 0, scale: 0.5 }}
-          animate={{ opacity: 1, scale: 1 }}
+          initial={{ opacity: 0, scale: 0.5, x: '-50%', y: '-50%' }}
+          animate={{ opacity: 1, scale: 1, x: '-50%', y: '-50%' }}
           transition={{ delay: o.ring * 0.1, duration: 0.5 }}
         />
       ))}
+
 
       {/* Center core */}
       <motion.div
@@ -278,11 +286,14 @@ function SkillsOrbitSystem({ activeCategory }: { activeCategory: string }) {
         style={{
           left: '50%',
           top: '50%',
-          translateX: '-50%',
-          translateY: '-50%',
         }}
         onClick={() => setSelectedSkill(null)}
-        animate={{ scale: [1, 1.05, 1] }}
+        initial={{ x: '-50%', y: '-50%' }}
+        animate={{
+          x: '-50%',
+          y: '-50%',
+          scale: [1, 1.05, 1]
+        }}
         transition={{ repeat: Infinity, duration: 3, ease: 'easeInOut' }}
       >
         <AnimatePresence mode="wait">
@@ -292,10 +303,13 @@ function SkillsOrbitSystem({ activeCategory }: { activeCategory: string }) {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}
-              className="flex flex-col items-center"
+              className="flex flex-col items-center gap-2"
             >
-              <img src="/DevOps_Logo.svg" alt="DevOps" className="h-24 w-24 object-contain" />
-              <span className="mt-1 font-mono text-sm font-black text-primary tracking-widest uppercase">DevOps</span>
+              <div className="relative">
+                <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full" />
+                <img src="/DevOps_Logo.svg" alt="DevOps" className="relative h-20 w-20 object-contain" />
+              </div>
+              <span className="font-mono text-sm font-black text-primary tracking-[0.2em] uppercase">DevOps</span>
             </motion.div>
           ) : (
             <motion.div
@@ -339,20 +353,6 @@ function SkillsOrbitSystem({ activeCategory }: { activeCategory: string }) {
         );
       })}
 
-      {/* Category legend */}
-      <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 w-[500px]">
-        <div className="flex flex-wrap justify-center gap-x-5 gap-y-2">
-          {Object.entries(categoryConfig).map(([cat, cfg]) => (
-            <div key={cat} className="flex items-center gap-1.5">
-              <div
-                className="h-2.5 w-2.5 rounded-full"
-                style={{ backgroundColor: cfg.color, boxShadow: `0 0 6px ${cfg.glow}` }}
-              />
-              <span className="font-mono text-[13px] text-muted-foreground">{cat}</span>
-            </div>
-          ))}
-        </div>
-      </div>
     </div>
   );
 }
@@ -369,7 +369,7 @@ export default function Skills() {
     : skills.filter(skill => skill.category === activeCategory);
 
   return (
-    <section id="skills" className="relative py-16 md:py-32">
+    <section id="skills" className="relative py-16 md:py-32 overflow-hidden">
       <div className="bg-grid-small pointer-events-none absolute inset-0 opacity-20" />
 
       <div className="relative mx-auto max-w-5xl px-4 sm:px-6">
@@ -381,9 +381,10 @@ export default function Skills() {
           className="text-center"
         >
           <h2 className="text-3xl font-bold sm:text-4xl md:text-5xl">
-            <span className="gradient-text">Skills</span>
+            {/* <span className="gradient-text tracking-tight">Technical SKills</span> */}
+            Technical <span className="gradient-text">Skills</span>
           </h2>
-          <div className="mx-auto mt-3 h-1 w-16 rounded-full bg-gradient-to-r from-primary to-secondary" />
+          <div className="mx-auto mt-4 h-1 w-24 rounded-full bg-gradient-to-r from-primary via-secondary to-primary" />
         </motion.div>
 
         {/* View Mode Toggle */}
@@ -391,26 +392,36 @@ export default function Skills() {
           initial={{ opacity: 0, y: 10 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ delay: 0.15, duration: 0.5 }}
-          className="mt-6 flex justify-center"
+          className="mt-8 flex justify-center"
         >
-          <div className="inline-flex rounded-full border border-border bg-card/50 p-1">
+          <div className="relative inline-flex items-center rounded-full border border-primary/20 bg-card/40 p-1.5 backdrop-blur-sm shadow-xl">
+            {/* Sliding Background */}
+            <motion.div
+              layoutId="view-toggle"
+              className="absolute h-[calc(100%-12px)] rounded-full bg-primary shadow-lg shadow-primary/25"
+              initial={false}
+              animate={{
+                left: viewMode === 'orbit' ? '6px' : 'calc(50% + 2px)',
+                width: 'calc(50% - 8px)',
+              }}
+              transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}
+            />
+
             <button
               onClick={() => setViewMode('orbit')}
-              className={`rounded-full px-4 py-1.5 font-mono text-xs transition-all duration-300 ${viewMode === 'orbit'
-                ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/25'
-                : 'text-muted-foreground hover:text-foreground'
+              className={`relative z-10 flex items-center gap-2 rounded-full px-5 py-2 font-mono text-xs font-bold transition-colors duration-300 ${viewMode === 'orbit' ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
                 }`}
             >
-              🪐 Orbit View
+              <Orbit className={`h-3.5 w-3.5 ${viewMode === 'orbit' ? 'animate-pulse' : ''}`} />
+              Orbit View
             </button>
             <button
               onClick={() => setViewMode('grid')}
-              className={`rounded-full px-4 py-1.5 font-mono text-xs transition-all duration-300 ${viewMode === 'grid'
-                ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/25'
-                : 'text-muted-foreground hover:text-foreground'
+              className={`relative z-10 flex items-center gap-2 rounded-full px-5 py-2 font-mono text-xs font-bold transition-colors duration-300 ${viewMode === 'grid' ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
                 }`}
             >
-              📊 Grid View
+              <LayoutGrid className="h-3.5 w-3.5" />
+              Grid View
             </button>
           </div>
         </motion.div>
@@ -445,14 +456,30 @@ export default function Skills() {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
               transition={{ duration: 0.4 }}
-              className="mt-8 flex justify-center sm:mt-12"
+              className="mt-8 flex w-full flex-col items-center justify-center sm:mt-12"
             >
               {/* Responsive scaling wrapper */}
-              <div
-                className="origin-center scale-[0.3] sm:scale-[0.45] md:scale-[0.6] lg:scale-100 transition-transform duration-300"
-                style={{ height: '1100px' }}
-              >
-                <SkillsOrbitSystem activeCategory={activeCategory} />
+              <div className="relative flex items-center justify-center w-full h-[380px] sm:h-[550px] md:h-[720px] lg:h-[950px] xl:h-[1200px]">
+                <div
+                  className="origin-center scale-[0.3] sm:scale-[0.45] md:scale-[0.6] lg:scale-[0.8] xl:scale-100 transition-transform duration-500"
+                >
+                  <SkillsOrbitSystem activeCategory={activeCategory} />
+                </div>
+              </div>
+
+              {/* Category legend */}
+              <div className="mt-12 w-full max-w-[600px] px-4">
+                <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 sm:gap-x-6">
+                  {Object.entries(categoryConfig).map(([cat, cfg]) => (
+                    <div key={cat} className="flex items-center gap-2">
+                      <div
+                        className="h-2 w-2 rounded-full sm:h-2.5 sm:w-2.5"
+                        style={{ backgroundColor: cfg.color, boxShadow: `0 0 8px ${cfg.glow}` }}
+                      />
+                      <span className="font-mono text-[10px] sm:text-xs text-muted-foreground whitespace-nowrap">{cat}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </motion.div>
           )}
@@ -468,7 +495,7 @@ export default function Skills() {
             >
               <motion.div
                 layout
-                className="grid grid-cols-3 gap-2 sm:grid-cols-4 sm:gap-3 md:grid-cols-4 md:gap-4 lg:grid-cols-5 lg:gap-5"
+                className="grid grid-cols-2 gap-3 xs:grid-cols-3 sm:grid-cols-4 sm:gap-4 md:grid-cols-4 lg:grid-cols-5 lg:gap-6"
               >
                 <AnimatePresence mode="popLayout">
                   {filteredSkills.map((skill, index) => (

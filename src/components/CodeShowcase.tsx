@@ -478,8 +478,8 @@ export default function CodeShowcase() {
                     setCopied(false);
                   }}
                   className={`group flex min-w-[260px] items-start gap-4 rounded-xl border p-4 text-left transition-all duration-300 lg:min-w-0 ${isActive
-                      ? 'border-primary/40 bg-primary/5 shadow-lg shadow-primary/5'
-                      : 'border-border/50 bg-card/40 hover:border-primary/20 hover:bg-card/60'
+                    ? 'border-primary/40 bg-primary/5 shadow-lg shadow-primary/5'
+                    : 'border-border/50 bg-card/40 hover:border-primary/20 hover:bg-card/60'
                     }`}
                 >
                   {/* Icon */}
