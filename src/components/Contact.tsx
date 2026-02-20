@@ -1,7 +1,8 @@
 import { motion, useInView, AnimatePresence } from 'framer-motion';
 import { useRef, useState, useEffect, useCallback, useMemo } from 'react';
 import { Send, Mail, MapPin, CheckCircle, AlertCircle, Wifi, Clock, Shield, Rocket, Terminal } from 'lucide-react';
-import { FaGithub, FaLinkedin } from 'react-icons/fa';
+import { FaGithub, FaLinkedin, FaInstagram, FaTelegramPlane, FaDiscord } from 'react-icons/fa';
+import { FaXTwitter } from 'react-icons/fa6';
 
 
 /* ─────────────── 2. CI/CD Pipeline Progress ─────────────── */
@@ -119,8 +120,9 @@ const socialPlanets = [
     icon: <FaGithub className="h-5 w-5" />,
     href: 'https://github.com/Hemanshubt',
     color: 'hsl(0 0% 80%)',
-    orbitSize: 80,
-    speed: 12,
+    orbitSize: 70,
+    speed: 14,
+    startAngle: 0,
     bgHover: 'hover:bg-white/10 hover:text-white',
   },
   {
@@ -128,15 +130,56 @@ const socialPlanets = [
     icon: <FaLinkedin className="h-5 w-5" />,
     href: 'https://www.linkedin.com/in/hemanshu-mahajan/',
     color: 'hsl(210 90% 55%)',
-    orbitSize: 120,
-    speed: 18,
+    orbitSize: 70,
+    speed: 14,
+    startAngle: Math.PI,
     bgHover: 'hover:bg-blue-500/10 hover:text-blue-400',
+  },
+  {
+    name: 'X (Twitter)',
+    icon: <FaXTwitter className="h-5 w-5" />,
+    href: 'https://x.com/Hemanshubtc',
+    color: 'hsl(0 0% 90%)',
+    orbitSize: 110,
+    speed: 20,
+    startAngle: Math.PI / 3,
+    bgHover: 'hover:bg-white/10 hover:text-white',
+  },
+  {
+    name: 'Instagram',
+    icon: <FaInstagram className="h-5 w-5" />,
+    href: 'https://www.instagram.com/hemanshum_',
+    color: 'hsl(330 80% 60%)',
+    orbitSize: 110,
+    speed: 20,
+    startAngle: Math.PI + Math.PI / 3,
+    bgHover: 'hover:bg-pink-500/10 hover:text-pink-400',
+  },
+  {
+    name: 'Telegram',
+    icon: <FaTelegramPlane className="h-5 w-5" />,
+    href: 'https://t.me/hemanshubtc',
+    color: 'hsl(200 85% 55%)',
+    orbitSize: 150,
+    speed: 26,
+    startAngle: (2 * Math.PI) / 5,
+    bgHover: 'hover:bg-sky-500/10 hover:text-sky-400',
+  },
+  {
+    name: 'Discord',
+    icon: <FaDiscord className="h-5 w-5" />,
+    href: 'https://discord.com/users/hemanshumahajan8415',
+    color: 'hsl(235 86% 65%)',
+    orbitSize: 150,
+    speed: 26,
+    startAngle: Math.PI + (2 * Math.PI) / 5,
+    bgHover: 'hover:bg-indigo-500/10 hover:text-indigo-400',
   },
 ];
 
 function OrbitingSocials() {
   return (
-    <div className="relative flex h-64 w-64 items-center justify-center mx-auto">
+    <div className="relative flex h-80 w-80 items-center justify-center mx-auto">
       {/* Center node */}
       <motion.div
         className="absolute flex h-14 w-14 items-center justify-center rounded-full border border-primary/30 bg-card shadow-[0_0_20px_hsl(191_100%_50%/0.2)]"
@@ -172,18 +215,18 @@ function OrbitingSocials() {
           }}
           animate={{
             x: [
-              Math.cos(0) * planet.orbitSize,
-              Math.cos(Math.PI / 2) * planet.orbitSize,
-              Math.cos(Math.PI) * planet.orbitSize,
-              Math.cos((3 * Math.PI) / 2) * planet.orbitSize,
-              Math.cos(2 * Math.PI) * planet.orbitSize,
+              Math.cos(planet.startAngle) * planet.orbitSize,
+              Math.cos(planet.startAngle + Math.PI / 2) * planet.orbitSize,
+              Math.cos(planet.startAngle + Math.PI) * planet.orbitSize,
+              Math.cos(planet.startAngle + (3 * Math.PI) / 2) * planet.orbitSize,
+              Math.cos(planet.startAngle + 2 * Math.PI) * planet.orbitSize,
             ],
             y: [
-              Math.sin(0) * planet.orbitSize,
-              Math.sin(Math.PI / 2) * planet.orbitSize,
-              Math.sin(Math.PI) * planet.orbitSize,
-              Math.sin((3 * Math.PI) / 2) * planet.orbitSize,
-              Math.sin(2 * Math.PI) * planet.orbitSize,
+              Math.sin(planet.startAngle) * planet.orbitSize,
+              Math.sin(planet.startAngle + Math.PI / 2) * planet.orbitSize,
+              Math.sin(planet.startAngle + Math.PI) * planet.orbitSize,
+              Math.sin(planet.startAngle + (3 * Math.PI) / 2) * planet.orbitSize,
+              Math.sin(planet.startAngle + 2 * Math.PI) * planet.orbitSize,
             ],
           }}
           transition={{
