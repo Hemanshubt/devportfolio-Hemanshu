@@ -134,11 +134,14 @@ const GithubActivity = () => {
             <div className="gh-dashboard-container">
                 <header className="gh-dashboard-header">
                     <motion.div
-                        initial={{ opacity: 0, x: -20 }}
-                        whileInView={{ opacity: 1, x: 0 }}
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                     >
-                        <h2 className="gh-dashboard-title">Contribution Dashboard</h2>
+                        <span className="gh-dashboard-badge">// ACTIVITY</span>
+                        <h2 className="gh-dashboard-title">
+                            Contribution <span>Dashboard</span>
+                        </h2>
                         <p className="gh-dashboard-subtitle">Real-time GitHub activity insights</p>
                     </motion.div>
 

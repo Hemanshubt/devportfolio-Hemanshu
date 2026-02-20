@@ -11,21 +11,43 @@
 
 .gh-dashboard-header {
     display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    margin-bottom: 2rem;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 3rem;
     gap: 1.5rem;
 }
 
+.gh-dashboard-badge {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #00e5ff;
+    /* Cyan color from image */
+    letter-spacing: 0.2em;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+}
+
 .gh-dashboard-title {
-    font-size: 1.75rem;
-    font-weight: 700;
+    font-size: 3rem;
+    font-weight: 800;
     color: hsl(var(--foreground));
-    letter-spacing: -0.02em;
+    letter-spacing: -0.03em;
+    margin-bottom: 0.75rem;
+    line-height: 1.1;
+}
+
+.gh-dashboard-title span {
+    background: linear-gradient(to right, #00d2ff, #3a7bd5, #00ff88);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .gh-dashboard-subtitle {
-    font-size: 0.9rem;
+    font-size: 1rem;
     color: hsl(var(--muted-foreground));
     font-family: 'JetBrains Mono', monospace;
 }
