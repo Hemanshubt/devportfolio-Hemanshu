@@ -88,10 +88,13 @@ export default function GitHubHeatmap() {
                     transition={{ duration: 0.6 }}
                     className="text-center"
                 >
-                    <h2 className="text-3xl font-bold sm:text-4xl md:text-5xl">
+                    <span className="section-heading">GitHub</span>
+                    <h2 className="mt-4 text-3xl font-bold sm:text-4xl md:text-5xl">
                         <span className="gradient-text">Coding Activity</span>
                     </h2>
-                    <div className="mx-auto mt-3 h-1 w-16 rounded-full bg-gradient-to-r from-primary to-secondary" />
+                    <p className="mx-auto mt-4 max-w-2xl text-base text-muted-foreground sm:text-lg">
+                        A snapshot of my open-source contributions and coding consistency.
+                    </p>
                 </motion.div>
 
                 {/* Stats Cards */}

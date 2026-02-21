@@ -380,11 +380,13 @@ export default function Skills() {
           transition={{ duration: 0.6 }}
           className="text-center"
         >
-          <h2 className="text-3xl font-bold sm:text-4xl md:text-5xl">
-            {/* <span className="gradient-text tracking-tight">Technical SKills</span> */}
+          <span className="section-heading">Expertise</span>
+          <h2 className="mt-4 text-3xl font-bold sm:text-4xl md:text-5xl">
             Technical <span className="gradient-text">Skills</span>
           </h2>
-          <div className="mx-auto mt-4 h-1 w-24 rounded-full bg-gradient-to-r from-primary via-secondary to-primary" />
+          <p className="mx-auto mt-4 max-w-2xl text-base text-muted-foreground sm:text-lg">
+            Tools and technologies I use to build, deploy, and manage cloud infrastructure.
+          </p>
         </motion.div>
 
         {/* View Mode Toggle */}

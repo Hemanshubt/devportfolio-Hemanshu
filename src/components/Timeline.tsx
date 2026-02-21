@@ -33,7 +33,7 @@ export default function Timeline() {
   return (
     <section id="education" className="relative py-16 md:py-32">
       <div className="bg-grid-small pointer-events-none absolute inset-0 opacity-10" />
-      
+
       <div className="relative mx-auto max-w-4xl px-4 sm:px-6">
         <motion.div
           ref={ref}
@@ -46,6 +46,9 @@ export default function Timeline() {
           <h2 className="mt-4 text-3xl font-bold sm:text-4xl md:text-5xl">
             <span className="gradient-text">Education</span>
           </h2>
+          <p className="mx-auto mt-4 max-w-2xl text-base text-muted-foreground sm:text-lg">
+            Academic milestones that shaped my foundation in computer science and DevOps.
+          </p>
         </motion.div>
 
         <div className="relative mt-10 sm:mt-16">
@@ -58,24 +61,22 @@ export default function Timeline() {
               initial={{ opacity: 0, y: 30 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: i * 0.15 }}
-              className={`relative mb-10 sm:mb-14 ${
-                i % 2 === 0 
-                  ? 'ml-8 sm:ml-10 md:ml-0 md:mr-auto md:w-[calc(50%-30px)] md:pr-0 md:text-right' 
+              className={`relative mb-10 sm:mb-14 ${i % 2 === 0
+                  ? 'ml-8 sm:ml-10 md:ml-0 md:mr-auto md:w-[calc(50%-30px)] md:pr-0 md:text-right'
                   : 'ml-8 sm:ml-10 md:ml-auto md:w-[calc(50%-30px)] md:pl-0'
-              }`}
+                }`}
             >
               {/* Timeline dot - Mobile */}
-              <div 
+              <div
                 className="absolute -left-8 top-5 flex h-4 w-4 items-center justify-center rounded-full border-2 border-cyan-500 bg-background sm:-left-10 sm:h-5 sm:w-5 md:hidden"
               >
                 <div className="h-2 w-2 rounded-full bg-cyan-500 sm:h-2.5 sm:w-2.5" />
               </div>
 
               {/* Timeline dot - Desktop */}
-              <div 
-                className={`absolute top-5 hidden h-5 w-5 items-center justify-center rounded-full border-2 border-cyan-500 bg-background md:flex ${
-                  i % 2 === 0 ? '-right-[42px]' : '-left-[42px]'
-                }`}
+              <div
+                className={`absolute top-5 hidden h-5 w-5 items-center justify-center rounded-full border-2 border-cyan-500 bg-background md:flex ${i % 2 === 0 ? '-right-[42px]' : '-left-[42px]'
+                  }`}
               >
                 <div className="h-2.5 w-2.5 rounded-full bg-cyan-500" />
               </div>
@@ -91,7 +92,7 @@ export default function Timeline() {
                     )}
                     <span className="font-mono text-xs text-muted-foreground sm:text-sm">{exp.period}</span>
                   </div>
-                  
+
                   <h3 className="text-base font-bold text-foreground sm:text-lg">{exp.title}</h3>
                   <p className={`text-sm font-medium sm:text-base ${exp.type === 'certification' ? 'text-cyan-500' : 'text-green-500'}`}>
                     {exp.company}

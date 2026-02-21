@@ -451,7 +451,8 @@ export default function CodeShowcase() {
           transition={{ duration: 0.6 }}
           className="text-center"
         >
-          <h2 className="text-3xl font-bold sm:text-4xl md:text-5xl">
+          <span className="section-heading">DevOps</span>
+          <h2 className="mt-4 text-3xl font-bold sm:text-4xl md:text-5xl">
             Code <span className="gradient-text">Showcase</span>
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-base text-muted-foreground sm:text-lg">
