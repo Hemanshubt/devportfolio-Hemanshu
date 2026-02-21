@@ -29,7 +29,7 @@ export default function BlogPost() {
       try {
         setLoading(true);
         const fetchedPost = await hashnodeService.fetchBlogPostBySlug('hemanshubtc.hashnode.dev', slug);
-        
+
         if (!fetchedPost) {
           setError('Blog post not found');
         } else {
@@ -51,7 +51,7 @@ export default function BlogPost() {
       <div className="min-h-screen bg-background">
         <Navigation />
         <div className="flex min-h-[80vh] items-center justify-center">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.3 }}
@@ -61,7 +61,7 @@ export default function BlogPost() {
               <div className="absolute inset-0 animate-spin rounded-full border-4 border-primary border-t-transparent" />
               <div className="absolute inset-2 animate-pulse rounded-full bg-primary/20" />
             </div>
-            <motion.p 
+            <motion.p
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
@@ -81,7 +81,7 @@ export default function BlogPost() {
       <div className="min-h-screen bg-background">
         <Navigation />
         <div className="flex min-h-[80vh] items-center justify-center">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
@@ -115,6 +115,34 @@ export default function BlogPost() {
 
   const currentUrl = `${window.location.origin}/blog/${post.slug}`;
 
+  const blogPostStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": post.title,
+    "description": post.description,
+    "image": post.coverImage,
+    "author": {
+      "@type": "Person",
+      "name": "Hemanshu Mahajan",
+      "url": window.location.origin
+    },
+    "publisher": {
+      "@type": "Person",
+      "name": "Hemanshu Mahajan",
+      "logo": {
+        "@type": "ImageObject",
+        "url": `${window.location.origin}/favicon.svg`
+      }
+    },
+    "datePublished": post.publishedAt,
+    "dateModified": post.publishedAt, // Using publishedAt as modified date for now
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": currentUrl
+    },
+    "keywords": post.tags.join(', ')
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
@@ -126,145 +154,149 @@ export default function BlogPost() {
         publishedTime={post.publishedAt}
         author="Hemanshu Mahajan"
         tags={post.tags}
+        structuredData={blogPostStructuredData}
       />
       <Navigation />
-      
-      <article className="relative py-16 md:py-24">
-        <div className="mx-auto max-w-4xl px-4 sm:px-6">
-          {/* Back Button */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.4 }}
-          >
-            <Link
-              to="/#blog"
-              className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Back to Blog
-            </Link>
-          </motion.div>
 
-          {/* Cover Image */}
-          {post.coverImage && (
+      <main>
+        <article className="relative py-16 md:py-24">
+          <div className="mx-auto max-w-4xl px-4 sm:px-6">
+            {/* Back Button */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.4 }}
+            >
+              <Link
+                to="/#blog"
+                className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Back to Blog
+              </Link>
+            </motion.div>
+
+            {/* Cover Image */}
+            {post.coverImage && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.1 }}
+                className="mt-8 overflow-hidden rounded-lg"
+              >
+                <img
+                  src={post.coverImage}
+                  alt={post.title}
+                  className="h-auto w-full object-cover"
+                  loading="lazy"
+                />
+              </motion.div>
+            )}
+
+            {/* Title */}
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="mt-8 text-3xl font-bold leading-tight text-foreground sm:text-4xl md:text-5xl"
+            >
+              {post.title}
+            </motion.h1>
+
+            {/* Meta Information */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="mt-8 overflow-hidden rounded-lg"
+              transition={{ duration: 0.6, delay: 0.3 }}
+              className="mt-6 flex flex-wrap items-center gap-4 text-sm text-muted-foreground"
             >
-              <img
-                src={post.coverImage}
-                alt={post.title}
-                className="h-auto w-full object-cover"
+              <div className="flex items-center gap-2">
+                <Calendar className="h-4 w-4" />
+                <time dateTime={post.publishedAt}>
+                  {formatPublishedDate(post.publishedAt)}
+                </time>
+              </div>
+              {post.tags.length > 0 && (
+                <div className="flex items-center gap-2">
+                  <Tag className="h-4 w-4" />
+                  <span>{post.tags.length} {post.tags.length === 1 ? 'tag' : 'tags'}</span>
+                </div>
+              )}
+            </motion.div>
+
+            {/* Tags */}
+            {post.tags.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.4 }}
+                className="mt-6 flex flex-wrap gap-2"
+              >
+                {post.tags.map((tag, index) => (
+                  <motion.span
+                    key={index}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.3, delay: 0.4 + index * 0.05 }}
+                    whileHover={{ scale: 1.05 }}
+                    className="rounded-md border border-border bg-muted/30 px-3 py-1 text-sm text-muted-foreground transition-colors hover:bg-muted/50"
+                  >
+                    {tag}
+                  </motion.span>
+                ))}
+              </motion.div>
+            )}
+
+            {/* Description */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.5 }}
+              className="mt-8 text-lg leading-relaxed text-muted-foreground"
+            >
+              {post.description}
+            </motion.div>
+
+            {/* Share Buttons */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.6 }}
+              className="mt-8 rounded-lg border border-border bg-card/50 p-6"
+            >
+              <ShareButtons
+                url={currentUrl}
+                title={post.title}
+                description={post.description}
               />
             </motion.div>
-          )}
 
-          {/* Title */}
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="mt-8 text-3xl font-bold leading-tight text-foreground sm:text-4xl md:text-5xl"
-          >
-            {post.title}
-          </motion.h1>
-
-          {/* Meta Information */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="mt-6 flex flex-wrap items-center gap-4 text-sm text-muted-foreground"
-          >
-            <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4" />
-              <time dateTime={post.publishedAt}>
-                {formatPublishedDate(post.publishedAt)}
-              </time>
-            </div>
-            {post.tags.length > 0 && (
-              <div className="flex items-center gap-2">
-                <Tag className="h-4 w-4" />
-                <span>{post.tags.length} {post.tags.length === 1 ? 'tag' : 'tags'}</span>
-              </div>
-            )}
-          </motion.div>
-
-          {/* Tags */}
-          {post.tags.length > 0 && (
+            {/* Read Full Article CTA */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-              className="mt-6 flex flex-wrap gap-2"
+              transition={{ duration: 0.6, delay: 0.7 }}
+              className="mt-8 rounded-lg border border-primary/20 bg-primary/5 p-8 text-center"
             >
-              {post.tags.map((tag, index) => (
-                <motion.span
-                  key={index}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.3, delay: 0.4 + index * 0.05 }}
-                  whileHover={{ scale: 1.05 }}
-                  className="rounded-md border border-border bg-muted/30 px-3 py-1 text-sm text-muted-foreground transition-colors hover:bg-muted/50"
-                >
-                  {tag}
-                </motion.span>
-              ))}
+              <h2 className="text-2xl font-bold text-foreground">Continue Reading</h2>
+              <p className="mt-2 text-muted-foreground">
+                Read the full article on Hashnode for the complete content and discussion.
+              </p>
+              <motion.a
+                href={post.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="mt-6 inline-flex items-center gap-2 rounded-lg bg-primary px-8 py-3 font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+              >
+                <span>Read Full Article</span>
+                <ExternalLink className="h-4 w-4" />
+              </motion.a>
             </motion.div>
-          )}
-
-          {/* Description */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.5 }}
-            className="mt-8 text-lg leading-relaxed text-muted-foreground"
-          >
-            {post.description}
-          </motion.div>
-
-          {/* Share Buttons */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.6 }}
-            className="mt-8 rounded-lg border border-border bg-card/50 p-6"
-          >
-            <ShareButtons
-              url={currentUrl}
-              title={post.title}
-              description={post.description}
-            />
-          </motion.div>
-
-          {/* Read Full Article CTA */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.7 }}
-            className="mt-8 rounded-lg border border-primary/20 bg-primary/5 p-8 text-center"
-          >
-            <h2 className="text-2xl font-bold text-foreground">Continue Reading</h2>
-            <p className="mt-2 text-muted-foreground">
-              Read the full article on Hashnode for the complete content and discussion.
-            </p>
-            <motion.a
-              href={post.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="mt-6 inline-flex items-center gap-2 rounded-lg bg-primary px-8 py-3 font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-            >
-              <span>Read Full Article</span>
-              <ExternalLink className="h-4 w-4" />
-            </motion.a>
-          </motion.div>
-        </div>
-      </article>
+          </div>
+        </article>
+      </main>
 
       <Footer />
       <ScrollToTop />

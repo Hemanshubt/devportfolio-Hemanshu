@@ -54,7 +54,8 @@ A professional portfolio website built with **React 18**, **Vite 7**, **TypeScri
 - ✅ **Dynamic Insights**: Personalized stats (Total Contributions, Active Days) with interactive heatmap
 - ✅ **Secure Connectivity**: Seamless integration using Personal Access Tokens (PAT)
 - ✅ **Hybrid Rendering**: Smart fallback to image-based heatmap if API access is restricted
-- ✅ **SEO Ready**: Meta tags and semantic HTML
+- ✅ **Advanced SEO**: Dynamic JSON-LD structured data (Schema.org), semantic HTML5, and automatic XML sitemap generation
+- ✅ **Custom Domain**: Secured and deployed on [hemanshudev.cloud](https://hemanshudev.cloud)
 - ✅ **Downloadable Resume**: PDF resume download functionality
 
 ---

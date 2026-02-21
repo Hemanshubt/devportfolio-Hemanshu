@@ -52,6 +52,39 @@ const Index = () => {
     }
   }, [isLoading, location.hash]);
 
+  const homeStructuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Person",
+        "@id": `${window.location.origin}/#person`,
+        "name": "Hemanshu Mahajan",
+        "jobTitle": "DevOps Engineer & Cloud Specialist",
+        "url": window.location.origin,
+        "image": `${window.location.origin}/og-image.png`,
+        "sameAs": [
+          "https://github.com/Hemanshubt",
+          "https://www.linkedin.com/in/hemanshu-mahajan/",
+          "https://x.com/Hemanshubtc"
+        ],
+        "knowsAbout": [
+          "DevOps", "AWS", "Kubernetes", "Docker", "CI/CD",
+          "Terraform", "Ansible", "Jenkins", "Helm",
+          "Cloud Engineering", "Infrastructure as Code"
+        ],
+        "description": "DevOps Engineer specializing in CI/CD, Kubernetes, AWS, and Infrastructure as Code."
+      },
+      {
+        "@type": "WebSite",
+        "@id": `${window.location.origin}/#website`,
+        "url": window.location.origin,
+        "name": "Hemanshu Mahajan Portfolio",
+        "description": "Portfolio of Hemanshu Mahajan — DevOps Engineer & Cloud Specialist",
+        "publisher": { "@id": `${window.location.origin}/#person` }
+      }
+    ]
+  };
+
   return (
     <>
       <SEOHead
@@ -61,6 +94,7 @@ const Index = () => {
         type="website"
         author="Hemanshu Mahajan"
         tags={['DevOps', 'AWS', 'Kubernetes', 'Docker', 'CI/CD', 'Terraform', 'Ansible', 'Cloud Engineer', 'Infrastructure as Code']}
+        structuredData={homeStructuredData}
       />
 
       <AnimatePresence mode="wait">
@@ -71,18 +105,22 @@ const Index = () => {
         <div className="min-h-screen bg-background">
           <CursorTrail />
           <Navigation />
-          <Hero />
-          <Marquee />
-          <Suspense fallback={<div className="min-h-screen" />}>
-            <About />
-            <Skills />
-            <CodeShowcase />
-            <Projects />
-            <GithubActivity />
-            <Blog />
-            <Certifications />
-            <Timeline />
-            <Contact />
+          <main>
+            <Hero />
+            <Marquee />
+            <Suspense fallback={<div className="min-h-screen" />}>
+              <About />
+              <Skills />
+              <CodeShowcase />
+              <Projects />
+              <GithubActivity />
+              <Blog />
+              <Certifications />
+              <Timeline />
+              <Contact />
+            </Suspense>
+          </main>
+          <Suspense fallback={null}>
             <Footer />
             <ScrollToTop />
             <InteractiveTerminal />

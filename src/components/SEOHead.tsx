@@ -10,6 +10,7 @@ interface SEOHeadProps {
   modifiedTime?: string;
   author?: string;
   tags?: string[];
+  structuredData?: any;
 }
 
 export default function SEOHead({
@@ -22,6 +23,7 @@ export default function SEOHead({
   modifiedTime,
   author,
   tags,
+  structuredData,
 }: SEOHeadProps) {
   useEffect(() => {
     document.title = title;
@@ -40,6 +42,7 @@ export default function SEOHead({
       element.setAttribute(attribute, content);
     };
 
+    // Core meta tags
     updateMetaTag('meta[name="description"]', description);
     if (author) {
       updateMetaTag('meta[name="author"]', author);
@@ -48,6 +51,7 @@ export default function SEOHead({
       updateMetaTag('meta[name="keywords"]', tags.join(', '));
     }
 
+    // Open Graph
     updateMetaTag('meta[property="og:title"]', title);
     updateMetaTag('meta[property="og:description"]', description);
     updateMetaTag('meta[property="og:type"]', type);
@@ -56,8 +60,10 @@ export default function SEOHead({
     }
     if (image) {
       updateMetaTag('meta[property="og:image"]', image);
+      updateMetaTag('meta[property="og:image:alt"]', title);
     }
 
+    // Article metadata
     if (type === 'article') {
       if (publishedTime) {
         updateMetaTag('meta[property="article:published_time"]', publishedTime);
@@ -79,13 +85,16 @@ export default function SEOHead({
       }
     }
 
+    // Twitter Card
     updateMetaTag('meta[name="twitter:card"]', image ? 'summary_large_image' : 'summary');
     updateMetaTag('meta[name="twitter:title"]', title);
     updateMetaTag('meta[name="twitter:description"]', description);
     if (image) {
       updateMetaTag('meta[name="twitter:image"]', image);
+      updateMetaTag('meta[name="twitter:image:alt"]', title);
     }
 
+    // Canonical URL
     if (url) {
       let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement;
       if (!canonical) {
@@ -95,7 +104,25 @@ export default function SEOHead({
       }
       canonical.href = url;
     }
-  }, [title, description, image, url, type, publishedTime, modifiedTime, author, tags]);
+
+    // JSON-LD Structured Data
+    if (structuredData) {
+      let script = document.querySelector('script[type="application/ld+json"].dynamic-seo');
+      if (!script) {
+        script = document.createElement('script');
+        script.setAttribute('type', 'application/ld+json');
+        script.classList.add('dynamic-seo');
+        document.head.appendChild(script);
+      }
+      script.textContent = JSON.stringify(structuredData);
+    }
+
+    return () => {
+      // Optional: cleanup dynamic script on unmount
+      const script = document.querySelector('script[type="application/ld+json"].dynamic-seo');
+      if (script) script.remove();
+    };
+  }, [title, description, image, url, type, publishedTime, modifiedTime, author, tags, structuredData]);
 
   return null;
 }
