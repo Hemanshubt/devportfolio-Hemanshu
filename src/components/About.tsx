@@ -37,7 +37,7 @@ export default function About() {
     <section id="about" className="relative py-16 md:py-32">
       {/* Background effect */}
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-background via-card/20 to-background" />
-      
+
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
         <div className="grid gap-10 lg:grid-cols-2 lg:gap-20">
           {/* Left column - Text */}
@@ -48,22 +48,22 @@ export default function About() {
             transition={{ duration: 0.8 }}
           >
             <span className="section-heading">About Me</span>
-            
+
             <h2 className="mt-4 text-3xl font-bold leading-tight sm:text-4xl md:text-5xl">
               Building the{' '}
               <span className="gradient-text">infrastructure</span>{' '}
               that powers modern applications
             </h2>
 
-            <div className="mt-6 space-y-4 text-base text-muted-foreground sm:mt-8 sm:space-y-6 sm:text-lg">
+            <div className="mt-6 space-y-4 text-base text-muted-foreground sm:mt-8 sm:space-y-6 sm:text-lg text-justify">
               <p>
-                I'm an aspiring DevOps Engineer with a strong foundation in CI/CD pipelines, 
-                Infrastructure as Code, and cloud technologies. Currently pursuing my Integrated MCA, 
+                I'm an aspiring DevOps Engineer with a strong foundation in CI/CD pipelines,
+                Infrastructure as Code, and cloud technologies. Currently pursuing my Integrated MCA,
                 I'm passionate about automation, security, and building resilient systems.
               </p>
               <p>
-                Through hands-on projects and certifications in AWS and Kubernetes, I've developed 
-                practical skills in Docker, Terraform, and monitoring tools. I'm eager to apply 
+                Through hands-on projects and certifications in AWS and Kubernetes, I've developed
+                practical skills in Docker, Terraform, and monitoring tools. I'm eager to apply
                 my knowledge and grow in a professional DevOps environment.
               </p>
             </div>
@@ -108,7 +108,7 @@ export default function About() {
                   </div>
                   <div>
                     <h3 className="text-base font-semibold text-foreground sm:text-lg">{principle.title}</h3>
-                    <p className="mt-1 text-sm text-muted-foreground sm:text-base">{principle.description}</p>
+                    <p className="mt-1 text-sm text-muted-foreground sm:text-base text-justify">{principle.description}</p>
                   </div>
                 </div>
               </motion.div>

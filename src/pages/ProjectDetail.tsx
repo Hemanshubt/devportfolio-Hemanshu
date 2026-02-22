@@ -1,9 +1,10 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-  ArrowLeft, Github, ExternalLink, CheckCircle2, Layers, Cpu, Wrench
+  ArrowLeft, Github, ExternalLink, CheckCircle2, Layers, Cpu, Wrench, Calendar, Clock, User
 } from 'lucide-react';
 import { useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
 import Footer from '@/components/Footer';
 import ScrollToTop from '@/components/ScrollToTop';
 import SEOHead from '@/components/SEOHead';
@@ -12,7 +13,7 @@ import { projects } from '@/data/projects';
 export default function ProjectDetail() {
   const { slug } = useParams();
   const navigate = useNavigate();
-  const project = projects.find(p => p.slug === slug);
+  const project = (projects as any).find((p: any) => p.slug === slug);
 
   useEffect(() => { window.scrollTo(0, 0); }, [slug]);
 
@@ -89,36 +90,44 @@ export default function ProjectDetail() {
               Back to Projects
             </motion.button>
 
-            <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2">
+            <div className="flex flex-col gap-10 lg:flex-row lg:items-center">
               {/* Left — Text */}
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-                {/* Icon + title */}
-                <div className="mb-4 flex items-center gap-3">
-                  <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${accentBgSoft}`}>
-                    <project.icon className={`h-6 w-6 ${accentClass}`} />
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="flex-1"
+              >
+                {/* Icon + Meta */}
+                <div className="mb-4 flex flex-wrap items-center gap-4 text-xs font-medium text-muted-foreground">
+                  <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${accentBgSoft}`}>
+                    <project.icon className={`h-5 w-5 ${accentClass}`} />
                   </div>
-                  <div>
-                    <h1 className="text-2xl font-bold text-foreground sm:text-3xl">{project.title}</h1>
-                  </div>
+                  <span className="flex items-center gap-1.5 border-l border-white/10 pl-4">
+                    <User className="h-3.5 w-3.5" />
+                    Hemanshu Mahajan
+                  </span>
+                  <span className="flex items-center gap-1.5 border-l border-white/10 pl-4">
+                    <Calendar className="h-3.5 w-3.5" />
+                    Project Guide
+                  </span>
+                  <span className="flex items-center gap-1.5 border-l border-white/10 pl-4 font-mono">
+                    <Clock className="h-3.5 w-3.5" />
+                    5 min read
+                  </span>
                 </div>
 
-                <p className="mb-6 text-base leading-relaxed text-muted-foreground sm:text-lg">
+                <h1 className="mb-6 text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
+                  {project.title}
+                </h1>
+
+                <p className="mb-8 text-lg leading-relaxed text-muted-foreground sm:text-xl text-justify">
                   {project.description}
                 </p>
 
-                {/* Highlights */}
-                <div className="mb-6 flex flex-wrap gap-2">
-                  {project.highlights.map((h, i) => (
-                    <span key={i} className={`flex items-center gap-1.5 rounded-full ${accentBgSoft} px-3.5 py-1.5 text-xs font-semibold ${accentClass}`}>
-                      <CheckCircle2 className="h-3 w-3" />
-                      {h}
-                    </span>
-                  ))}
-                </div>
-
                 {/* Tags */}
                 <div className="mb-8 flex flex-wrap gap-2">
-                  {project.tags.map((tag, i) => (
+                  {project.tags.map((tag: string, i: number) => (
                     <span key={i} className="rounded-md border border-[hsl(217,33%,17%)] bg-[hsl(222,47%,8%)] px-3 py-1.5 text-xs font-medium text-foreground">
                       {tag}
                     </span>
@@ -132,7 +141,7 @@ export default function ProjectDetail() {
                       href={project.github}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-2 rounded-lg bg-foreground px-5 py-2.5 text-sm font-semibold text-background transition-all hover:opacity-90"
+                      className="flex items-center gap-2 rounded-lg bg-foreground px-6 py-3 text-sm font-semibold text-background transition-all hover:opacity-90"
                     >
                       <Github className="h-4 w-4" />
                       View on GitHub
@@ -140,10 +149,10 @@ export default function ProjectDetail() {
                   )}
                   <button
                     onClick={() => goToSection('contact')}
-                    className={`flex items-center gap-2 rounded-lg ${accentBg} px-5 py-2.5 text-sm font-semibold text-background transition-all hover:shadow-lg`}
+                    className={`flex items-center gap-2 rounded-lg ${accentBg} px-6 py-3 text-sm font-semibold text-background transition-all hover:shadow-lg`}
                   >
                     <ExternalLink className="h-4 w-4" />
-                    Contact Me
+                    Get in Touch
                   </button>
                 </div>
               </motion.div>
@@ -153,12 +162,12 @@ export default function ProjectDetail() {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5, delay: 0.15 }}
-                className="overflow-hidden rounded-2xl border border-[hsl(217,33%,14%)] shadow-2xl"
+                className="flex-1 overflow-hidden rounded-2xl border border-[hsl(217,33%,14%)] shadow-2xl"
               >
                 <img
                   src={project.image}
                   alt={project.title}
-                  className="aspect-video w-full object-cover"
+                  className="aspect-video w-full object-cover transition-transform duration-500 hover:scale-105"
                   loading="lazy"
                 />
               </motion.div>
@@ -166,24 +175,42 @@ export default function ProjectDetail() {
           </div>
         </section>
 
-        {/* ─── Details Grid ─── */}
+        {/* ─── Highlights & Features ─── */}
         <section className="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+          {project.highlights && project.highlights.length > 0 && (
+            <div className="mb-16 grid grid-cols-1 gap-4 sm:grid-cols-3">
+              {project.highlights.map((h: string, i: number) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.1 }}
+                  className={`flex items-center gap-4 rounded-xl border border-white/5 bg-white/5 p-5 hover:bg-white/10 transition-all`}
+                >
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/20">
+                    <CheckCircle2 className={`h-5 w-5 text-primary`} />
+                  </div>
+                  <span className="text-sm font-semibold tracking-tight text-foreground">{h}</span>
+                </motion.div>
+              ))}
+            </div>
+          )}
 
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
             {/* Overview */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="rounded-2xl border border-[hsl(217,33%,14%)] bg-[hsl(222,47%,6%)] p-6 sm:p-8"
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="rounded-2xl border border-[hsl(217,33%,12%)] bg-[hsl(222,47%,4%)] p-6 sm:p-8 hover:border-primary/20 transition-colors"
             >
               <div className="mb-5 flex items-center gap-3">
-                <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${accentBgSoft}`}>
-                  <Layers className={`h-5 w-5 ${accentClass}`} />
+                <div className={`flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10`}>
+                  <Layers className={`h-5 w-5 text-primary`} />
                 </div>
                 <h2 className="text-xl font-bold text-foreground">Overview</h2>
               </div>
-              <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">
+              <p className="text-sm leading-relaxed text-muted-foreground sm:text-base text-justify">
                 {project.readme.overview}
               </p>
             </motion.div>
@@ -191,38 +218,66 @@ export default function ProjectDetail() {
             {/* Key Features */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-              className="rounded-2xl border border-[hsl(217,33%,14%)] bg-[hsl(222,47%,6%)] p-6 sm:p-8"
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="rounded-2xl border border-[hsl(217,33%,12%)] bg-[hsl(222,47%,4%)] p-6 sm:p-8 hover:border-primary/20 transition-colors"
             >
               <div className="mb-5 flex items-center gap-3">
-                <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${accentBgSoft}`}>
-                  <CheckCircle2 className={`h-5 w-5 ${accentClass}`} />
+                <div className={`flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10`}>
+                  <CheckCircle2 className={`h-5 w-5 text-primary`} />
                 </div>
                 <h2 className="text-xl font-bold text-foreground">Key Features</h2>
               </div>
               <ul className="space-y-3">
-                {project.readme.features.map((feature, i) => (
+                {project.readme.features.map((feature: string, i: number) => (
                   <li key={i} className="flex items-start gap-3 text-sm text-muted-foreground sm:text-base">
-                    <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${accentBg}`} />
+                    <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full bg-primary`} />
                     {feature}
                   </li>
                 ))}
               </ul>
             </motion.div>
+          </div>
+        </section>
 
+        {/* ─── Detailed Project Guide (Markdown Content) ─── */}
+        {project.fullContent && (
+          <section className="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
+            <div className="mb-10 flex flex-col gap-2">
+              <div className="flex items-center gap-4">
+                <div className={`h-1 w-12 rounded-full bg-primary`} />
+                <h2 className="text-2xl font-bold text-foreground sm:text-3xl">Project Guide</h2>
+              </div>
+              <p className="text-muted-foreground text-sm">Detailed implementation steps and documentation</p>
+            </div>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8 }}
+              className="prose prose-invert prose-blue max-w-none text-justify
+                prose-headings:text-foreground prose-p:text-muted-foreground prose-li:text-muted-foreground
+                prose-strong:text-foreground prose-code:text-primary prose-code:bg-primary/5 prose-code:px-1 prose-code:rounded
+                prose-pre:bg-[hsl(222,47%,4%)] prose-pre:border prose-pre:border-white/5
+                prose-img:rounded-2xl prose-img:border prose-img:border-white/5 shadow-2xl"
+            >
+              <ReactMarkdown>{project.fullContent}</ReactMarkdown>
+            </motion.div>
+          </section>
+        )}
+
+        {/* ─── Architecture & Tech Stack (Original Grid) ─── */}
+        <section className="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
             {/* Architecture */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-              className="rounded-2xl border border-[hsl(217,33%,14%)] bg-[hsl(222,47%,6%)] p-6 sm:p-8"
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="rounded-2xl border border-[hsl(217,33%,12%)] bg-[hsl(222,47%,4%)] p-6 sm:p-8"
             >
               <div className="mb-5 flex items-center gap-3">
-                <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${accentBgSoft}`}>
-                  <Cpu className={`h-5 w-5 ${accentClass}`} />
+                <div className={`flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10`}>
+                  <Cpu className={`h-5 w-5 text-primary`} />
                 </div>
                 <h2 className="text-xl font-bold text-foreground">Architecture</h2>
               </div>
@@ -235,9 +290,9 @@ export default function ProjectDetail() {
                 </div>
                 <div className="p-4">
                   <ul className="space-y-2">
-                    {project.readme.architecture.map((item, i) => (
+                    {project.readme.architecture.map((item: string, i: number) => (
                       <li key={i} className="flex items-start gap-2 font-mono text-xs text-foreground sm:text-sm">
-                        <span className={accentClass}>→</span>
+                        <span className="text-primary">→</span>
                         <span>{item}</span>
                       </li>
                     ))}
@@ -249,26 +304,24 @@ export default function ProjectDetail() {
             {/* Tech Stack */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.3 }}
-              className="rounded-2xl border border-[hsl(217,33%,14%)] bg-[hsl(222,47%,6%)] p-6 sm:p-8"
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="rounded-2xl border border-[hsl(217,33%,12%)] bg-[hsl(222,47%,4%)] p-6 sm:p-8"
             >
               <div className="mb-5 flex items-center gap-3">
-                <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${accentBgSoft}`}>
-                  <Wrench className={`h-5 w-5 ${accentClass}`} />
+                <div className={`flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10`}>
+                  <Wrench className={`h-5 w-5 text-primary`} />
                 </div>
                 <h2 className="text-xl font-bold text-foreground">Tech Stack</h2>
               </div>
               <div className="flex flex-wrap gap-2.5">
-                {project.readme.techStack.map((tech, i) => (
+                {project.readme.techStack.map((tech: string, i: number) => (
                   <motion.span
                     key={i}
                     initial={{ opacity: 0, scale: 0.8 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.05 }}
-                    className={`rounded-lg border border-[hsl(217,33%,17%)] bg-[hsl(222,47%,8%)] px-4 py-2 text-sm font-medium text-foreground transition-all hover:border-current hover:${accentBgSoft} hover:${accentClass}`}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.4 + i * 0.05 }}
+                    className={`rounded-lg border border-[hsl(217,33%,17%)] bg-[hsl(222,47%,8%)] px-4 py-2 text-sm font-medium text-foreground transition-all hover:border-primary/50 hover:bg-primary/5 hover:text-primary`}
                   >
                     {tech}
                   </motion.span>
