@@ -9,6 +9,7 @@ import Footer from '@/components/Footer';
 import ScrollToTop from '@/components/ScrollToTop';
 import SEOHead from '@/components/SEOHead';
 import { projects } from '@/data/projects';
+import { ContainerScroll } from '@/components/ui/container-scroll-animation';
 
 export default function ProjectDetail() {
   const { slug } = useParams();
@@ -70,108 +71,90 @@ export default function ProjectDetail() {
       />
       <main>
 
-        {/* ─── Hero Section ─── */}
         <section className="relative overflow-hidden border-b border-[hsl(217,33%,14%)]">
           {/* Background glow */}
           <div className="pointer-events-none absolute inset-0">
             <div className={`absolute -top-32 left-1/2 h-64 w-[600px] -translate-x-1/2 rounded-full ${accentBg} opacity-[0.06] blur-[100px]`} />
           </div>
 
-          <div className="relative mx-auto max-w-5xl px-4 pb-12 pt-8 sm:px-6 lg:px-8">
+          <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             {/* Back button */}
-            <motion.button
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              onClick={() => goToSection('projects')}
-              aria-label="Back to Projects"
-              className="mb-8 flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Back to Projects
-            </motion.button>
-
-            <div className="flex flex-col gap-10 lg:flex-row lg:items-center">
-              {/* Left — Text */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                className="flex-1"
+            <div className="pt-8">
+              <motion.button
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                onClick={() => goToSection('projects')}
+                aria-label="Back to Projects"
+                className="flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
               >
-                {/* Icon + Meta */}
-                <div className="mb-4 flex flex-wrap items-center gap-4 text-xs font-medium text-muted-foreground">
-                  <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${accentBgSoft}`}>
-                    <project.icon className={`h-5 w-5 ${accentClass}`} />
-                  </div>
-                  <span className="flex items-center gap-1.5 border-l border-white/10 pl-4">
-                    <User className="h-3.5 w-3.5" />
-                    Hemanshu Mahajan
-                  </span>
-                  <span className="flex items-center gap-1.5 border-l border-white/10 pl-4">
-                    <Calendar className="h-3.5 w-3.5" />
-                    Project Guide
-                  </span>
-                  <span className="flex items-center gap-1.5 border-l border-white/10 pl-4 font-mono">
-                    <Clock className="h-3.5 w-3.5" />
-                    5 min read
-                  </span>
-                </div>
+                <ArrowLeft className="h-4 w-4" />
+                Back to Projects
+              </motion.button>
+            </div>
 
-                <h1 className="mb-6 text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
-                  {project.title}
-                </h1>
-
-                <p className="mb-8 text-lg leading-relaxed text-muted-foreground sm:text-xl text-justify">
-                  {project.description}
-                </p>
-
-                {/* Tags */}
-                <div className="mb-8 flex flex-wrap gap-2">
-                  {project.tags.map((tag: string, i: number) => (
-                    <span key={i} className="rounded-md border border-[hsl(217,33%,17%)] bg-[hsl(222,47%,8%)] px-3 py-1.5 text-xs font-medium text-foreground">
-                      {tag}
+            <ContainerScroll
+              titleComponent={
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                  className="mb-10 text-center"
+                >
+                  <div className="mb-4 flex flex-wrap items-center justify-center gap-4 text-xs font-medium text-muted-foreground">
+                    <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${accentBgSoft}`}>
+                      <project.icon className={`h-5 w-5 ${accentClass}`} />
+                    </div>
+                    <span className="flex items-center gap-1.5 border-l border-white/10 pl-4">
+                      <User className="h-3.5 w-3.5" />
+                      Hemanshu Mahajan
                     </span>
-                  ))}
-                </div>
+                    <span className="flex items-center gap-1.5 border-l border-white/10 pl-4 font-mono">
+                      <Clock className="h-3.5 w-3.5" />
+                      5 min read
+                    </span>
+                  </div>
 
-                {/* Buttons */}
-                <div className="flex flex-wrap gap-3">
-                  {project.github !== '#' && (
-                    <a
-                      href={project.github}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 rounded-lg bg-foreground px-6 py-3 text-sm font-semibold text-background transition-all hover:opacity-90"
+                  <h1 className="mb-6 text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl lg:text-6xl">
+                    {project.title}
+                  </h1>
+
+                  <p className="mx-auto mb-8 max-w-3xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+                    {project.description}
+                  </p>
+
+                  <div className="flex flex-wrap justify-center gap-3">
+                    {project.github !== '#' && (
+                      <a
+                        href={project.github}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 rounded-lg bg-foreground px-6 py-3 text-sm font-semibold text-background transition-all hover:opacity-90"
+                      >
+                        <Github className="h-4 w-4" />
+                        View on GitHub
+                      </a>
+                    )}
+                    <button
+                      onClick={() => goToSection('contact')}
+                      className={`flex items-center gap-2 rounded-lg ${accentBg} px-6 py-3 text-sm font-semibold text-background transition-all hover:shadow-lg`}
                     >
-                      <Github className="h-4 w-4" />
-                      View on GitHub
-                    </a>
-                  )}
-                  <button
-                    onClick={() => goToSection('contact')}
-                    className={`flex items-center gap-2 rounded-lg ${accentBg} px-6 py-3 text-sm font-semibold text-background transition-all hover:shadow-lg`}
-                  >
-                    <ExternalLink className="h-4 w-4" />
-                    Get in Touch
-                  </button>
-                </div>
-              </motion.div>
-
-              {/* Right — Image */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5, delay: 0.15 }}
-                className="flex-1 overflow-hidden rounded-2xl border border-[hsl(217,33%,14%)] shadow-2xl"
-              >
+                      <ExternalLink className="h-4 w-4" />
+                      Get in Touch
+                    </button>
+                  </div>
+                </motion.div>
+              }
+            >
+              <div className="relative h-full w-full overflow-hidden rounded-xl">
                 <img
                   src={project.image}
                   alt={project.title}
-                  className="aspect-video w-full object-cover transition-transform duration-500 hover:scale-105"
+                  className="h-full w-full object-cover"
                   loading="lazy"
                 />
-              </motion.div>
-            </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-background/50 to-transparent" />
+              </div>
+            </ContainerScroll>
           </div>
         </section>
 
