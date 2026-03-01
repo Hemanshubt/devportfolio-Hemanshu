@@ -98,37 +98,37 @@ export default function ProjectDetail() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5 }}
-                  className="mb-10 text-center"
+                  className="mb-6 text-center md:mb-10"
                 >
-                  <div className="mb-4 flex flex-wrap items-center justify-center gap-4 text-xs font-medium text-muted-foreground">
-                    <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${accentBgSoft}`}>
-                      <project.icon className={`h-5 w-5 ${accentClass}`} />
+                  <div className="mb-3 flex flex-wrap items-center justify-center gap-2 text-xs font-medium text-muted-foreground sm:mb-4 sm:gap-4">
+                    <div className={`flex h-8 w-8 items-center justify-center rounded-lg sm:h-10 sm:w-10 sm:rounded-xl ${accentBgSoft}`}>
+                      <project.icon className={`h-4 w-4 sm:h-5 sm:w-5 ${accentClass}`} />
                     </div>
-                    <span className="flex items-center gap-1.5 border-l border-white/10 pl-4">
-                      <User className="h-3.5 w-3.5" />
+                    <span className="flex items-center gap-1.5 border-l border-white/10 pl-2 sm:pl-4">
+                      <User className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                       Hemanshu Mahajan
                     </span>
-                    <span className="flex items-center gap-1.5 border-l border-white/10 pl-4 font-mono">
-                      <Clock className="h-3.5 w-3.5" />
+                    <span className="flex items-center gap-1.5 border-l border-white/10 pl-2 font-mono sm:pl-4">
+                      <Clock className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                       5 min read
                     </span>
                   </div>
 
-                  <h1 className="mb-6 text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl lg:text-6xl">
+                  <h1 className="mb-4 text-2xl font-extrabold tracking-tight text-foreground sm:mb-6 sm:text-4xl lg:text-6xl">
                     {project.title}
                   </h1>
 
-                  <p className="mx-auto mb-8 max-w-3xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+                  <p className="mx-auto mb-5 max-w-3xl text-sm leading-relaxed text-muted-foreground sm:mb-8 sm:text-base md:text-lg">
                     {project.description}
                   </p>
 
-                  <div className="flex flex-wrap justify-center gap-3">
+                  <div className="flex flex-col items-center gap-2 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-3">
                     {project.github !== '#' && (
                       <a
                         href={project.github}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-2 rounded-lg bg-foreground px-6 py-3 text-sm font-semibold text-background transition-all hover:opacity-90"
+                        className="flex w-full items-center justify-center gap-2 rounded-lg bg-foreground px-5 py-2.5 text-sm font-semibold text-background transition-all hover:opacity-90 sm:w-auto sm:px-6 sm:py-3"
                       >
                         <Github className="h-4 w-4" />
                         View on GitHub
@@ -136,7 +136,7 @@ export default function ProjectDetail() {
                     )}
                     <button
                       onClick={() => goToSection('contact')}
-                      className={`flex items-center gap-2 rounded-lg ${accentBg} px-6 py-3 text-sm font-semibold text-background transition-all hover:shadow-lg`}
+                      className={`flex w-full items-center justify-center gap-2 rounded-lg ${accentBg} px-5 py-2.5 text-sm font-semibold text-background transition-all hover:shadow-lg sm:w-auto sm:px-6 sm:py-3`}
                     >
                       <ExternalLink className="h-4 w-4" />
                       Get in Touch
@@ -145,11 +145,11 @@ export default function ProjectDetail() {
                 </motion.div>
               }
             >
-              <div className="relative h-full w-full overflow-hidden rounded-xl">
+              <div className="relative h-full w-full overflow-hidden rounded-xl bg-gray-100">
                 <img
                   src={project.image}
                   alt={project.title}
-                  className="h-full w-full object-cover"
+                  className="h-full w-full object-contain"
                   loading="lazy"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-background/50 to-transparent" />
@@ -159,7 +159,7 @@ export default function ProjectDetail() {
         </section>
 
         {/* ─── Highlights & Features ─── */}
-        <section className="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
+        <section className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-16 lg:px-8">
           {project.highlights && project.highlights.length > 0 && (
             <div className="mb-16 grid grid-cols-1 gap-4 sm:grid-cols-3">
               {project.highlights.map((h: string, i: number) => (
@@ -168,7 +168,7 @@ export default function ProjectDetail() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.1 }}
-                  className={`flex items-center gap-4 rounded-xl border border-white/5 bg-white/5 p-5 hover:bg-white/10 transition-all`}
+                  className={`flex items-center gap-3 rounded-xl border border-white/5 bg-white/5 p-4 hover:bg-white/10 transition-all sm:gap-4 sm:p-5`}
                 >
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/20">
                     <CheckCircle2 className={`h-5 w-5 text-primary`} />
@@ -225,23 +225,24 @@ export default function ProjectDetail() {
 
         {/* ─── Detailed Project Guide (Markdown Content) ─── */}
         {project.fullContent && (
-          <section className="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
-            <div className="mb-10 flex flex-col gap-2">
-              <div className="flex items-center gap-4">
-                <div className={`h-1 w-12 rounded-full bg-primary`} />
-                <h2 className="text-2xl font-bold text-foreground sm:text-3xl">Project Guide</h2>
+          <section className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-16 lg:px-8">
+            <div className="mb-6 flex flex-col gap-2 sm:mb-10">
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className={`h-1 w-8 rounded-full bg-primary sm:w-12`} />
+                <h2 className="text-xl font-bold text-foreground sm:text-2xl md:text-3xl">Project Guide</h2>
               </div>
-              <p className="text-muted-foreground text-sm">Detailed implementation steps and documentation</p>
+              <p className="text-muted-foreground text-xs sm:text-sm">Detailed implementation steps and documentation</p>
             </div>
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.8 }}
-              className="prose prose-invert prose-blue max-w-none text-justify
+              className="prose prose-sm prose-invert prose-blue max-w-none text-justify sm:prose-base
                 prose-headings:text-foreground prose-p:text-muted-foreground prose-li:text-muted-foreground
                 prose-strong:text-foreground prose-code:text-primary prose-code:bg-primary/5 prose-code:px-1 prose-code:rounded
-                prose-pre:bg-[hsl(222,47%,4%)] prose-pre:border prose-pre:border-white/5
-                prose-img:rounded-2xl prose-img:border prose-img:border-white/5 shadow-2xl"
+                prose-pre:bg-[hsl(222,47%,4%)] prose-pre:border prose-pre:border-white/5 prose-pre:overflow-x-auto
+                prose-img:rounded-xl prose-img:border prose-img:border-white/5 prose-img:w-full prose-img:h-auto
+                sm:prose-img:rounded-2xl shadow-2xl"
             >
               <ReactMarkdown>{project.fullContent}</ReactMarkdown>
             </motion.div>
@@ -249,7 +250,7 @@ export default function ProjectDetail() {
         )}
 
         {/* ─── Architecture & Tech Stack (Original Grid) ─── */}
-        <section className="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
+        <section className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-16 lg:px-8">
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
             {/* Architecture */}
             <motion.div
@@ -315,20 +316,20 @@ export default function ProjectDetail() {
         </section>
 
         {/* ─── CTA Section ─── */}
-        <section className="border-t border-[hsl(217,33%,14%)] bg-[hsl(222,47%,5%)] py-16 md:py-24">
+        <section className="border-t border-[hsl(217,33%,14%)] bg-[hsl(222,47%,5%)] py-12 sm:py-16 md:py-24">
           <div className="mx-auto max-w-4xl px-4 text-center sm:px-6">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
             >
-              <h2 className="text-2xl font-bold text-foreground md:text-3xl">
+              <h2 className="text-xl font-bold text-foreground sm:text-2xl md:text-3xl">
                 Interested in this project?
               </h2>
-              <p className="mt-4 text-muted-foreground">
+              <p className="mt-3 text-sm text-muted-foreground sm:mt-4 sm:text-base">
                 Let's discuss how I can bring similar solutions to your team.
               </p>
-              <div className="mt-8 flex flex-wrap justify-center gap-4">
+              <div className="mt-6 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-4">
                 <button onClick={() => goToSection('contact')} className="btn-primary">
                   Get in Touch
                 </button>

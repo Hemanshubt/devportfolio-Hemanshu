@@ -10,6 +10,7 @@ import Footer from '@/components/Footer';
 import ScrollToTop from '@/components/ScrollToTop';
 import SEOHead from '@/components/SEOHead';
 import ShareButtons from '@/components/ShareButtons';
+import BlogPostDetailSkeleton from '@/components/BlogPostDetailSkeleton';
 
 export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
@@ -50,27 +51,7 @@ export default function BlogPost() {
     return (
       <div className="min-h-screen bg-background">
         <Navigation />
-        <div className="flex min-h-[80vh] items-center justify-center">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.3 }}
-            className="text-center"
-          >
-            <div className="relative mx-auto h-16 w-16">
-              <div className="absolute inset-0 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-              <div className="absolute inset-2 animate-pulse rounded-full bg-primary/20" />
-            </div>
-            <motion.p
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="mt-6 text-lg text-muted-foreground"
-            >
-              Loading blog post...
-            </motion.p>
-          </motion.div>
-        </div>
+        <BlogPostDetailSkeleton />
         <Footer />
       </div>
     );
