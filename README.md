@@ -135,8 +135,16 @@ cd devportfolio-Hemanshu
 
 ### 2. Install Dependencies
 
+**For Frontend:**
 ```bash
 npm install
+```
+
+**For Backend API:**
+```bash
+cd api
+npm install
+cd ..
 ```
 
 ### 3. Set Up Environment Variables
@@ -161,15 +169,25 @@ GITHUB_TOKEN=your-github-personal-access-token
 
 > **⚠️ Security Note**: The `GEMINI_API_KEY` and `GITHUB_TOKEN` intentionally do NOT have the `VITE_` prefix. This ensures they are only available server-side and never bundled into the client JavaScript. A `.env.example` template is included in the repo.
 
-### 4. Run the Development Server
+### 4. Run the Development Servers
 
+You will need two separate terminal windows to run both the frontend and backend API.
+
+**Terminal 1 (Backend API):**
 ```bash
+cd api
+npm run dev
+```
+
+**Terminal 2 (Frontend Server):**
+```bash
+# From the project root
 npm run dev
 ```
 
 Open [http://localhost:8080](http://localhost:8080) in your browser.
 
-> **Note**: The Vite dev server includes built-in API middleware that handles `/api/github` and `/api/github-stats` endpoints locally — no separate API server is needed. The middleware reads tokens from your `.env` file automatically.
+> **Note**: While the Vite dev server includes built-in middleware for some endpoints, the separate API server handles the contact form and Gemini AI endpoints locally.
 
 ---
 
@@ -436,7 +454,8 @@ npm run dev -- --port 3000
 
 | Command | Description |
 | --- | --- |
-| `npm run dev` | Start development server (includes API middleware) |
+| `npm run dev` | Start frontend development server |
+| `cd api && npm run dev` | Start backend API server |
 | `npm run build` | Build for production |
 | `npm run preview` | Preview production build |
 | `npm run lint` | Run ESLint |
