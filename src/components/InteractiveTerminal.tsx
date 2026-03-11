@@ -285,231 +285,25 @@ export default function InteractiveTerminal() {
                     const question = cmd.slice(3);
                     lines.push({ type: 'info', text: '🤔 Thinking...' });
 
-                    // We need to update state immediately to show "Thinking..."
-                    // ensuring lines are added to history before async operation
+                    // Show "Thinking..." immediately before async operation
                     setHistory(prev => [...prev, ...lines]);
 
                     try {
-                        const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-                        console.log("[Terminal] Check API Key:", apiKey ? "Loaded" : "Not Found");
+                        // Call the server-side proxy (API key and prompt kept server-side)
+                        const response = await fetch('/api/gemini', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ question }),
+                        });
 
-                        if (!apiKey) {
-                            throw new Error('API key not configured in .env');
+                        if (!response.ok) {
+                            const errorData = await response.json().catch(() => ({}));
+                            throw new Error(errorData.error || `Server error: ${response.status}`);
                         }
 
-                        // Structured System Prompt
-                        const context = `
-You are an AI assistant for Hemanshu Mahajan's portfolio (hemanshudev.cloud).
-Role: DevOps Engineer & Cloud Specialist based in India.
-
-Details:
-- **Education**: Integrated MCA at Acropolis Institute (2020-2025), SGPA 8.78.
-- **Goal**: Aspiring DevOps Engineer building scalable cloud infrastructure, CI/CD pipelines, and secure systems.
-
-**Technical Skills**:
-- **Cloud**: AWS (EC2, S3, RDS, Lambda, EKS, VPC, IAM), Google Cloud.
-- **DevOps Tools**: Docker, Kubernetes, Helm, Terraform, Ansible, Jenkins, GitLab CI, GitHub Actions.
-- **Monitoring**: Prometheus, Grafana, ELK Stack, CloudWatch.
-- **Languages**: Python, Bash, Java, JavaScript/TypeScript, SQL.
-- **OS**: Linux (RHEL, Ubuntu), Windows.
-
-**Key Projects**:
-1. **Two-tier Flaskapp Deployment**
-   - CI/CD pipeline for a 2-tier Flask app using Docker & K8s.
-   - Tech: Python, Flask, MySQL, Jenkins, Helm.
-   - Link: [Two-tier Flask Repo](https://github.com/Hemanshubt/two-tier-flaskapp)
-
-2. **Node.js To-Do CI/CD Pipeline**
-   - Automated pipeline for Node.js app using Jenkins, Docker, AWS & Terraform.
-   - Highlights: Cost optimized, automated testing.
-   - Link: [Node To-Do Repo](https://github.com/Hemanshubt/Node-todo-app-main)
-
-3. **Scalable AWS Deployment with Kubernetes**
-   - Designed CI/CD for Flask/MySQL, doubling capacity to 20k users with 99.9% uptime.
-   - Tech: EKS, Helm, Terraform, VPC.
-
-4. **Cost-Efficient CI/CD Pipeline Management**
-   - Achieved 40% cost reduction using Jenkins, Terraform, and AWS Lambda.
-
-**Social Links**:
-- GitHub: [github.com/Hemanshubt](https://github.com/Hemanshubt)
-- LinkedIn: [linkedin.com/in/hemanshu-mahajan](https://www.linkedin.com/in/hemanshu-mahajan/)
-- Twitter/X: [x.com/Hemanshubtc](https://x.com/Hemanshubtc)
-
-**Format Guidelines**:
-- Use **bold** for key terms.
-- Use [Link Text](URL) for links.
-- Keep answers professional, concise, and helpful.
-- If asked about "Resume", suggest clicking the "Resume" button in the Hero section or checking LinkedIn.
-
-Visitor Question: ${question}
-`;
-
-                        console.log("[Terminal] Sending request to Gemini...");
-
-                        // Helper to try multiple models with streaming support
-                        const tryGeminiWithFallback = async (onChunk: (text: string) => void) => {
-                            const modelsToTry = [
-                                'gemini-1.5-flash',
-                                'gemini-1.5-flash-latest',
-                                'gemini-2.0-flash-exp',
-                                'gemini-1.5-flash-001',
-                                'gemini-pro',
-                                'gemini-1.0-pro'
-                            ];
-
-                            let lastError: any = null;
-
-                            for (const model of modelsToTry) {
-                                try {
-                                    console.log(`[Terminal] Trying model (streaming): ${model}`);
-                                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${apiKey}`, {
-                                        method: 'POST',
-                                        headers: { 'Content-Type': 'application/json' },
-                                        body: JSON.stringify({
-                                            contents: [{ parts: [{ text: context }] }]
-                                        })
-                                    });
-
-                                    if (!response.ok) {
-                                        const errorText = await response.text();
-                                        console.warn(`[Terminal] Model ${model} failed:`, errorText);
-
-                                        // Check if rate limited (429)
-                                        if (response.status === 429) {
-                                            throw new Error('API_RATE_LIMIT: AI is currently overloaded. Please wait a minute.');
-                                        }
-
-                                        // Check if API is disabled (403 Service Disabled)
-                                        if (response.status === 403 && errorText.includes('Enable it by visiting')) {
-                                            try {
-                                                const errJson = JSON.parse(errorText);
-                                                throw new Error(`API_DISABLED: ${errJson.error.message}`);
-                                            } catch (parseError) {
-                                                // continue
-                                            }
-                                        }
-                                        throw new Error(`API Error: ${response.status}`);
-                                    }
-
-                                    // Process the stream
-                                    const reader = response.body?.getReader();
-                                    if (!reader) throw new Error("No response body");
-
-                                    const decoder = new TextDecoder();
-                                    let buffer = '';
-
-                                    while (true) {
-                                        const { done, value } = await reader.read();
-                                        if (done) break;
-
-                                        buffer += decoder.decode(value, { stream: true });
-                                        const lines = buffer.split('\n');
-                                        buffer = lines.pop() || ''; // Keep the last incomplete line in buffer
-
-                                        for (const line of lines) {
-                                            if (line.startsWith('data: ')) {
-                                                const jsonStr = line.slice(6);
-                                                if (jsonStr.trim() === '[DONE]') continue; // End of stream
-                                                try {
-                                                    const json = JSON.parse(jsonStr);
-                                                    const text = json.candidates?.[0]?.content?.parts?.[0]?.text;
-                                                    if (text) onChunk(text);
-                                                } catch (e) {
-                                                    // ignore parsing errors for partial JSON
-                                                }
-                                            }
-                                        }
-                                    }
-                                    return; // Success!
-
-                                } catch (e: any) {
-                                    if (e.message?.startsWith('API_DISABLED:')) throw e;
-                                    lastError = e;
-                                    continue; // Try next model
-                                }
-                            }
-
-                            // Fallback: List models and try first valid one (streaming)
-                            try {
-                                console.log("[Terminal] All models failed. Fetching list...");
-                                const listResp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
-                                if (listResp.ok) {
-                                    const listData = await listResp.json();
-                                    if (listData.models) {
-                                        const validModels = listData.models
-                                            .filter((m: any) => m.supportedGenerationMethods?.includes('generateContent'))
-                                            .map((m: any) => m.name.replace('models/', ''));
-
-                                        lines.push({ type: 'info', text: `Debug: Found available models: ${validModels.join(', ')}` });
-
-                                        if (validModels.length > 0) {
-                                            const fallbackModel = validModels[0];
-                                            console.log(`[Terminal] Attempting auto-discovered model: ${fallbackModel}`);
-                                            lines.push({ type: 'info', text: `Attempting auto-discovered model: ${fallbackModel}` });
-
-                                            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${fallbackModel}:streamGenerateContent?alt=sse&key=${apiKey}`, {
-                                                method: 'POST',
-                                                headers: { 'Content-Type': 'application/json' },
-                                                body: JSON.stringify({
-                                                    contents: [{ parts: [{ text: context }] }]
-                                                })
-                                            });
-
-                                            if (response.ok) {
-                                                const reader = response.body?.getReader();
-                                                if (reader) {
-                                                    const decoder = new TextDecoder();
-                                                    let buffer = '';
-                                                    while (true) {
-                                                        const { done, value } = await reader.read();
-                                                        if (done) break;
-                                                        buffer += decoder.decode(value, { stream: true });
-                                                        const lines = buffer.split('\n');
-                                                        buffer = lines.pop() || '';
-                                                        for (const line of lines) {
-                                                            if (line.startsWith('data: ')) {
-                                                                try {
-                                                                    const json = JSON.parse(line.slice(6));
-                                                                    const text = json.candidates?.[0]?.content?.parts?.[0]?.text;
-                                                                    if (text) onChunk(text);
-                                                                } catch (e) { }
-                                                            }
-                                                        }
-                                                    }
-                                                    return;
-                                                }
-                                            } else {
-                                                // Handle errors for auto-discovered models
-                                                if (response.status === 429) {
-                                                    throw new Error('API_RATE_LIMIT: AI is currently overloaded. Please wait a minute.');
-                                                }
-                                                const errorText = await response.text();
-                                                if (response.status === 403 && errorText.includes('Enable it by visiting')) {
-                                                    try {
-                                                        const errJson = JSON.parse(errorText);
-                                                        throw new Error(`API_DISABLED: ${errJson.error.message}`);
-                                                    } catch (parseError) { }
-                                                }
-                                                throw new Error(`API Error: ${response.status}`);
-                                            }
-                                        }
-                                    }
-                                }
-                            } catch (e: any) {
-                                if (e.message?.startsWith('API_DISABLED:') || e.message?.startsWith('API_RATE_LIMIT:')) throw e;
-                                lastError = e;
-                            }
-
-                            throw lastError;
-                        };
-
-                        // Start streaming response
-                        let currentText = '';
-                        // Initialize empty output line
+                        // Initialize empty output line for streaming
                         setHistory(prev => {
                             const newHistory = [...prev];
-                            // Remove thinking
                             if (newHistory[newHistory.length - 1].text === '🤔 Thinking...') {
                                 newHistory.pop();
                             }
@@ -517,23 +311,50 @@ Visitor Question: ${question}
                             return newHistory;
                         });
 
-                        await tryGeminiWithFallback((chunk) => {
-                            currentText += chunk;
-                            setHistory(prev => {
-                                const newHistory = [...prev];
-                                // Update the last line (which is our output line)
-                                const lastIndex = newHistory.length - 1;
-                                if (lastIndex >= 0 && newHistory[lastIndex].type === 'output') {
-                                    newHistory[lastIndex] = { ...newHistory[lastIndex], text: `🤖 ${currentText.trim()}` };
-                                }
-                                return newHistory;
-                            });
-                        });
+                        // Process the SSE stream from the proxy
+                        const reader = response.body?.getReader();
+                        if (!reader) throw new Error('No response body');
 
-                        return; // Return early to avoid adding extra blank line from main function
+                        const decoder = new TextDecoder();
+                        let buffer = '';
+                        let currentText = '';
+
+                        while (true) {
+                            const { done, value } = await reader.read();
+                            if (done) break;
+
+                            buffer += decoder.decode(value, { stream: true });
+                            const streamLines = buffer.split('\n');
+                            buffer = streamLines.pop() || '';
+
+                            for (const line of streamLines) {
+                                if (line.startsWith('data: ')) {
+                                    const jsonStr = line.slice(6);
+                                    if (jsonStr.trim() === '[DONE]') continue;
+                                    try {
+                                        const json = JSON.parse(jsonStr);
+                                        const text = json.candidates?.[0]?.content?.parts?.[0]?.text;
+                                        if (text) {
+                                            currentText += text;
+                                            setHistory(prev => {
+                                                const newHistory = [...prev];
+                                                const lastIndex = newHistory.length - 1;
+                                                if (lastIndex >= 0 && newHistory[lastIndex].type === 'output') {
+                                                    newHistory[lastIndex] = { ...newHistory[lastIndex], text: `🤖 ${currentText.trim()}` };
+                                                }
+                                                return newHistory;
+                                            });
+                                        }
+                                    } catch {
+                                        // ignore partial JSON
+                                    }
+                                }
+                            }
+                        }
+
+                        return; // Return early to avoid adding extra blank line
 
                     } catch (error) {
-                        console.error("[Terminal] Error:", error);
                         setHistory(prev => {
                             const newHistory = [...prev];
                             if (newHistory[newHistory.length - 1].text === '🤔 Thinking...') {
@@ -541,34 +362,13 @@ Visitor Question: ${question}
                             }
 
                             const result = [...newHistory];
+                            const msg = error instanceof Error ? error.message : 'Failed to fetch AI response';
 
-                            let msg = error instanceof Error ? error.message : 'Failed to fetch AI response';
-
-                            // Specific handling for API Disabled
-                            if (msg.startsWith('API_DISABLED: ')) {
-                                msg = msg.replace('API_DISABLED: ', '');
-                                result.push({ type: 'error', text: '🛑 Generative Language API is not enabled for this project.' });
-                                result.push({ type: 'info', text: 'To fix this, please visit the URL below and click "Enable":' });
-                                // Extract the URL from the message if possible, otherwise just show message
-                                const urlMatch = msg.match(/https:\/\/console\.developers\.google\.com\/[^\s]+/);
-                                if (urlMatch) {
-                                    result.push({ type: 'output', text: urlMatch[0], color: '#60a5fa' });
-                                } else {
-                                    result.push({ type: 'info', text: msg });
-                                }
-                            } else if (msg.startsWith('API_KEY_RESTRICTED: ')) {
-                                result.push({ type: 'error', text: '🛑 API Key Restriction: Domain Blocked' });
-                                result.push({ type: 'info', text: 'This API Key only allows specific websites.' });
-                                result.push({ type: 'info', text: '👉 Go to Google Cloud Console > Credentials' });
-                                result.push({ type: 'info', text: '👉 Add these to "Website restrictions":' });
-                                result.push({ type: 'output', text: '   - http://localhost:5173', color: '#60a5fa' });
-                                result.push({ type: 'output', text: '   - https://www.hemanshudev.cloud', color: '#60a5fa' });
-                            } else if (msg.startsWith('API_RATE_LIMIT: ')) {
+                            if (msg.includes('Too many requests') || msg.includes('overloaded')) {
                                 result.push({ type: 'error', text: '🚨 AI is currently overloaded (Rate Limit).' });
                                 result.push({ type: 'info', text: 'Please wait a minute and try again.' });
-                                result.push({ type: 'info', text: 'This usually happens with free Gemini API keys during peak usage.' });
                             } else {
-                                result.push({ type: 'error', text: `Error: ${msg}. Check console for details.` });
+                                result.push({ type: 'error', text: `Error: ${msg}` });
                             }
 
                             result.push({ type: 'blank', text: '' });

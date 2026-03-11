@@ -9,6 +9,7 @@
   <img src="https://img.shields.io/badge/Vite-7.3.1-646CFF?style=for-the-badge&logo=vite" alt="Vite 7.3.1">
   <img src="https://img.shields.io/badge/TypeScript-5.8.3-3178C6?style=for-the-badge&logo=typescript" alt="TypeScript 5.8.3">
   <img src="https://img.shields.io/badge/Tailwind_CSS-3.4-38B2AC?style=for-the-badge&logo=tailwind-css" alt="Tailwind CSS">
+  <img src="https://img.shields.io/badge/Security-Hardened-22c55e?style=for-the-badge&logo=shieldsdotio" alt="Security Hardened">
   <!-- <img src="https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge" alt="License"> -->
 </p>
 
@@ -45,18 +46,27 @@ A professional portfolio website built with **React 18**, **Vite 7**, **TypeScri
 - ✅ **3D Animations**: Interactive cloud scene with Three.js & React Three Fiber
 - ✅ **Smooth Animations**: Framer Motion for fluid transitions
 - ✅ **Performance Optimized**: React lazy loading, code splitting, and Suspense for faster initial load
-- ✅ **AI-Powered Terminal**: Context-aware assistant powered by Google Gemini (Flash 1.5/2.0) with robust fallback and auto-discovery mechanisms
+- ✅ **AI-Powered Terminal**: Context-aware assistant powered by Google Gemini via secure server-side proxy
 - ✅ **Interactive Commands**: Custom terminal commands (`matrix`, `hack`, `coffee`, etc.)
 - ✅ **Fully Responsive**: Optimized for all devices and screen sizes
 - ✅ **Dark Theme**: Beautiful gradient design with glowing effects
-- ✅ **Contact Form**: Integrated Email (Gmail) and Telegram notifications
-- ✅ **GitHub Dashboard**: Real-time contribution analytics via GitHub GraphQL API
+- ✅ **Contact Form**: Integrated Email (Gmail) and Telegram notifications with rate limiting & honeypot bot detection
+- ✅ **GitHub Dashboard**: Real-time contribution analytics via secure server-side GitHub GraphQL proxy
 - ✅ **Dynamic Insights**: Personalized stats (Total Contributions, Active Days) with interactive heatmap
-- ✅ **Secure Connectivity**: Seamless integration using Personal Access Tokens (PAT)
 - ✅ **Hybrid Rendering**: Smart fallback to image-based heatmap if API access is restricted
 - ✅ **Advanced SEO**: Dynamic JSON-LD structured data (Schema.org), semantic HTML5, and automatic XML sitemap generation
 - ✅ **Custom Domain**: Secured and deployed on [hemanshudev.cloud](https://hemanshudev.cloud)
 - ✅ **Downloadable Resume**: PDF resume download functionality
+
+### 🔒 Security Features
+
+- ✅ **Server-Side API Proxies**: All sensitive tokens (GitHub PAT, Gemini API key) are kept server-side — never exposed in the client bundle
+- ✅ **Restricted CORS**: API endpoints only accept requests from the production domain and localhost
+- ✅ **Rate Limiting**: Contact form (5 req/15min) and AI terminal (10 req/min) per IP
+- ✅ **Honeypot Bot Detection**: Hidden form field catches automated spam bots
+- ✅ **Input Sanitization**: All user inputs sanitized against XSS before use in HTML emails
+- ✅ **Security Headers**: CSP, HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy
+- ✅ **Content Security Policy**: Restricts script/style/font/connect sources to trusted origins
 
 ---
 
@@ -149,12 +159,14 @@ GMAIL_PASSKEY=your-gmail-app-password
 TELEGRAM_BOT_TOKEN=your-telegram-bot-token
 TELEGRAM_CHAT_ID=your-telegram-chat-id
 
-# Gemini AI Configuration (for Interactive Terminal)
-VITE_GEMINI_API_KEY=your-gemini-api-key
+# Gemini AI Configuration (server-side only, no VITE_ prefix)
+GEMINI_API_KEY=your-gemini-api-key
 
-# GitHub Configuration (for Contribution Dashboard)
-VITE_GITHUB_TOKEN=your-github-personal-access-token
+# GitHub Configuration (server-side only, no VITE_ prefix)
+GITHUB_TOKEN=your-github-personal-access-token
 ```
+
+> **⚠️ Security Note**: The `GEMINI_API_KEY` and `GITHUB_TOKEN` intentionally do NOT have the `VITE_` prefix. This ensures they are only available server-side and never bundled into the client JavaScript. A `.env.example` template is included in the repo.
 
 ### 4. Run the Development Server
 
@@ -189,16 +201,16 @@ TELEGRAM_CHAT_ID=your-telegram-chat-id
 
 #### Variable Descriptions
 
-| Variable | Required | Description |
-| --- | --- | --- |
-| `EMAIL_ADDRESS` | Yes | Your Gmail address for sending emails |
-| `GMAIL_PASSKEY` | Yes | Gmail app password (16 characters) |
-| `TELEGRAM_BOT_TOKEN` | Yes | Token for Telegram bot notifications |
-| `TELEGRAM_CHAT_ID` | Yes | Your Telegram chat ID for receiving messages |
-| `VITE_GEMINI_API_KEY` | Yes | Your Google Gemini API Key (for AI terminal) |
-| `VITE_GITHUB_TOKEN` | Yes | GitHub Personal Access Token (for dashboard) |
+| Variable | Required | Scope | Description |
+| --- | --- | --- | --- |
+| `EMAIL_ADDRESS` | Yes | Server | Your Gmail address for sending emails |
+| `GMAIL_PASSKEY` | Yes | Server | Gmail app password (16 characters) |
+| `TELEGRAM_BOT_TOKEN` | Yes | Server | Token for Telegram bot notifications |
+| `TELEGRAM_CHAT_ID` | Yes | Server | Your Telegram chat ID for receiving messages |
+| `GEMINI_API_KEY` | Yes | Server | Google Gemini API Key (for AI terminal proxy) |
+| `GITHUB_TOKEN` | Yes | Server | GitHub PAT with `read:user` scope (for dashboard proxy) |
 
-> **Note**: Both Email and Telegram run in parallel for faster delivery. At least one must be configured for the contact form to work. The terminal AI requires a valid Gemini API key.
+> **Note**: All environment variables are server-side only — none are exposed in the client bundle. Both Email and Telegram run in parallel for faster delivery. At least one must be configured for the contact form to work.
 
 ---
 
@@ -221,7 +233,8 @@ The portfolio features a built-in terminal with AI capabilities and fun Easter e
 
 **Terminal Features:**
 - **Smart Autocomplete:** Press `Tab` to complete commands or cycle through AI question suggestions.
-- **Robust AI Fallback:** Automatically cycles through multiple models (Gemini Flash/Pro) and auto-discovers available models to ensure maximum uptime.
+- **Secure AI Proxy:** All Gemini API calls go through a server-side proxy — your API key is never exposed to visitors.
+- **Rate Limited:** AI requests are rate-limited (10 req/min per IP) to prevent abuse.
 - **Typewriter Effect:** AI responses stream in real-time with Markdown support.
 
 ---
@@ -235,14 +248,18 @@ The portfolio features a built-in terminal with AI capabilities and fun Easter e
 │   ├── hooks/          # Custom React hooks
 │   ├── lib/            # Utility functions
 │   ├── pages/          # Page components (Index, ProjectDetail, BlogPost, NotFound)
-│   ├── services/       # API services (Hashnode, GitHub, cache)
+│   ├── services/       # API services (Hashnode, GitHub proxy client, cache)
 │   ├── types/          # TypeScript type definitions
 │   └── utils/          # Helper utilities
-├── api/                # Contact form API (Express for local, Vercel serverless for prod)
-│   ├── contact.js      # Contact form handler (Email + Telegram)
-│   ├── server.js       # Local Express server
+├── api/                # Vercel serverless functions (+ local Express server)
+│   ├── contact.js      # Contact form handler (Email + Telegram) with rate limiting
+│   ├── github.js       # Server-side GitHub GraphQL proxy (keeps token secure)
+│   ├── gemini.js       # Server-side Gemini AI proxy (keeps API key secure)
+│   ├── server.js       # Local Express server for development
 │   └── package.json    # API dependencies
 ├── public/             # Static assets (images, resume PDF)
+├── .env.example        # Environment variable template (safe to commit)
+├── vercel.json         # Vercel config with security headers
 └── ...config files
 ```
 
@@ -269,8 +286,9 @@ The project includes `vercel.json` for automatic configuration.
 
 **Features:**
 - Automatic deployments on push
-- Serverless functions for contact form
+- Serverless functions for contact form, GitHub proxy, and Gemini AI proxy
 - Global CDN and free SSL
+- Security headers (CSP, HSTS, X-Frame-Options, etc.) via `vercel.json`
 
 ---
 
@@ -317,10 +335,10 @@ TELEGRAM_CHAT_ID=123456789
 4.  Add to `.env` file:
 
 ```env
-VITE_GEMINI_API_KEY=AIzaSy...your-key-here
+GEMINI_API_KEY=AIzaSy...your-key-here
 ```
 
-> **Note**: The terminal is configured with automatic fallback models. If `gemini-1.5-flash` is unavailable, it will automatically attempt to use other available models associated with your key.
+> **Note**: The key does **NOT** use the `VITE_` prefix — it is only accessed server-side via the `/api/gemini` proxy. The terminal's AI model fallback and retry logic runs on the server.
 
 ---
 
@@ -333,10 +351,10 @@ VITE_GEMINI_API_KEY=AIzaSy...your-key-here
 5.  Add to `.env` file:
 
 ```env
-VITE_GITHUB_TOKEN=ghp_your...token-here
+GITHUB_TOKEN=ghp_your...token-here
 ```
 
-> **Security Note**: This dashboard only requires READ access to your public (and private) contribution data. Never share this token or grant unnecessary permissions beyond `read:user`.
+> **Security Note**: The token does **NOT** use the `VITE_` prefix — it is only accessed server-side via the `/api/github` proxy and never exposed in the client bundle. Only the `read:user` scope is required.
 
 
 ---
@@ -378,10 +396,9 @@ npm run dev -- --port 3000
 <summary><strong>❌ Gemini AI: 403 Forbidden / Referrer Blocked</strong></summary>
 
 **Solution:**
-- Go to [Google Cloud Console > Credentials](https://console.cloud.google.com/apis/credentials)
-- Find your API Key and click **Edit API Key**
-- Under **Application restrictions**, verify that `http://localhost:5173` (for development) and your production domain are whitelisted.
-- Alternatively, set to "None" during initial setup to test connectivity.
+- Since Gemini requests now go through the server-side `/api/gemini` proxy, referrer restrictions no longer apply.
+- If you still get 403 errors, check that your `GEMINI_API_KEY` is correctly set in the `.env` file (without `VITE_` prefix).
+- Ensure the Generative Language API is enabled in your Google Cloud Console.
 </details>
 
 <details>
@@ -405,10 +422,10 @@ npm run dev -- --port 3000
 <summary><strong>❌ GitHub Dashboard: 401 Unauthorized / No Data</strong></summary>
 
 **Solution:**
-- Verify `VITE_GITHUB_TOKEN` is correctly set in your `.env` file.
+- Verify `GITHUB_TOKEN` (not `VITE_GITHUB_TOKEN`) is correctly set in your `.env` file.
 - Ensure the token has the `read:user` scope (Classic token).
-- Check that your username `Hemanshubt` matches your actual GitHub handle.
-- If using private contributions, ensure they are enabled in your GitHub profile settings.
+- The dashboard now uses the server-side `/api/github` proxy — no client-side token is needed.
+- Check that your username matches your actual GitHub handle.
 </details>
 
 

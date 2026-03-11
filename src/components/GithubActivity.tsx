@@ -10,21 +10,16 @@ import './GithubActivity.css';
  */
 const GithubActivity = () => {
     const GITHUB_USERNAME = "Hemanshubt";
-    const GITHUB_TOKEN = import.meta.env.VITE_GITHUB_TOKEN; // Instruct user to add this to .env
     const years = [2026, 2025, 2024, 2023];
 
     const [selectedYear, setSelectedYear] = useState<number | 'All'>(years[0]);
     const [contributionData, setContributionData] = useState<ContributionCalendar | null>(null);
     const [allTimeData, setAllTimeData] = useState<{ [key: number]: ContributionCalendar } | null>(null);
-    const [isLoading, setIsLoading] = useState<boolean>(!!GITHUB_TOKEN);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
     // Fetch data via GraphQL
     const loadContributions = useCallback(async () => {
-        if (!GITHUB_TOKEN) {
-            setError("No GitHub Token found. Falling back to image widget.");
-            return;
-        }
 
         setIsLoading(true);
         setError(null);
@@ -32,7 +27,7 @@ const GithubActivity = () => {
         if (selectedYear === 'All') {
             try {
                 const results = await Promise.all(
-                    years.map(year => githubService.fetchUserContributions(GITHUB_USERNAME, GITHUB_TOKEN, year))
+                    years.map(year => githubService.fetchUserContributions(GITHUB_USERNAME, year))
                 );
                 const dataMap: { [key: number]: ContributionCalendar } = {};
                 results.forEach((res, i) => {
@@ -43,7 +38,7 @@ const GithubActivity = () => {
                 setError("Failed to fetch all-time data.");
             }
         } else {
-            const data = await githubService.fetchUserContributions(GITHUB_USERNAME, GITHUB_TOKEN, selectedYear);
+            const data = await githubService.fetchUserContributions(GITHUB_USERNAME, selectedYear);
             if (data) {
                 setContributionData(data);
             } else {
@@ -51,7 +46,7 @@ const GithubActivity = () => {
             }
         }
         setIsLoading(false);
-    }, [GITHUB_USERNAME, GITHUB_TOKEN, selectedYear]);
+    }, [GITHUB_USERNAME, selectedYear]);
 
     useEffect(() => {
         loadContributions();
@@ -272,11 +267,7 @@ const GithubActivity = () => {
                     )}
                 </div>
 
-                {!GITHUB_TOKEN && (
-                    <div className="gh-token-notice">
-                        <p><strong>Pro-tip:</strong> To enable real-time dashboard analytics, add <code>VITE_GITHUB_TOKEN</code> to your <code>.env</code> file.</p>
-                    </div>
-                )}
+
             </div>
         </section>
     );

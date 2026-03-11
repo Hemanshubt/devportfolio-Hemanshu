@@ -17,16 +17,11 @@ app.use(express.json());
 
 // Wrap the Vercel handler for Express
 app.all('/api/contact', async (req, res) => {
-  console.log('Received request:', req.method, req.body);
-  console.log('Env vars loaded:', {
-    telegram: !!process.env.TELEGRAM_BOT_TOKEN,
-    email: !!process.env.EMAIL_ADDRESS
-  });
   try {
     await handler(req, res);
   } catch (error) {
     console.error('Handler error:', error);
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 

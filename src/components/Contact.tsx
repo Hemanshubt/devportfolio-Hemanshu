@@ -424,7 +424,7 @@ export default function Contact() {
   const ref = useRef(null);
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
-  const [formState, setFormState] = useState({ name: '', email: '', message: '' });
+  const [formState, setFormState] = useState({ name: '', email: '', message: '', website: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [pipelineStage, setPipelineStage] = useState(0);
@@ -480,7 +480,7 @@ export default function Contact() {
       if (response.ok && data.success) {
         setSubmitStatus('success');
         setShowLaunch(true);
-        setFormState({ name: '', email: '', message: '' });
+        setFormState({ name: '', email: '', message: '', website: '' });
         setTimeout(() => setShowLaunch(false), 3000);
       } else {
         setSubmitStatus('error');
@@ -596,6 +596,19 @@ export default function Contact() {
               </div>
 
               <form onSubmit={handleSubmit} className="p-4 pt-0 sm:p-6 sm:pt-0">
+                {/* Honeypot field — hidden from real users, catches bots */}
+                <div style={{ position: 'absolute', left: '-9999px', opacity: 0, height: 0, overflow: 'hidden' }} aria-hidden="true">
+                  <label htmlFor="website">Website</label>
+                  <input
+                    type="text"
+                    id="website"
+                    name="website"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    value={formState.website}
+                    onChange={(e) => setFormState({ ...formState, website: e.target.value })}
+                  />
+                </div>
                 <div className="mb-3 sm:mb-4">
                   <label className="mb-1.5 block font-mono text-xs text-muted-foreground sm:mb-2 sm:text-sm">
                     <span className="text-secondary">$</span> name

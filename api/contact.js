@@ -1,16 +1,71 @@
 import nodemailer from 'nodemailer';
 import fetch from 'node-fetch';
 
+// Allowed origins for CORS
+const ALLOWED_ORIGINS = [
+  'https://hemanshudev.cloud',
+  'https://www.hemanshudev.cloud',
+  'http://localhost:8080',
+  'http://localhost:5173',
+];
+
+function getCorsOrigin(req) {
+  const origin = req.headers?.origin || '';
+  return ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+}
+
+// In-memory rate limiter
+const rateLimitMap = new Map();
+const RATE_LIMIT_WINDOW = 15 * 60 * 1000; // 15 minutes
+const RATE_LIMIT_MAX = 5; // max 5 contact requests per 15 min per IP
+
+function isRateLimited(ip) {
+  const now = Date.now();
+  const entry = rateLimitMap.get(ip);
+
+  if (!entry || now - entry.start > RATE_LIMIT_WINDOW) {
+    rateLimitMap.set(ip, { start: now, count: 1 });
+    return false;
+  }
+
+  entry.count++;
+  if (entry.count > RATE_LIMIT_MAX) return true;
+  return false;
+}
+
+// Sanitize input to prevent XSS in email HTML
+function sanitizeInput(str) {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;');
+}
+
 export default async function handler(req, res) {
+  const origin = getCorsOrigin(req);
   res.setHeader('Access-Control-Allow-Credentials', 'true');
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+  res.setHeader('Access-Control-Allow-Origin', origin);
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { name, email, message } = req.body;
+  // Rate limiting
+  const clientIp = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || 'unknown';
+  if (isRateLimited(clientIp)) {
+    return res.status(429).json({ error: 'Too many requests. Please try again later.' });
+  }
+
+  const { name, email, message, website } = req.body;
+
+  // Honeypot field — if "website" is filled, it's a bot
+  if (website) {
+    // Silently accept to not tip off bots, but don't actually send
+    return res.status(200).json({ success: true, message: 'Message sent successfully' });
+  }
 
   if (!name || !email || !message) {
     return res.status(400).json({ error: 'Missing required fields' });
@@ -25,6 +80,10 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Invalid email format' });
   }
 
+  // Sanitize all inputs for safe use in HTML email
+  const safeName = sanitizeInput(name);
+  const safeEmail = sanitizeInput(email);
+
   // Run Telegram and Email in parallel for faster response
   const promises = [];
 
@@ -37,7 +96,7 @@ export default async function handler(req, res) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           chat_id: TELEGRAM_CHAT_ID,
-          text: `🔔 New Contact\n\n👤 ${name}\n📧 ${email}\n\n💬 ${message}`,
+          text: `🔔 New Contact\n\n👤 ${safeName}\n📧 ${safeEmail}\n\n💬 ${message}`,
         }),
       })
         .then(r => r.json())
@@ -60,12 +119,8 @@ export default async function handler(req, res) {
       timeStyle: 'short',
     });
 
-    // Sanitize message to prevent HTML injection & preserve line breaks
-    const sanitizedMessage = message
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/\n/g, '<br/>');
+    // Sanitize message and preserve line breaks for HTML email
+    const sanitizedMessage = sanitizeInput(message).replace(/\n/g, '<br/>');
 
     const htmlEmail = `
 <!DOCTYPE html>
@@ -114,14 +169,14 @@ export default async function handler(req, res) {
                   <!-- Avatar -->
                   <td width="68" style="padding:20px 0 20px 20px;vertical-align:middle;">
                     <table role="presentation" cellpadding="0" cellspacing="0"><tr><td style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#00d4ff,#7c3aed);text-align:center;vertical-align:middle;font-size:22px;font-weight:700;color:#0a0e17;">
-                      ${name.charAt(0).toUpperCase()}
+                      ${safeName.charAt(0).toUpperCase()}
                     </td></tr></table>
                   </td>
                   <!-- Details -->
                   <td style="padding:20px 20px 20px 12px;vertical-align:middle;">
-                    <p style="margin:0;font-size:18px;font-weight:700;color:#f1f5f9;letter-spacing:-0.3px;">${name}</p>
+                    <p style="margin:0;font-size:18px;font-weight:700;color:#f1f5f9;letter-spacing:-0.3px;">${safeName}</p>
                     <p style="margin:5px 0 0;font-size:14px;color:#00d4ff;font-family:'Courier New',monospace;">
-                      <a href="mailto:${email}" style="color:#00d4ff;text-decoration:none;">${email}</a>
+                      <a href="mailto:${safeEmail}" style="color:#00d4ff;text-decoration:none;">${safeEmail}</a>
                     </p>
                   </td>
                 </tr>
@@ -148,9 +203,9 @@ export default async function handler(req, res) {
             <tr><td align="center" style="padding:4px 40px 32px;">
               <table role="presentation" cellpadding="0" cellspacing="0">
                 <tr><td align="center" style="border-radius:10px;background:linear-gradient(135deg,#00d4ff,#06b6d4);">
-                  <a href="mailto:${email}?subject=Re: Portfolio Inquiry&body=Hi ${encodeURIComponent(name)},%0D%0A%0D%0AThank you for reaching out!%0D%0A%0D%0A"
+                  <a href="mailto:${safeEmail}?subject=Re: Portfolio Inquiry&body=Hi ${encodeURIComponent(name)},%0D%0A%0D%0AThank you for reaching out!%0D%0A%0D%0A"
                      style="display:inline-block;color:#0a0e17;font-size:14px;font-weight:700;text-decoration:none;padding:14px 36px;font-family:'Segoe UI',Roboto,Arial,sans-serif;">
-                    &#x21A9;&#xFE0F; Reply to ${name.split(' ')[0]}
+                    &#x21A9;&#xFE0F; Reply to ${safeName.split(' ')[0]}
                   </a>
                 </td></tr>
               </table>
@@ -187,7 +242,7 @@ export default async function handler(req, res) {
       transporter.sendMail({
         from: EMAIL_ADDRESS,
         to: EMAIL_ADDRESS,
-        subject: `📬 Portfolio Contact: ${name}`,
+        subject: `📬 Portfolio Contact: ${safeName}`,
         html: htmlEmail,
         replyTo: email,
       })

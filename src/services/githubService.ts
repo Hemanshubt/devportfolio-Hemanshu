@@ -1,10 +1,9 @@
 /**
  * GitHub API Service
  * 
- * Handles communication with the GitHub GraphQL API to fetch user contribution data.
+ * Fetches contribution data via the server-side proxy at /api/github.
+ * The GitHub token is kept server-side and never exposed to the client.
  */
-
-const GITHUB_GRAPHQL_ENDPOINT = 'https://api.github.com/graphql';
 
 export interface ContributionDay {
   contributionCount: number;
@@ -19,83 +18,30 @@ export interface ContributionCalendar {
   }[];
 }
 
-export interface GitHubContributionResponse {
-  data?: {
-    user?: {
-      contributionsCollection: {
-        contributionCalendar: ContributionCalendar;
-      };
-    };
-  };
-  errors?: any[];
-}
-
-const GET_USER_CONTRIBUTIONS_QUERY = `
-  query($userName:String!, $from:DateTime, $to:DateTime) {
-    user(login: $userName) {
-      contributionsCollection(from: $from, to: $to) {
-        contributionCalendar {
-          totalContributions
-          weeks {
-            contributionDays {
-              contributionCount
-              date
-              color
-            }
-          }
-        }
-      }
-    }
-  }
-`;
-
 /**
- * Fetches contribution data for a specific GitHub user
+ * Fetches contribution data for a specific GitHub user via server proxy
  * @param userName - GitHub username
- * @param token - GitHub Personal Access Token (PAT)
  * @param year - Optional year to fetch data for
  * @returns Contribution calendar data or null if error
  */
 export async function fetchUserContributions(
   userName: string,
-  token: string,
   year?: number
 ): Promise<ContributionCalendar | null> {
-  if (!token) return null;
-
-  let from = undefined;
-  let to = undefined;
-
-  if (year) {
-    from = `${year}-01-01T00:00:00Z`;
-    to = `${year}-12-31T23:59:59Z`;
-  }
-
   try {
-    const response = await fetch(GITHUB_GRAPHQL_ENDPOINT, {
+    const response = await fetch('/api/github', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        query: GET_USER_CONTRIBUTIONS_QUERY,
-        variables: { userName, from, to },
-      }),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: userName, year }),
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const result: GitHubContributionResponse = await response.json();
-
-    if (result.errors) {
-      console.error('[GitHubService] GraphQL Errors:', result.errors);
+      console.error('[GitHubService] Proxy error:', response.status);
       return null;
     }
 
-    return result.data?.user?.contributionsCollection.contributionCalendar || null;
+    const result = await response.json();
+    return result.data || null;
   } catch (error) {
     console.error('[GitHubService] Error fetching contributions:', error);
     return null;
