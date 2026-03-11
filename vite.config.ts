@@ -28,6 +28,31 @@ function githubApiPlugin(githubToken: string): Plugin {
   return {
     name: 'github-api-dev',
     configureServer(server) {
+      // Repo stats endpoint (must be registered before /api/github to avoid prefix match)
+      server.middlewares.use('/api/github-stats', async (_req, res) => {
+        const headers: Record<string, string> = {
+          'Accept': 'application/vnd.github.v3+json',
+          'User-Agent': 'devportfolio-app',
+        };
+        if (githubToken) headers['Authorization'] = `Bearer ${githubToken}`;
+
+        try {
+          const response = await fetch('https://api.github.com/repos/Hemanshubt/devportfolio-Hemanshu', { headers });
+          if (!response.ok) {
+            res.statusCode = 502;
+            return res.end(JSON.stringify({ error: `GitHub API error: ${response.status}` }));
+          }
+          const data = await response.json();
+          res.setHeader('Content-Type', 'application/json');
+          res.statusCode = 200;
+          return res.end(JSON.stringify({ stars: data.stargazers_count || 0, forks: data.forks_count || 0 }));
+        } catch {
+          res.statusCode = 500;
+          return res.end(JSON.stringify({ error: 'Failed to fetch repo stats' }));
+        }
+      });
+
+      // Contributions endpoint
       server.middlewares.use('/api/github', async (req, res) => {
         // CORS
         res.setHeader('Access-Control-Allow-Origin', '*');

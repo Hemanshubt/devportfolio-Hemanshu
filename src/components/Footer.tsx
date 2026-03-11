@@ -24,13 +24,10 @@ export default function Footer() {
     let timeoutId: NodeJS.Timeout;
 
     const fetchStats = async () => {
-      // Don't sync if already syncing (though with setTimeout it shouldn't happen)
       setIsSyncing(true);
 
       try {
-        // Add cache-breaker and abort controller for clean polling
-        const cacheBuster = `?t=${Date.now()}`;
-        const response = await fetch(`${repoUrl.replace('github.com', 'api.github.com/repos')}${cacheBuster}`);
+        const response = await fetch('/api/github-stats');
 
         if (!response.ok) {
           throw new Error(`Status ${response.status}`);
@@ -38,22 +35,21 @@ export default function Footer() {
 
         const data = await response.json();
 
-        if (data && typeof data.stargazers_count === 'number') {
+        if (data && typeof data.stars === 'number') {
           setRepoStats({
-            stars: data.stargazers_count,
-            forks: data.forks_count
+            stars: data.stars,
+            forks: data.forks
           });
           setLastUpdated(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
-          console.log(`[GitHub API] Sync successful: ${data.stargazers_count} stars`);
+          console.log(`[GitHub API] Sync successful: ${data.stars} stars`);
         }
       } catch (err) {
         console.warn('[GitHub API] Polling:', err instanceof Error ? err.message : 'Error');
       } finally {
-        // Visual indicator duration
         setTimeout(() => setIsSyncing(false), 1000);
 
-        // Schedule next poll in 10 seconds
-        timeoutId = setTimeout(fetchStats, 10000);
+        // Poll every 60 seconds
+        timeoutId = setTimeout(fetchStats, 60000);
       }
     };
 
