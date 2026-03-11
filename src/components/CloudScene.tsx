@@ -73,6 +73,7 @@ function DockerContainer({ position, mouseX }: { position: [number, number, numb
   const [hovered, setHovered] = useState(false);
   const initialX = position[0];
 
+  const _v = useMemo(() => new THREE.Vector3(), []);
   useFrame((state) => {
     if (!groupRef.current) return;
     const t = state.clock.elapsedTime;
@@ -80,7 +81,7 @@ function DockerContainer({ position, mouseX }: { position: [number, number, numb
     groupRef.current.position.y = position[1] + Math.sin(t) * 0.2;
     groupRef.current.position.x = THREE.MathUtils.lerp(groupRef.current.position.x, initialX + mouseX * 0.3, 0.03);
     const targetScale = hovered ? 1.25 : 1;
-    groupRef.current.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.1);
+    groupRef.current.scale.lerp(_v.set(targetScale, targetScale, targetScale), 0.1);
   });
 
   return (
@@ -123,6 +124,7 @@ function KubernetesPod({ position, mouseX }: { position: [number, number, number
   const [hovered, setHovered] = useState(false);
   const initialX = position[0];
 
+  const _v = useMemo(() => new THREE.Vector3(), []);
   useFrame((state) => {
     const t = state.clock.elapsedTime;
     if (meshRef.current) {
@@ -130,7 +132,7 @@ function KubernetesPod({ position, mouseX }: { position: [number, number, number
       meshRef.current.rotation.y = t * 0.6;
       meshRef.current.position.x = THREE.MathUtils.lerp(meshRef.current.position.x, initialX + mouseX * 0.4, 0.03);
       const s = hovered ? 1.3 : 1;
-      meshRef.current.scale.lerp(new THREE.Vector3(s, s, s), 0.1);
+      meshRef.current.scale.lerp(_v.set(s, s, s), 0.1);
     }
     if (outerRef.current) {
       outerRef.current.rotation.x = -t * 0.3;
@@ -145,7 +147,7 @@ function KubernetesPod({ position, mouseX }: { position: [number, number, number
     >
       <Tooltip text="Kubernetes" visible={hovered} />
       <mesh ref={meshRef} position={position}>
-        <dodecahedronGeometry args={[0.35]} />
+        <dodecahedronGeometry args={[0.35, 0]} />
         <meshStandardMaterial
           color={hovered ? '#5a8ff5' : '#326ce5'}
           wireframe
@@ -155,7 +157,7 @@ function KubernetesPod({ position, mouseX }: { position: [number, number, number
       </mesh>
       {/* Outer orbiting ring */}
       <mesh ref={outerRef} position={position}>
-        <torusGeometry args={[0.55, 0.015, 8, 32]} />
+        <torusGeometry args={[0.55, 0.015, 8, 24]} />
         <meshBasicMaterial color="#326ce5" transparent opacity={hovered ? 0.6 : 0.2} />
       </mesh>
     </group>
@@ -167,13 +169,14 @@ function AWSCloud({ position }: { position: [number, number, number] }) {
   const groupRef = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);
 
+  const _v = useMemo(() => new THREE.Vector3(), []);
   useFrame((state) => {
     if (!groupRef.current) return;
     const t = state.clock.elapsedTime;
     groupRef.current.rotation.y = t * 0.2;
     groupRef.current.position.y = position[1] + Math.sin(t * 0.5) * 0.15;
     const s = hovered ? 1.2 : 1;
-    groupRef.current.scale.lerp(new THREE.Vector3(s, s, s), 0.1);
+    groupRef.current.scale.lerp(_v.set(s, s, s), 0.1);
   });
 
   const cloudColor = hovered ? '#ffb347' : '#ff9900';
@@ -188,17 +191,17 @@ function AWSCloud({ position }: { position: [number, number, number] }) {
     >
       <Tooltip text="AWS" visible={hovered} />
       <GlowRing visible={hovered} color="#ff9900" size={0.6} />
-      <Sphere args={[0.25, 16, 16]} position={[-0.15, 0, 0]}>
+      <Sphere args={[0.25, 12, 12]} position={[-0.15, 0, 0]}>
         <meshStandardMaterial color={cloudColor} metalness={0.6} roughness={0.3} emissive="#ff9900" emissiveIntensity={emissiveIntensity} />
       </Sphere>
-      <Sphere args={[0.35, 16, 16]} position={[0.1, 0.08, 0]}>
+      <Sphere args={[0.35, 12, 12]} position={[0.1, 0.08, 0]}>
         <meshStandardMaterial color={cloudColor} metalness={0.6} roughness={0.3} emissive="#ff9900" emissiveIntensity={emissiveIntensity} />
       </Sphere>
-      <Sphere args={[0.2, 16, 16]} position={[0.35, -0.03, 0]}>
+      <Sphere args={[0.2, 12, 12]} position={[0.35, -0.03, 0]}>
         <meshStandardMaterial color={cloudColor} metalness={0.6} roughness={0.3} emissive="#ff9900" emissiveIntensity={emissiveIntensity} />
       </Sphere>
       {/* Cloud glow underside */}
-      <Sphere args={[0.5, 12, 12]} position={[0.1, -0.05, 0]}>
+      <Sphere args={[0.5, 8, 8]} position={[0.1, -0.05, 0]}>
         <meshBasicMaterial color="#ff9900" transparent opacity={hovered ? 0.08 : 0.03} />
       </Sphere>
     </group>
@@ -211,6 +214,8 @@ function GitNode({ position, color, label }: { position: [number, number, number
   const glowRef = useRef<THREE.Mesh>(null);
   const [hovered, setHovered] = useState(false);
 
+  const _v1 = useMemo(() => new THREE.Vector3(), []);
+  const _v2 = useMemo(() => new THREE.Vector3(), []);
   useFrame((state) => {
     const t = state.clock.elapsedTime;
     if (meshRef.current) {
@@ -218,12 +223,12 @@ function GitNode({ position, color, label }: { position: [number, number, number
       meshRef.current.rotation.y = t * 0.5;
       meshRef.current.position.y = position[1] + Math.sin(t + position[0]) * 0.2;
       const s = hovered ? 1.4 : 1;
-      meshRef.current.scale.lerp(new THREE.Vector3(s, s, s), 0.1);
+      meshRef.current.scale.lerp(_v1.set(s, s, s), 0.1);
     }
     if (glowRef.current) {
       glowRef.current.position.y = position[1] + Math.sin(t + position[0]) * 0.2;
       const gs = hovered ? 2.5 : 1.5;
-      glowRef.current.scale.lerp(new THREE.Vector3(gs, gs, gs), 0.08);
+      glowRef.current.scale.lerp(_v2.set(gs, gs, gs), 0.08);
     }
   });
 
@@ -258,6 +263,7 @@ function ReactAtom({ position, mouseX }: { position: [number, number, number]; m
   const [hovered, setHovered] = useState(false);
   const initialX = position[0];
 
+  const _v = useMemo(() => new THREE.Vector3(), []);
   useFrame((state) => {
     if (!groupRef.current) return;
     const t = state.clock.elapsedTime;
@@ -265,7 +271,7 @@ function ReactAtom({ position, mouseX }: { position: [number, number, number]; m
     groupRef.current.position.y = position[1] + Math.sin(t * 0.7) * 0.15;
     groupRef.current.position.x = THREE.MathUtils.lerp(groupRef.current.position.x, initialX + mouseX * 0.25, 0.03);
     const s = hovered ? 1.3 : 1;
-    groupRef.current.scale.lerp(new THREE.Vector3(s, s, s), 0.1);
+    groupRef.current.scale.lerp(_v.set(s, s, s), 0.1);
   });
 
   const orbitColor = hovered ? '#88deff' : '#61dafb';
@@ -280,7 +286,7 @@ function ReactAtom({ position, mouseX }: { position: [number, number, number]; m
     >
       <Tooltip text="React" visible={hovered} />
       {/* Nucleus */}
-      <Sphere args={[0.12, 16, 16]}>
+      <Sphere args={[0.12, 12, 12]}>
         <meshStandardMaterial
           color="#61dafb"
           emissive="#61dafb"
@@ -290,13 +296,13 @@ function ReactAtom({ position, mouseX }: { position: [number, number, number]; m
         />
       </Sphere>
       {/* Electron orbits */}
-      <Torus args={[0.4, 0.012, 8, 48]} rotation={[0, 0, 0]}>
+      <Torus args={[0.4, 0.012, 8, 32]} rotation={[0, 0, 0]}>
         <meshBasicMaterial color={orbitColor} transparent opacity={orbitOpacity} />
       </Torus>
-      <Torus args={[0.4, 0.012, 8, 48]} rotation={[Math.PI / 3, 0, 0]}>
+      <Torus args={[0.4, 0.012, 8, 32]} rotation={[Math.PI / 3, 0, 0]}>
         <meshBasicMaterial color={orbitColor} transparent opacity={orbitOpacity} />
       </Torus>
-      <Torus args={[0.4, 0.012, 8, 48]} rotation={[-Math.PI / 3, 0, 0]}>
+      <Torus args={[0.4, 0.012, 8, 32]} rotation={[-Math.PI / 3, 0, 0]}>
         <meshBasicMaterial color={orbitColor} transparent opacity={orbitOpacity} />
       </Torus>
       {/* Orbiting electrons */}
@@ -332,6 +338,7 @@ function TypeScriptIcon({ position, mouseX }: { position: [number, number, numbe
   const [hovered, setHovered] = useState(false);
   const initialX = position[0];
 
+  const _v = useMemo(() => new THREE.Vector3(), []);
   useFrame((state) => {
     if (!groupRef.current) return;
     const t = state.clock.elapsedTime;
@@ -339,7 +346,7 @@ function TypeScriptIcon({ position, mouseX }: { position: [number, number, numbe
     groupRef.current.position.y = position[1] + Math.sin(t * 0.8 + 1) * 0.12;
     groupRef.current.position.x = THREE.MathUtils.lerp(groupRef.current.position.x, initialX + mouseX * 0.35, 0.03);
     const s = hovered ? 1.3 : 1;
-    groupRef.current.scale.lerp(new THREE.Vector3(s, s, s), 0.1);
+    groupRef.current.scale.lerp(_v.set(s, s, s), 0.1);
   });
 
   return (
@@ -378,6 +385,7 @@ function NodeJSIcon({ position, mouseX }: { position: [number, number, number]; 
   const [hovered, setHovered] = useState(false);
   const initialX = position[0];
 
+  const _v = useMemo(() => new THREE.Vector3(), []);
   useFrame((state) => {
     if (!groupRef.current) return;
     const t = state.clock.elapsedTime;
@@ -385,7 +393,7 @@ function NodeJSIcon({ position, mouseX }: { position: [number, number, number]; 
     groupRef.current.position.y = position[1] + Math.sin(t * 0.6 + 2) * 0.18;
     groupRef.current.position.x = THREE.MathUtils.lerp(groupRef.current.position.x, initialX + mouseX * 0.3, 0.03);
     const s = hovered ? 1.3 : 1;
-    groupRef.current.scale.lerp(new THREE.Vector3(s, s, s), 0.1);
+    groupRef.current.scale.lerp(_v.set(s, s, s), 0.1);
   });
 
   return (
@@ -399,7 +407,7 @@ function NodeJSIcon({ position, mouseX }: { position: [number, number, number]; 
       <GlowRing visible={hovered} color="#68a063" size={0.45} />
       {/* Hexagon shape */}
       <mesh rotation={[Math.PI / 2, 0, 0]}>
-        <cylinderGeometry args={[0.35, 0.35, 0.12, 6]} />
+        <cylinderGeometry args={[0.35, 0.35, 0.12, 6, 1]} />
         <meshStandardMaterial
           color={hovered ? '#7ec87a' : '#68a063'}
           metalness={0.8}
@@ -422,6 +430,7 @@ function PythonIcon({ position }: { position: [number, number, number] }) {
   const groupRef = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);
 
+  const _v = useMemo(() => new THREE.Vector3(), []);
   useFrame((state) => {
     if (!groupRef.current) return;
     const t = state.clock.elapsedTime;
@@ -429,7 +438,7 @@ function PythonIcon({ position }: { position: [number, number, number] }) {
     groupRef.current.rotation.x = Math.sin(t * 0.3) * 0.1;
     groupRef.current.position.y = position[1] + Math.sin(t * 0.55 + 3) * 0.15;
     const s = hovered ? 1.3 : 1;
-    groupRef.current.scale.lerp(new THREE.Vector3(s, s, s), 0.1);
+    groupRef.current.scale.lerp(_v.set(s, s, s), 0.1);
   });
 
   return (
@@ -478,13 +487,14 @@ function DatabaseIcon({ position }: { position: [number, number, number] }) {
   const groupRef = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);
 
+  const _v = useMemo(() => new THREE.Vector3(), []);
   useFrame((state) => {
     if (!groupRef.current) return;
     const t = state.clock.elapsedTime;
     groupRef.current.rotation.y = t * 0.2;
     groupRef.current.position.y = position[1] + Math.sin(t * 0.45 + 4) * 0.12;
     const s = hovered ? 1.3 : 1;
-    groupRef.current.scale.lerp(new THREE.Vector3(s, s, s), 0.1);
+    groupRef.current.scale.lerp(_v.set(s, s, s), 0.1);
   });
 
   return (
@@ -499,7 +509,7 @@ function DatabaseIcon({ position }: { position: [number, number, number] }) {
       {/* Stacked cylinders to form DB icon */}
       {[-0.15, 0, 0.15].map((y, i) => (
         <mesh key={i} position={[0, y, 0]}>
-          <cylinderGeometry args={[0.25, 0.25, 0.12, 16]} />
+          <cylinderGeometry args={[0.25, 0.25, 0.12, 12]} />
           <meshStandardMaterial
             color={hovered ? '#5fbf5e' : '#47a248'}
             metalness={0.7}
@@ -511,7 +521,7 @@ function DatabaseIcon({ position }: { position: [number, number, number] }) {
       ))}
       {/* Wireframe overlay */}
       <mesh position={[0, 0, 0]}>
-        <cylinderGeometry args={[0.27, 0.27, 0.42, 16]} />
+        <cylinderGeometry args={[0.27, 0.27, 0.42, 12]} />
         <meshBasicMaterial color="#47a248" wireframe transparent opacity={hovered ? 0.4 : 0.1} />
       </mesh>
     </group>
@@ -524,13 +534,14 @@ function CICDPipeline({ position }: { position: [number, number, number] }) {
   const pulseRef = useRef<THREE.Mesh>(null);
   const [hovered, setHovered] = useState(false);
 
+  const _v = useMemo(() => new THREE.Vector3(), []);
   useFrame((state) => {
     if (!groupRef.current) return;
     const t = state.clock.elapsedTime;
     groupRef.current.rotation.y = t * 0.15;
     groupRef.current.position.y = position[1] + Math.sin(t * 0.4 + 5) * 0.1;
     const s = hovered ? 1.3 : 1;
-    groupRef.current.scale.lerp(new THREE.Vector3(s, s, s), 0.1);
+    groupRef.current.scale.lerp(_v.set(s, s, s), 0.1);
     if (pulseRef.current) {
       const pulse = 1 + Math.sin(t * 3) * 0.1;
       pulseRef.current.scale.setScalar(pulse);
@@ -548,7 +559,7 @@ function CICDPipeline({ position }: { position: [number, number, number] }) {
       {/* Pipeline stages interconnected */}
       {[-0.3, 0, 0.3].map((x, i) => (
         <mesh key={i} position={[x, 0, 0]}>
-          <sphereGeometry args={[0.1, 12, 12]} />
+          <sphereGeometry args={[0.1, 8, 8]} />
           <meshStandardMaterial
             color={['#e44d26', '#f7df1e', '#22c55e'][i]}
             emissive={['#e44d26', '#f7df1e', '#22c55e'][i]}
@@ -567,7 +578,7 @@ function CICDPipeline({ position }: { position: [number, number, number] }) {
       ))}
       {/* Pulsing glow */}
       <mesh ref={pulseRef}>
-        <sphereGeometry args={[0.5, 12, 12]} />
+        <sphereGeometry args={[0.5, 8, 8]} />
         <meshBasicMaterial color="#22c55e" transparent opacity={hovered ? 0.08 : 0.03} />
       </mesh>
     </group>
@@ -611,7 +622,7 @@ function CentralCore({ mouseX, mouseY }: { mouseX: number; mouseY: number }) {
 
       {/* Core icosahedron */}
       <mesh ref={coreRef}>
-        <icosahedronGeometry args={[1, 1]} />
+        <icosahedronGeometry args={[1, 0]} />
         <MeshDistortMaterial
           color="#00d4ff"
           emissive="#00d4ff"
@@ -627,17 +638,17 @@ function CentralCore({ mouseX, mouseY }: { mouseX: number; mouseY: number }) {
 
       {/* Inner glow */}
       <mesh ref={pulseRef}>
-        <sphereGeometry args={[0.85, 16, 16]} />
+        <sphereGeometry args={[0.85, 12, 12]} />
         <meshBasicMaterial color="#00d4ff" transparent opacity={hovered ? 0.12 : 0.06} />
       </mesh>
 
       {/* Primary ring */}
-      <Torus ref={ringRef} args={[1.6, 0.02, 12, 60]} rotation={[Math.PI / 2, 0, 0]}>
+      <Torus ref={ringRef} args={[1.6, 0.02, 8, 36]} rotation={[Math.PI / 2, 0, 0]}>
         <meshStandardMaterial color="#22c55e" transparent opacity={0.7} emissive="#22c55e" emissiveIntensity={hovered ? 0.3 : 0.1} />
       </Torus>
 
       {/* Secondary ring (perpendicular) */}
-      <Torus ref={ring2Ref} args={[1.8, 0.015, 12, 60]} rotation={[0, 0, Math.PI / 4]}>
+      <Torus ref={ring2Ref} args={[1.8, 0.015, 8, 36]} rotation={[0, 0, Math.PI / 4]}>
         <meshStandardMaterial color="#8b5cf6" transparent opacity={0.4} emissive="#8b5cf6" emissiveIntensity={hovered ? 0.3 : 0.1} />
       </Torus>
 
@@ -671,7 +682,7 @@ function OrbitalParticle({ radius, speed, tilt, color, offset = 0 }: { radius: n
 // ─── Enhanced Data Particles with trails ─────────────────────────────
 function DataParticles() {
   const particlesRef = useRef<THREE.Points>(null);
-  const count = 80;
+  const count = 50;
 
   const { positions, colors } = useMemo(() => {
     const pos = new Float32Array(count * 3);
@@ -807,7 +818,7 @@ function Scene({ mouseX, mouseY }: { mouseX: number; mouseY: number }) {
       <DataParticles />
       <ConnectionLines />
       <NebulaCloud />
-      <Stars radius={50} depth={40} count={600} factor={3} fade speed={0.3} />
+      <Stars radius={50} depth={40} count={300} factor={3} fade speed={0.3} />
     </group>
   );
 }
@@ -818,17 +829,41 @@ function SceneWrapper() {
 }
 
 // ─── Main Export ─────────────────────────────────────────────────────
+// Detect low-end devices
+const isLowEnd = typeof navigator !== 'undefined' && (navigator.hardwareConcurrency || 4) <= 4;
+const maxDpr = isLowEnd ? 1 : Math.min(1.5, typeof window !== 'undefined' ? window.devicePixelRatio : 1);
+
 export default function CloudScene() {
   const [isVisible, setIsVisible] = useState(true);
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [isInView, setIsInView] = useState(true);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const glRef = useRef<THREE.WebGLRenderer | null>(null);
+  const canvasElRef = useRef<HTMLCanvasElement | null>(null);
 
+  // Tab visibility
   useEffect(() => {
     const handleVisibility = () => setIsVisible(!document.hidden);
     document.addEventListener('visibilitychange', handleVisibility);
     return () => document.removeEventListener('visibilitychange', handleVisibility);
   }, []);
 
+  // Intersection Observer — pause rendering when offscreen
   useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsInView(entry.isIntersecting),
+      { threshold: 0.05 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  // Context loss/restore event handlers (attached via onCreated)
+  useEffect(() => {
+    const canvas = canvasElRef.current;
+    if (!canvas) return;
+
     const handleContextLost = (event: Event) => {
       event.preventDefault();
       console.warn('WebGL context lost. Attempting to restore...');
@@ -838,27 +873,33 @@ export default function CloudScene() {
       console.log('WebGL context restored.');
       setIsVisible(true);
     };
-    const canvas = canvasRef.current;
-    if (canvas) {
-      canvas.addEventListener('webglcontextlost', handleContextLost);
-      canvas.addEventListener('webglcontextrestored', handleContextRestored);
-    }
+
+    canvas.addEventListener('webglcontextlost', handleContextLost);
+    canvas.addEventListener('webglcontextrestored', handleContextRestored);
     return () => {
-      if (canvas) {
-        canvas.removeEventListener('webglcontextlost', handleContextLost);
-        canvas.removeEventListener('webglcontextrestored', handleContextRestored);
+      canvas.removeEventListener('webglcontextlost', handleContextLost);
+      canvas.removeEventListener('webglcontextrestored', handleContextRestored);
+    };
+  }, []);
+
+  // Cleanup GPU resources on unmount
+  useEffect(() => {
+    return () => {
+      if (glRef.current) {
+        glRef.current.dispose();
+        glRef.current.forceContextLoss();
+        glRef.current = null;
       }
     };
   }, []);
 
+  const shouldRender = isVisible && isInView;
+
   if (!isVisible) return <div className="absolute inset-0 -z-10 bg-[#080d16]" />;
 
   return (
-    <div className="absolute inset-0 -z-10">
+    <div ref={containerRef} className="absolute inset-0 -z-10">
       <Canvas
-        ref={(canvas) => {
-          if (canvas) canvasRef.current = canvas as unknown as HTMLCanvasElement;
-        }}
         camera={{ position: [0, 0, 8], fov: 50 }}
         gl={{
           antialias: false,
@@ -869,8 +910,12 @@ export default function CloudScene() {
           preserveDrawingBuffer: false,
           failIfMajorPerformanceCaveat: false,
         }}
-        dpr={[1, 1.5]}
-        frameloop={isVisible ? 'always' : 'never'}
+        dpr={[1, maxDpr]}
+        frameloop={shouldRender ? 'always' : 'never'}
+        onCreated={({ gl }) => {
+          glRef.current = gl;
+          canvasElRef.current = gl.domElement;
+        }}
       >
         <color attach="background" args={['#080d16']} />
         <fog attach="fog" args={['#080d16', 8, 28]} />
@@ -879,7 +924,6 @@ export default function CloudScene() {
         <pointLight position={[8, 8, 8]} intensity={0.7} color="#00d4ff" />
         <pointLight position={[-8, -8, -8]} intensity={0.5} color="#8b5cf6" />
         <pointLight position={[0, 6, 4]} intensity={0.6} color="#22c55e" />
-        <pointLight position={[-5, 3, 5]} intensity={0.3} color="#ff9900" />
 
         <SceneWrapper />
 

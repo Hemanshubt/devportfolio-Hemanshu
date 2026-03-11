@@ -474,10 +474,16 @@ export default function Contact() {
         body: JSON.stringify(formState),
       });
 
-      const data = await response.json();
+      let data: { success?: boolean } = {};
+      try {
+        data = await response.json();
+      } catch {
+        // Response body wasn't valid JSON (e.g. empty body or HTML error page)
+      }
+
       await pipelinePromise;
 
-      if (response.ok && data.success) {
+      if (response.ok && (data.success || Object.keys(data).length === 0)) {
         setSubmitStatus('success');
         setShowLaunch(true);
         setFormState({ name: '', email: '', message: '', website: '' });
