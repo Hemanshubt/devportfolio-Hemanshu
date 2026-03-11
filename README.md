@@ -91,7 +91,7 @@ A professional portfolio website built with **React 18**, **Vite 7**, **TypeScri
 | Technology | Version | Purpose |
 | --- | --- | --- |
 | **React** | 18.3.1 | UI component library |
-| **Vite** | 7.3.1 | Build tool and dev server |
+| **Vite** | 7.3.1 | Build tool and dev server (with API middleware) |
 | **TypeScript** | 5.8.3 | Type-safe JavaScript |
 | **Tailwind CSS** | 3.4.17 | Utility-first CSS framework |
 | **Three.js** | 0.160.1 | 3D graphics and animations |
@@ -99,7 +99,6 @@ A professional portfolio website built with **React 18**, **Vite 7**, **TypeScri
 | **Google Gemini** | 1.5 Flash | AI-powered terminal assistant |
 | **React Router** | 6.30.1 | Client-side routing |
 | **shadcn/ui** | Latest | UI component library |
-| **Express** | 4.21.0 | Local API server |
 | **Nodemailer** | 6.9.16 | Email sending functionality |
 | **GitHub Graph** | v4 | GraphQL API for contribution data |
 
@@ -137,13 +136,7 @@ cd devportfolio-Hemanshu
 ### 2. Install Dependencies
 
 ```bash
-# Install frontend dependencies
 npm install
-
-# Install API dependencies
-cd api
-npm install
-cd ..
 ```
 
 ### 3. Set Up Environment Variables
@@ -171,15 +164,12 @@ GITHUB_TOKEN=your-github-personal-access-token
 ### 4. Run the Development Server
 
 ```bash
-# Terminal 1: Run API server
-cd api
-npm run dev
-
-# Terminal 2: Run frontend
 npm run dev
 ```
 
 Open [http://localhost:8080](http://localhost:8080) in your browser.
+
+> **Note**: The Vite dev server includes built-in API middleware that handles `/api/github` and `/api/github-stats` endpoints locally — no separate API server is needed. The middleware reads tokens from your `.env` file automatically.
 
 ---
 
@@ -251,11 +241,11 @@ The portfolio features a built-in terminal with AI capabilities and fun Easter e
 │   ├── services/       # API services (Hashnode, GitHub proxy client, cache)
 │   ├── types/          # TypeScript type definitions
 │   └── utils/          # Helper utilities
-├── api/                # Vercel serverless functions (+ local Express server)
+├── api/                # Vercel serverless functions
 │   ├── contact.js      # Contact form handler (Email + Telegram) with rate limiting
-│   ├── github.js       # Server-side GitHub GraphQL proxy (keeps token secure)
+│   ├── github.js       # Server-side GitHub GraphQL proxy for contribution heatmap
+│   ├── github-stats.js # Server-side GitHub REST proxy for repo stars/forks
 │   ├── gemini.js       # Server-side Gemini AI proxy (keeps API key secure)
-│   ├── server.js       # Local Express server for development
 │   └── package.json    # API dependencies
 ├── public/             # Static assets (images, resume PDF)
 ├── .env.example        # Environment variable template (safe to commit)
@@ -286,9 +276,11 @@ The project includes `vercel.json` for automatic configuration.
 
 **Features:**
 - Automatic deployments on push
-- Serverless functions for contact form, GitHub proxy, and Gemini AI proxy
+- Serverless functions for contact form, GitHub proxies (contributions + repo stats), and Gemini AI proxy
 - Global CDN and free SSL
 - Security headers (CSP, HSTS, X-Frame-Options, etc.) via `vercel.json`
+
+> **Important**: Ensure all environment variables (`GITHUB_TOKEN`, `GEMINI_API_KEY`, `EMAIL_ADDRESS`, `GMAIL_PASSKEY`, `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`) are added in **Vercel → Settings → Environment Variables** before deploying.
 
 ---
 
@@ -354,7 +346,7 @@ GEMINI_API_KEY=AIzaSy...your-key-here
 GITHUB_TOKEN=ghp_your...token-here
 ```
 
-> **Security Note**: The token does **NOT** use the `VITE_` prefix — it is only accessed server-side via the `/api/github` proxy and never exposed in the client bundle. Only the `read:user` scope is required.
+> **Security Note**: The token does **NOT** use the `VITE_` prefix — it is only accessed server-side via the `/api/github` and `/api/github-stats` proxies and never exposed in the client bundle. Only the `read:user` scope is required.
 
 
 ---
@@ -424,8 +416,17 @@ npm run dev -- --port 3000
 **Solution:**
 - Verify `GITHUB_TOKEN` (not `VITE_GITHUB_TOKEN`) is correctly set in your `.env` file.
 - Ensure the token has the `read:user` scope (Classic token).
-- The dashboard now uses the server-side `/api/github` proxy — no client-side token is needed.
+- The dashboard uses server-side proxies (`/api/github` for contributions, `/api/github-stats` for repo stars/forks) — no client-side token is needed.
 - Check that your username matches your actual GitHub handle.
+</details>
+
+<details>
+<summary><strong>❌ GitHub API: 403 Forbidden / 500 Server Error (Production)</strong></summary>
+
+**Solution:**
+- **403 errors**: Usually caused by GitHub REST API rate limits on unauthenticated requests. All GitHub calls now go through server-side proxies that use the token.
+- **500 errors on `/api/github`**: The `GITHUB_TOKEN` environment variable is not set on Vercel. Go to **Vercel → Settings → Environment Variables** and add it.
+- After adding the environment variable, **redeploy** the project for changes to take effect.
 </details>
 
 
@@ -435,11 +436,10 @@ npm run dev -- --port 3000
 
 | Command | Description |
 | --- | --- |
-| `npm run dev` | Start frontend development server |
+| `npm run dev` | Start development server (includes API middleware) |
 | `npm run build` | Build for production |
 | `npm run preview` | Preview production build |
 | `npm run lint` | Run ESLint |
-| `cd api && npm run dev` | Start API server (for local development) |
 
 ---
 
