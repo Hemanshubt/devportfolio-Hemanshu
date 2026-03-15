@@ -427,6 +427,7 @@ export default function Contact() {
   const [formState, setFormState] = useState({ name: '', email: '', message: '', website: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState('');
   const [pipelineStage, setPipelineStage] = useState(0);
   const [showLaunch, setShowLaunch] = useState(false);
   const [ripples, setRipples] = useState<{ id: number; x: number; y: number }[]>([]);
@@ -462,6 +463,7 @@ export default function Contact() {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitStatus('idle');
+    setErrorMessage('');
     setPipelineStage(0);
 
     // Run pipeline animation alongside the actual request
@@ -474,32 +476,39 @@ export default function Contact() {
         body: JSON.stringify(formState),
       });
 
-      let data: { success?: boolean } = {};
+      let data: any = {};
       try {
         data = await response.json();
       } catch {
-        // Response body wasn't valid JSON (e.g. empty body or HTML error page)
+        // Response body wasn't valid JSON
       }
 
+      console.log('--- Form Submission Debug ---');
+      console.log('Status:', response.status, 'OK:', response.ok);
+      console.log('Data:', data);
+      
       await pipelinePromise;
 
-      if (response.ok && (data.success || Object.keys(data).length === 0)) {
+      if (response.ok && (data?.success || Object.keys(data).length === 0)) {
         setSubmitStatus('success');
         setShowLaunch(true);
         setFormState({ name: '', email: '', message: '', website: '' });
         setTimeout(() => setShowLaunch(false), 3000);
       } else {
+        setErrorMessage(data?.error || `Error ${response.status}: Failed to send message`);
         setSubmitStatus('error');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error:', error);
       await pipelinePromise;
+      setErrorMessage(error?.message || 'Network error: Failed to connect to server');
       setSubmitStatus('error');
     } finally {
       setIsSubmitting(false);
       setTimeout(() => {
         setSubmitStatus('idle');
         setPipelineStage(0);
+        setErrorMessage('');
       }, 5000);
     }
   };
@@ -690,8 +699,8 @@ export default function Contact() {
                       exit={{ opacity: 0, y: -10 }}
                       className="mb-4 flex items-center gap-2 rounded-lg bg-red-500/10 px-4 py-3 text-red-500"
                     >
-                      <AlertCircle className="h-4 w-4" />
-                      <span className="text-sm">Pipeline failed. Please retry deployment.</span>
+                      <AlertCircle className="h-4 w-4 shrink-0" />
+                      <span className="text-sm">{errorMessage || 'Pipeline failed. Please retry deployment.'}</span>
                     </motion.div>
                   )}
                 </AnimatePresence>

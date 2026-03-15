@@ -136,6 +136,16 @@ export default defineConfig(({ mode }) => {
       hmr: {
         overlay: false,
       },
+      proxy: {
+        '/api/contact': {
+          target: 'http://localhost:3001',
+          changeOrigin: true,
+        },
+        '/api/gemini': {
+          target: 'http://localhost:3001',
+          changeOrigin: true,
+        },
+      },
     },
     plugins: [
       react(),
