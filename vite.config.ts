@@ -138,11 +138,11 @@ export default defineConfig(({ mode }) => {
       },
       proxy: {
         '/api/contact': {
-          target: 'http://localhost:3001',
+          target: 'http://localhost:3002',
           changeOrigin: true,
         },
         '/api/gemini': {
-          target: 'http://localhost:3001',
+          target: 'http://localhost:3002',
           changeOrigin: true,
         },
       },

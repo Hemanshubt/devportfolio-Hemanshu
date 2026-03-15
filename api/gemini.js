@@ -115,10 +115,9 @@ export default async function handler(req, res) {
   const prompt = `${SYSTEM_CONTEXT}\n\nVisitor Question: ${question}`;
 
   const modelsToTry = [
-    'gemini-1.5-flash',
-    'gemini-1.5-flash-latest',
-    'gemini-2.0-flash-exp',
-    'gemini-pro',
+    'gemini-2.5-flash',
+    'gemini-2.0-flash',
+    'gemini-flash-latest',
   ];
 
   let lastError = null;
@@ -146,6 +145,7 @@ export default async function handler(req, res) {
           return res.status(503).json({ error: 'Gemini API not enabled. Please contact the site owner.' });
         }
 
+        console.error(`Model ${model} failed: ${response.status}`, errorText);
         lastError = new Error(`Model ${model} failed: ${response.status}`);
         continue;
       }
