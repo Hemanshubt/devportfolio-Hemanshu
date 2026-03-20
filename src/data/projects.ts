@@ -97,7 +97,7 @@ This project represents a modern, secure approach to deploying AI-integrated app
         tags: ['AWS EKS', 'Terraform', 'Jenkins', 'SonarQube', 'Prometheus', 'Grafana'],
         icon: Cloud,
         color: 'primary',
-        highlights: ['GitOps with Terraform', 'Full Observability Stack', 'Secure Jenkins Pipeline'],
+        highlights: ['Terraform', 'Full Observability Stack', 'Secure Jenkins Pipeline'],
         github: 'https://github.com/Hemanshubt/FullStack-Blogging-App',
         image: 'https://miro.medium.com/v2/resize:fit:720/format:webp/0*LdTGlxSTQHnTl9uy.gif',
         readme: {
