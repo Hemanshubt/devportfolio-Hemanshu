@@ -114,7 +114,7 @@ const Index = () => {
               <CodeShowcase />
               <Projects />
               <GithubActivity />
-              <Blog />
+              {/* <Blog /> */}
               <Certifications />
               <Timeline />
               <Contact />

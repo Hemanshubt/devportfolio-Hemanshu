@@ -8,7 +8,9 @@
 import { BlogPost, HashnodeAPIResponse } from '../types/blog';
 import { transformToBlogPost } from '../utils/transformBlogPost';
 
-const HASHNODE_API_ENDPOINT = 'https://gql.hashnode.com';
+const HASHNODE_API_ENDPOINT = import.meta.env.DEV
+  ? '/api/hashnode'   // Vite dev-server proxy (avoids CORS)
+  : 'https://gql.hashnode.com'; // Direct call in production
 
 /**
  * GraphQL query to fetch blog posts from Hashnode publication
@@ -106,8 +108,11 @@ export async function fetchBlogPosts(
       }),
     });
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+    // Hashnode API may return HTML or 503 when access is restricted (Pro plan required)
+    const contentType = response.headers.get('content-type') || '';
+    if (!contentType.includes('application/json') || !response.ok) {
+      console.warn('[HashnodeService] API unavailable (status: ' + response.status + '). Hashnode may require a Pro plan.');
+      return { posts: [], hasNextPage: false, endCursor: null };
     }
 
     const result: HashnodeAPIResponse = await response.json();
@@ -156,8 +161,11 @@ export async function fetchBlogPostBySlug(host: string, slug: string): Promise<B
       }),
     });
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+    // Hashnode API may return HTML or 503 when access is restricted (Pro plan required)
+    const contentType = response.headers.get('content-type') || '';
+    if (!contentType.includes('application/json') || !response.ok) {
+      console.warn('[HashnodeService] API unavailable (status: ' + response.status + '). Hashnode may require a Pro plan.');
+      return null;
     }
 
     const result = await response.json();

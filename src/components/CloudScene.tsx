@@ -859,23 +859,24 @@ export default function CloudScene() {
     return () => observer.disconnect();
   }, []);
 
-  // Context loss/restore event handlers (attached via onCreated)
-  useEffect(() => {
-    const canvas = canvasElRef.current;
+  // Attach WebGL context-loss/restore listeners via a stable callback
+  // (must run after onCreated populates canvasElRef, so we use a callback ref)
+  const attachContextListeners = useCallback((canvas: HTMLCanvasElement | null) => {
     if (!canvas) return;
+    canvasElRef.current = canvas;
 
     const handleContextLost = (event: Event) => {
       event.preventDefault();
-      console.warn('WebGL context lost. Attempting to restore...');
       setIsVisible(false);
     };
     const handleContextRestored = () => {
-      console.log('WebGL context restored.');
       setIsVisible(true);
     };
 
     canvas.addEventListener('webglcontextlost', handleContextLost);
     canvas.addEventListener('webglcontextrestored', handleContextRestored);
+
+    // Return cleanup (called when canvas is removed)
     return () => {
       canvas.removeEventListener('webglcontextlost', handleContextLost);
       canvas.removeEventListener('webglcontextrestored', handleContextRestored);
@@ -914,7 +915,7 @@ export default function CloudScene() {
         frameloop={shouldRender ? 'always' : 'never'}
         onCreated={({ gl }) => {
           glRef.current = gl;
-          canvasElRef.current = gl.domElement;
+          attachContextListeners(gl.domElement);
         }}
       >
         <color attach="background" args={['#080d16']} />

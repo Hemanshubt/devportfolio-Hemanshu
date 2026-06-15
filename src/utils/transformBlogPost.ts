@@ -8,7 +8,7 @@
 import { BlogPost, HashnodeAPIResponse } from '../types/blog';
 import { BookOpen } from 'lucide-react';
 
-type HashnodePostNode = HashnodeAPIResponse['data']['user']['publication']['posts']['edges'][0]['node'];
+type HashnodePostNode = HashnodeAPIResponse['data']['publication']['posts']['edges'][0]['node'];
 
 const MAX_TAGS_DISPLAY = 4;
 const MAX_HIGHLIGHTS = 3;

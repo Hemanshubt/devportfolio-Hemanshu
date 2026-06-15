@@ -65,6 +65,10 @@ export interface HashnodeAPIResponse {
   data: {
     publication: {
       posts: {
+        pageInfo: {
+          hasNextPage: boolean;
+          endCursor: string | null;
+        };
         edges: Array<{
           node: {
             id: string;

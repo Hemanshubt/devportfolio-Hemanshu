@@ -19,7 +19,7 @@ const navLinks = [
   { name: 'Skills', href: '#skills', icon: Code2 },
   { name: 'Code', href: '#code-showcase', icon: Terminal },
   { name: 'Projects', href: '#projects', icon: FolderGit2 },
-  { name: 'Blog', href: '#blog', icon: BookOpen },
+  // { name: 'Blog', href: '#blog', icon: BookOpen },
   { name: 'Certifications', href: '#certifications', icon: Award },
   { name: 'Education', href: '#education', icon: GraduationCap },
   { name: 'Contact', href: '#contact', icon: Mail },

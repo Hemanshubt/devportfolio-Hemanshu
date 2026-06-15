@@ -12,8 +12,8 @@ export default function Blog() {
   const [currentPage, setCurrentPage] = useState(1);
   const postsPerPage = 6;
   
-  // Fetch blog posts from Hashnode
-  const { posts: blogPosts, loading: blogLoading, hasNextPage, loadMore, loadingMore } = useHashnodePosts(postsPerPage);
+  // Fetch blog posts from Hashnode (use large initial limit to support client-side pagination)
+  const { posts: blogPosts, loading: blogLoading, hasNextPage, loadMore, loadingMore } = useHashnodePosts(50);
   
   // Calculate pagination
   const totalPages = Math.ceil(blogPosts.length / postsPerPage);

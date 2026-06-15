@@ -1,19 +1,15 @@
 /**
  * useHashnodePosts Hook
- * 
- * Custom React hook for fetching and caching Hashnode blog posts.
- * Manages loading, error, and data states with automatic caching.
+ *
+ * Custom React hook for fetching and caching Hashnode blog posts via RSS feed.
+ * The Hashnode GraphQL API now requires a paid Pro plan; the RSS feed is free.
  */
 
 import { useState, useEffect } from 'react';
 import { BlogPost } from '../types/blog';
-import { hashnodeService } from '../services/hashnodeService';
+import { rssService, CACHE_KEY, CACHE_TTL } from '../services/rssService';
 import { cacheService } from '../services/cacheService';
 import { filterValidBlogPosts } from '../utils/validators';
-
-const CACHE_KEY = 'hashnode_blog_posts';
-const CACHE_TTL = 60 * 60 * 1000; // 1 hour in milliseconds
-const HASHNODE_HOST = 'hemanshubtc.hashnode.dev';
 
 export interface UseHashnodePostsReturn {
   posts: BlogPost[];
@@ -25,17 +21,13 @@ export interface UseHashnodePostsReturn {
 }
 
 /**
- * Custom hook to fetch and cache Hashnode blog posts
- * @param initialLimit - Initial number of posts to fetch (default: 10)
- * @returns Object containing posts array, loading state, error state, and pagination info
+ * Custom hook to fetch and cache Hashnode blog posts via RSS
+ * @param initialLimit - Max number of posts to show initially (default: 50)
  */
-export function useHashnodePosts(initialLimit: number = 10): UseHashnodePostsReturn {
+export function useHashnodePosts(initialLimit: number = 50): UseHashnodePostsReturn {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
-  const [hasNextPage, setHasNextPage] = useState<boolean>(false);
-  const [endCursor, setEndCursor] = useState<string | null>(null);
-  const [loadingMore, setLoadingMore] = useState<boolean>(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -44,79 +36,49 @@ export function useHashnodePosts(initialLimit: number = 10): UseHashnodePostsRet
       try {
         // Check cache first
         const cachedData = cacheService.get<BlogPost[]>(CACHE_KEY);
-        
         if (cachedData && cacheService.isValid(cachedData)) {
-          // Use cached data
           if (isMounted) {
-            setPosts(cachedData.data);
+            setPosts(cachedData.data.slice(0, initialLimit));
             setLoading(false);
           }
           return;
         }
 
-        // Cache miss or expired - fetch from API
-        const result = await hashnodeService.fetchBlogPosts(HASHNODE_HOST, initialLimit);
-        
-        // Validate and filter posts
-        const validPosts = filterValidBlogPosts(result.posts);
+        // Fetch all posts from RSS (RSS returns everything at once, no pagination)
+        // Request up to 50 posts so client-side pagination has content
+        const fetched = await rssService.fetchBlogPosts(50);
+        const valid = filterValidBlogPosts(fetched);
 
         if (isMounted) {
-          setPosts(validPosts);
-          setHasNextPage(result.hasNextPage);
-          setEndCursor(result.endCursor);
+          setPosts(valid.slice(0, initialLimit));
           setLoading(false);
-          
-          // Update cache with valid posts
-          if (validPosts.length > 0) {
-            cacheService.set(CACHE_KEY, validPosts, CACHE_TTL);
+
+          if (valid.length > 0) {
+            cacheService.set(CACHE_KEY, valid, CACHE_TTL);
           }
         }
       } catch (err) {
-        // Handle errors gracefully
         const errorObj = err instanceof Error ? err : new Error('Failed to fetch blog posts');
-        
         if (isMounted) {
           setError(errorObj);
           setLoading(false);
-          setPosts([]); // Return empty array on error
+          setPosts([]);
         }
-        
-        console.error('[useHashnodePosts] Error fetching blog posts:', errorObj);
+        console.error('[useHashnodePosts] Error fetching RSS blog posts:', errorObj);
       }
     }
 
     fetchPosts();
-
-    // Cleanup function to prevent state updates on unmounted component
-    return () => {
-      isMounted = false;
-    };
-  }, [initialLimit]); // Re-fetch if limit changes
-
-  const loadMore = async () => {
-    if (!hasNextPage || loadingMore || !endCursor) return;
-
-    setLoadingMore(true);
-    try {
-      const result = await hashnodeService.fetchBlogPosts(HASHNODE_HOST, initialLimit, endCursor);
-      const validPosts = filterValidBlogPosts(result.posts);
-      
-      setPosts(prev => [...prev, ...validPosts]);
-      setHasNextPage(result.hasNextPage);
-      setEndCursor(result.endCursor);
-    } catch (err) {
-      console.error('[useHashnodePosts] Error loading more posts:', err);
-    } finally {
-      setLoadingMore(false);
-    }
-  };
+    return () => { isMounted = false; };
+  }, [initialLimit]);
 
   return {
     posts,
     loading,
     error,
-    hasNextPage,
-    loadMore,
-    loadingMore,
+    // RSS loads all posts at once — no server-side pagination
+    hasNextPage: false,
+    loadMore: () => {},
+    loadingMore: false,
   };
 }

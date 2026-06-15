@@ -87,6 +87,7 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-family: 'Inter', sans-serif;
+    position: relative;
   }
 
   ::selection {

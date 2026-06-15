@@ -38,7 +38,7 @@ const HELP_OUTPUT: OutputLine[] = [
     { type: 'info', text: '  about       — Navigate to About section' },
     { type: 'info', text: '  skills      — Navigate to Skills section' },
     { type: 'info', text: '  projects    — Navigate to Projects section' },
-    { type: 'info', text: '  blog        — Navigate to Blog section' },
+    // { type: 'info', text: '  blog        — Navigate to Blog section' },
     { type: 'info', text: '  contact     — Navigate to Contact section' },
     { type: 'info', text: '  whoami      — Display user info' },
     { type: 'info', text: '  neofetch    — System information display' },
@@ -131,7 +131,7 @@ export default function InteractiveTerminal() {
             case 'about':
             case 'skills':
             case 'projects':
-            case 'blog':
+            // case 'blog':
             case 'contact':
             case 'certifications':
             case 'education':
@@ -188,7 +188,7 @@ export default function InteractiveTerminal() {
 
             case 'ls':
                 lines.push(
-                    { type: 'output', text: 'about/   skills/   projects/   blog/' },
+                    { type: 'output', text: 'about/   skills/   projects/' },
                     { type: 'output', text: 'certifications/   education/   contact/' },
                 );
                 break;

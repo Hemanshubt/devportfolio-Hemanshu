@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Calendar, Tag, Clock, ExternalLink } from 'lucide-react';
 import { BlogPost as BlogPostType } from '@/types/blog';
-import { hashnodeService } from '@/services/hashnodeService';
+import { rssService } from '@/services/rssService';
 import { formatPublishedDate } from '@/utils/dateFormatter';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
@@ -29,7 +29,7 @@ export default function BlogPost() {
 
       try {
         setLoading(true);
-        const fetchedPost = await hashnodeService.fetchBlogPostBySlug('hemanshubtc.hashnode.dev', slug);
+        const fetchedPost = await rssService.fetchBlogPostBySlug(slug);
 
         if (!fetchedPost) {
           setError('Blog post not found');

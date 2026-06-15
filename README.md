@@ -57,6 +57,7 @@ A professional portfolio website built with **React 18**, **Vite 7**, **TypeScri
 - ✅ **Advanced SEO**: Dynamic JSON-LD structured data (Schema.org), semantic HTML5, and automatic XML sitemap generation
 - ✅ **Custom Domain**: Secured and deployed on [hemanshudev.cloud](https://hemanshudev.cloud)
 - ✅ **Downloadable Resume**: PDF resume download functionality
+- ✅ **RSS Blog Feed (Archived)**: Free RSS-based blog parsing with in-memory caching and local XML fallback (`data/hashnode-rss-fallback.xml`) to bypass Hashnode GraphQL API blocks. Served via a secure server-side CORS proxy handler (`/api/hashnode-rss`).
 
 ### 🔒 Security Features
 
@@ -80,7 +81,7 @@ A professional portfolio website built with **React 18**, **Vite 7**, **TypeScri
 | 🛠️ **Skills** | Technical skills with animated marquee display |
 | 🚀 **Projects** | DevOps & Cloud projects with details |
 | 📊 **GitHub** | Real-time contribution dashboard with GraphQL |
-| 📝 **Blog** | Latest articles from Hashnode with caching |
+| 📝 **Blog** | Latest articles from Hashnode with caching (Hidden in UI) |
 | 🏆 **Certifications** | AWS, Kubernetes, and other certifications |
 | 📧 **Contact** | Contact form with Email/Telegram integration |
 
@@ -264,6 +265,7 @@ The portfolio features a built-in terminal with AI capabilities and fun Easter e
 │   ├── github.js       # Server-side GitHub GraphQL proxy for contribution heatmap
 │   ├── github-stats.js # Server-side GitHub REST proxy for repo stars/forks
 │   ├── gemini.js       # Server-side Gemini AI proxy (keeps API key secure)
+│   ├── hashnode-rss.js # Server-side Hashnode RSS proxy (bypasses browser CORS)
 │   └── package.json    # API dependencies
 ├── public/             # Static assets (images, resume PDF)
 ├── .env.example        # Environment variable template (safe to commit)
