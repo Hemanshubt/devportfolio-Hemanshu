@@ -6,6 +6,7 @@ import { dirname, join } from 'path';
 import contactHandler from './contact.js';
 import geminiHandler from './gemini.js';
 import hashnodeRssHandler from './hashnode-rss.js';
+import hashnodeHandler from './hashnode.js';
 
 // Load .env from root directory
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -41,6 +42,15 @@ app.all('/api/hashnode-rss', async (req, res) => {
     await hashnodeRssHandler(req, res);
   } catch (error) {
     console.error('Hashnode RSS Handler error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.all('/api/hashnode', async (req, res) => {
+  try {
+    await hashnodeHandler(req, res);
+  } catch (error) {
+    console.error('Hashnode Handler error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
