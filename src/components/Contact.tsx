@@ -483,10 +483,6 @@ export default function Contact() {
         // Response body wasn't valid JSON
       }
 
-      console.log('--- Form Submission Debug ---');
-      console.log('Status:', response.status, 'OK:', response.ok);
-      console.log('Data:', data);
-      
       await pipelinePromise;
 
       if (response.ok && (data?.success || Object.keys(data).length === 0)) {

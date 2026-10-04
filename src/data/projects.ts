@@ -36,7 +36,7 @@ export const projects = [
 
 ## **Project Overview**
 
-In today’s digital world, user engagement is key to the success of any application. This project aim to implement DevSecOps for deploying an **OpenAI Chatbot UI**. We utilize Kubernetes (EKS) for container orchestration, Jenkins for Continuous Integration/Continuous Deployment (CI/CD), and Docker for containerization.
+In today’s digital world, user engagement is key to the success of any application. This project aims to implement DevSecOps for deploying an **OpenAI Chatbot UI**. We utilize Kubernetes (EKS) for container orchestration, Jenkins for Continuous Integration/Continuous Deployment (CI/CD), and Docker for containerization.
 
 ### **Why ChatBOT?**
 
@@ -201,160 +201,6 @@ Implementing fine-grained access control within the EKS cluster for Jenkins serv
 This project represents an enterprise-grade CI/CD implementation, bridging the gap between development and production with automated security and observability.
 `
     },
-    /* {
-        slug: 'two-tier-flaskapp',
-        title: 'Two-tier Flaskapp Deployment',
-        description: 'A comprehensive CI/CD pipeline for deploying a two-tier Flask application using Docker containers and Kubernetes orchestration.',
-        tags: ['Docker', 'Kubernetes', 'Flask', 'MySQL', 'Jenkins'],
-        icon: Cloud,
-        color: 'primary',
-        highlights: ['High Availability', 'Scalable Design', 'Secure VPC'],
-        github: 'https://github.com/Hemanshubt/two-tier-flaskapp',
-        image: 'https://images.unsplash.com/photo-1667372393119-3d4c48d07fc9?w=800&h=450&fit=crop',
-        readme: {
-            overview: 'A comprehensive CI/CD pipeline for deploying a two-tier Flask application using Docker containers and Kubernetes orchestration.',
-            features: [
-                'Containerized Flask application with Docker',
-                'MySQL database integration with persistent storage',
-                'Kubernetes deployment with auto-scaling',
-                'Jenkins CI/CD pipeline automation',
-                'Health checks and monitoring'
-            ],
-            architecture: [
-                'Frontend: Flask Web Application',
-                'Backend: MySQL Database',
-                'Container: Docker with multi-stage builds',
-                'Orchestration: Kubernetes with Helm charts',
-                'CI/CD: Jenkins pipeline with automated testing'
-            ],
-            techStack: ['Python', 'Flask', 'MySQL', 'Docker', 'Kubernetes', 'Jenkins', 'Helm']
-        },
-        fullContent: `
-## Project Overview
-This project demonstrates the complete CI/CD automation and deployment of a two-tier Flask application. The application is containerized using Docker and orchestrated with Kubernetes, ensuring high availability and scalability.
-
-## Key Features
-- **Containerization**: Flask application and MySQL database are both containerized.
-- **Orchestration**: Kubernetes handles deployment, scaling, and self-healing.
-- **CI/CD Pipeline**: Automated Jenkins pipeline for building and deploying.
-- **Infrastructure as Code**: Terraform used for provisioning AWS resources.
-`
-    }, */
-    /* {
-        slug: 'nodejs-todo-cicd',
-        title: 'Node.js To-Do CI/CD Pipeline',
-        description: 'Implemented an automated CI/CD pipeline for a Node.js To-Do application using Jenkins, Docker, and AWS infrastructure.',
-        tags: ['Node.js', 'Jenkins', 'Docker', 'AWS', 'Terraform'],
-        icon: Server,
-        color: 'secondary',
-        highlights: ['Cost Optimized', 'Automated Testing', 'Real-time Monitoring'],
-        github: 'https://github.com/Hemanshubt/Node-todo-app-main',
-        image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&h=450&fit=crop',
-        readme: {
-            overview: 'Implemented an automated CI/CD pipeline for a Node.js To-Do application using Jenkins, Docker, and AWS infrastructure.',
-            features: [
-                'Automated build and deployment pipeline',
-                'Docker containerization for consistency',
-                'AWS EC2 deployment with auto-scaling',
-                'Terraform infrastructure as code',
-                'Automated testing integration'
-            ],
-            architecture: [
-                'Application: Node.js Express server',
-                'Database: MongoDB/MySQL',
-                'Infrastructure: AWS EC2, VPC, Security Groups',
-                'IaC: Terraform for resource provisioning',
-                'CI/CD: Jenkins with webhook triggers'
-            ],
-            techStack: ['Node.js', 'Express', 'Docker', 'Jenkins', 'AWS', 'Terraform']
-        },
-        fullContent: `
-## Overview
-A fully automated CI/CD pipeline for a Node.js To-Do application, focusing on cost optimization and reliability using AWS and Jenkins.
-
-## Implementation Details
-- **Docker**: Containerized the application for consistent environments across development and production.
-- **Jenkins**: Automated the entire workflow from code commit to deployment.
-- **Terraform**: Provisioned AWS infrastructure (EC2, VPC) as code.
-
-## Monitoring
-Integrated CloudWatch for real-time monitoring and log analysis.
-`
-    }, */
-    /* {
-        slug: 'scalable-aws-kubernetes',
-        title: 'Scalable AWS Deployment with Kubernetes',
-        description: 'Designed CI/CD pipeline for Flask/MySQL app, doubling capacity to 20,000 users. Achieved 99.9% uptime with Docker, Kubernetes, and Helm.',
-        tags: ['Amazon EKS', 'Kubernetes', 'Helm', 'Terraform', 'AWS VPC'],
-        icon: Cloud,
-        color: 'primary',
-        highlights: ['99.9% Uptime', '2x User Capacity', '80% Faster Setup'],
-        github: '#',
-        image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&h=450&fit=crop',
-        readme: {
-            overview: 'Designed and implemented a CI/CD pipeline for a Flask/MySQL application, doubling user capacity from 10,000 to 20,000 users.',
-            features: [
-                'Scalable Pipeline Design: Doubled user capacity to 20,000',
-                'High-Availability System: 99.9% uptime, 60% reduced downtime',
-                'Deployment Acceleration: 30% improved efficiency, 80% faster setup',
-                'VPC Security Architecture: 100% internal traffic isolation'
-            ],
-            architecture: [
-                'Container Orchestration: Amazon EKS',
-                'Package Management: Helm Charts',
-                'Infrastructure: Terraform IaC',
-                'Networking: AWS VPC with private subnets',
-                'Load Balancing: Application Load Balancer'
-            ],
-            techStack: ['Amazon EKS', 'Kubernetes', 'Helm', 'Terraform', 'AWS VPC', 'Docker', 'Flask', 'MySQL']
-        },
-        fullContent: `
-## Scaling to 20k Users
-This project focused on scaling a traditional Flask/MySQL application to handle high traffic using Amazon EKS.
-
-## Technical Highlights
-- **Elastic Kubernetes Service (EKS)**: Reliable orchestration for containerized workloads.
-- **Helm Charts**: Managed complex K8s deployments with ease.
-- **AWS VPC**: Secured internal traffic and isolated the database tier.
-`
-    }, */
-    /* {
-        slug: 'cost-efficient-cicd',
-        title: 'Cost-Efficient CI/CD Pipeline Management',
-        description: 'Achieved 40% cost reduction and 50% faster setup with Jenkins and Terraform. Automated resource management with AWS Lambda.',
-        tags: ['Jenkins', 'Terraform', 'AWS Lambda', 'CloudWatch', 'Cost Explorer'],
-        icon: DollarSign,
-        color: 'secondary',
-        highlights: ['40% Cost Reduction', '90% Automation', '30% More Reliable'],
-        github: '#',
-        image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=450&fit=crop',
-        readme: {
-            overview: 'Achieved a 40% reduction in infrastructure costs and a 50% faster setup time by refining the CI/CD pipeline with Jenkins and Terraform.',
-            features: [
-                'Cost Optimization: 40% infrastructure cost reduction',
-                'Automation: 90% reduction in manual intervention',
-                'Automated Reporting: 20% improved budget adherence',
-                'Reliability Enhancement: 30% boost in pipeline reliability'
-            ],
-            architecture: [
-                'CI/CD: Jenkins with optimized pipelines',
-                'IaC: Terraform for resource management',
-                'Serverless: AWS Lambda for automation',
-                'Monitoring: AWS CloudWatch real-time alerts',
-                'Cost Management: AWS Cost Explorer API integration'
-            ],
-            techStack: ['Jenkins', 'Terraform', 'AWS Lambda', 'CloudWatch', 'Cost Explorer', 'Python']
-        },
-        fullContent: `
-## Cost Optimization Strategy
-A project dedicated to reducing AWS spend while improving deployment speed.
-
-## Key Outcomes
-- **40% Cost Reduction**: Achieved through rightsizing resources and implementing automated cleanup.
-- **Serverless Automation**: Used AWS Lambda to schedule start/stop of dev environments.
-- **Terraform Refactoring**: Modularized IaC for faster environment provisioning.
-`
-    }, */
     {
         slug: 'cloud-native-3tier-app',
         title: '3-Tier App on EKS',
@@ -423,7 +269,7 @@ aws rds create-db-instance \\
   --db-instance-class db.t3.small \\
   --engine postgres \\
   --master-username postgresadmin \\
-  --master-user-password YourStrongPassword123! \\
+  --master-user-password <YOUR_SECURE_PASSWORD> \\
   --no-publicly-accessible \\
   --region eu-west-1
 \`\`\`

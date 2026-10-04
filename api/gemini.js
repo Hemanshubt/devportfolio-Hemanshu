@@ -245,6 +245,7 @@ export default async function handler(req, res) {
 
   // ── RATE LIMITING ──────────────────────────────────────────────────────
   const clientIp =
+    req.headers['x-vercel-forwarded-for'] ||
     req.headers['x-forwarded-for']?.split(',')[0]?.trim() ||
     req.headers['x-real-ip'] ||
     'unknown';

@@ -5,8 +5,8 @@ import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import contactHandler from './contact.js';
 import geminiHandler from './gemini.js';
-import hashnodeRssHandler from './hashnode-rss.js';
-import hashnodeHandler from './hashnode.js';
+import githubHandler from './github.js';
+import githubStatsHandler from './github-stats.js';
 
 // Load .env from root directory
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -18,7 +18,7 @@ const PORT = 3002;
 app.use(cors());
 app.use(express.json());
 
-// Wrap the Vercel handler for Express
+// Wrap the Vercel handlers for Express
 app.all('/api/contact', async (req, res) => {
   try {
     await contactHandler(req, res);
@@ -37,20 +37,20 @@ app.all('/api/gemini', async (req, res) => {
   }
 });
 
-app.all('/api/hashnode-rss', async (req, res) => {
+app.all('/api/github', async (req, res) => {
   try {
-    await hashnodeRssHandler(req, res);
+    await githubHandler(req, res);
   } catch (error) {
-    console.error('Hashnode RSS Handler error:', error);
+    console.error('GitHub Handler error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-app.all('/api/hashnode', async (req, res) => {
+app.all('/api/github-stats', async (req, res) => {
   try {
-    await hashnodeHandler(req, res);
+    await githubStatsHandler(req, res);
   } catch (error) {
-    console.error('Hashnode Handler error:', error);
+    console.error('GitHub Stats Handler error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

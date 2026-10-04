@@ -2,16 +2,16 @@ import nodemailer from 'nodemailer';
 import fetch from 'node-fetch';
 
 // Allowed origins for CORS
-const ALLOWED_ORIGINS = [
+const ALLOWED_ORIGINS = new Set([
   'https://hemanshudev.cloud',
   'https://www.hemanshudev.cloud',
   'http://localhost:8080',
   'http://localhost:5173',
-];
+]);
 
-function getCorsOrigin(req) {
+function getAllowedOrigin(req) {
   const origin = req.headers?.origin || '';
-  return ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return ALLOWED_ORIGINS.has(origin) ? origin : null;
 }
 
 // In-memory rate limiter
@@ -44,17 +44,21 @@ function sanitizeInput(str) {
 }
 
 export default async function handler(req, res) {
-  const origin = getCorsOrigin(req);
+  const allowedOrigin = getAllowedOrigin(req);
+  if (!allowedOrigin) {
+    return res.status(403).json({ error: 'Origin not allowed' });
+  }
   res.setHeader('Access-Control-Allow-Credentials', 'true');
-  res.setHeader('Access-Control-Allow-Origin', origin);
+  res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Vary', 'Origin');
 
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   // Rate limiting
-  const clientIp = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || 'unknown';
+  const clientIp = req.headers['x-vercel-forwarded-for'] || req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.headers['x-real-ip'] || 'unknown';
   if (isRateLimited(clientIp)) {
     return res.status(429).json({ error: 'Too many requests. Please try again later.' });
   }
