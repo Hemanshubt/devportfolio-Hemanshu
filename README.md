@@ -1,7 +1,7 @@
 <h1 align="center">Hemanshu Mahajan — Portfolio</h1>
 
 <p align="center">
-  <strong>A modern, responsive portfolio website for DevOps &amp; Cloud enthusiasts</strong>
+  <strong>A modern, responsive portfolio website for DevOps & Cloud enthusiasts</strong>
 </p>
 
 <p align="center">
@@ -25,7 +25,7 @@
 
 ## Overview
 
-A professional portfolio website built with **React 18**, **Vite 7**, **TypeScript**, and **Tailwind CSS**. Features stunning 3D animations with Three.js, smooth Framer Motion transitions, a real-time GitHub contribution dashboard, an AI-powered interactive terminal, and a contact form with Email & Telegram notifications.
+A professional portfolio website built with **React 18**, **Vite 7**, **TypeScript**, and **Tailwind CSS**. Features stunning 3D animations with Three.js, smooth Framer Motion transitions, a real-time GitHub contribution dashboard, an AI-powered interactive terminal, and a contact form with **Resend Email** & Telegram notifications.
 
 ---
 
@@ -43,7 +43,7 @@ A professional portfolio website built with **React 18**, **Vite 7**, **TypeScri
 
 - ✅ **Modern Tech Stack**: React 18, Vite 7, TypeScript, Tailwind CSS
 - ✅ **3D Animations**: Interactive cloud scene with Three.js & React Three Fiber
-- ✅ **Smooth Animations**: Framer Motion for fluid transitions and micro-interactions
+- ✅ **Smooth Animations**: Framer Motion + GSAP for fluid transitions and micro-interactions
 - ✅ **Performance Optimized**: React lazy loading, code splitting, and Suspense for faster initial load
 - ✅ **AI-Powered Terminal**: Context-aware assistant powered by Google Gemini via secure server-side proxy
 - ✅ **Interactive Commands**: Custom terminal commands (`matrix`, `hack`, `coffee`, `sudo hire`, etc.)
@@ -57,10 +57,14 @@ A professional portfolio website built with **React 18**, **Vite 7**, **TypeScri
 - ✅ **Custom Domain**: Secured and deployed on [hemanshudev.cloud](https://hemanshudev.cloud)
 - ✅ **Downloadable Resume**: PDF resume download functionality
 - ✅ **Konami Easter Egg**: Hidden interactive surprise for curious visitors
+- ✅ **Tech Marquee**: Auto-scrolling dual-row DevOps tool ticker
+- ✅ **Cursor Trail**: Animated particle trail following cursor movement
+- ✅ **Project Detail Pages**: Full-page project write-ups with rendered README content & social share buttons
+- ✅ **Skeleton Loading States**: Polished skeleton placeholders for project cards and detail pages
 
 ### 🔒 Security Features
 
-- ✅ **Server-Side API Proxies**: All sensitive tokens (GitHub PAT, Gemini API key) are kept server-side — never exposed in the client bundle
+- ✅ **Server-Side API Proxies**: All sensitive tokens (GitHub PAT, Gemini API key, Resend API key) are kept server-side — never exposed in the client bundle
 - ✅ **Restricted CORS**: API endpoints only accept requests from the production domain and localhost
 - ✅ **Rate Limiting**: Contact form (5 req/15min) and AI terminal (10 req/min) per IP
 - ✅ **Honeypot Bot Detection**: Hidden form field catches automated spam bots
@@ -75,14 +79,15 @@ A professional portfolio website built with **React 18**, **Vite 7**, **TypeScri
 | Section | Description |
 | --- | --- |
 | 🦸 **Hero** | Eye-catching introduction with 3D cloud animation |
+| 🎞️ **Marquee** | Auto-scrolling dual-row DevOps & Cloud tool ticker |
 | 👤 **About Me** | Personal information and professional summary |
 | 🛠️ **Skills** | Technical skills with orbit & grid view, filterable by category |
 | 💻 **Code Showcase** | Interactive code snippet viewer |
-| 🚀 **Projects** | DevOps & Cloud projects with full detail pages |
+| 🚀 **Projects** | DevOps & Cloud projects with full detail pages & social sharing |
 | 📊 **GitHub** | Real-time contribution dashboard with GraphQL heatmap |
 | 🏆 **Certifications** | AWS, Kubernetes, and other certifications |
 | 💼 **Timeline** | Work experience and education history |
-| 📧 **Contact** | Contact form with Email/Telegram integration & CI/CD pipeline animation |
+| 📧 **Contact** | Contact form with Resend Email/Telegram integration & CI/CD pipeline animation |
 
 ---
 
@@ -96,12 +101,16 @@ A professional portfolio website built with **React 18**, **Vite 7**, **TypeScri
 | **Tailwind CSS** | 3.4.17 | Utility-first CSS framework |
 | **Three.js** | 0.160.1 | 3D graphics and animations |
 | **Framer Motion** | 11.18.2 | Animation library |
+| **GSAP** | 3.15.0 | High-performance animations |
 | **Google Gemini** | 1.5 Flash | AI-powered terminal assistant |
 | **React Router** | 6.30.1 | Client-side routing |
 | **shadcn/ui** | Latest | UI component library (Radix UI) |
-| **Nodemailer** | 7.x | Email sending functionality |
+| **Resend** | HTTP API | Transactional email delivery |
 | **GitHub GraphQL** | v4 | API for contribution data |
 | **TanStack Query** | 5.x | Server state management |
+| **Recharts** | 2.15.4 | Data visualization charts |
+| **React Markdown** | 10.1.0 | Markdown rendering for project pages |
+| **Vercel Speed Insights** | 2.0 | Real User Monitoring (RUM) |
 
 ---
 
@@ -111,7 +120,7 @@ A professional portfolio website built with **React 18**, **Vite 7**, **TypeScri
 
 | Tool | Minimum Version | Download Link |
 | --- | --- | --- |
-| **Node.js** | v18.x or higher | [Download](https://nodejs.org/en/download/) |
+| **Node.js** | v20.x or higher | [Download](https://nodejs.org/en/download/) |
 | **npm** | Latest | Included with Node.js |
 | **Git** | Latest | [Download](https://git-scm.com/downloads) |
 
@@ -153,9 +162,11 @@ cd ..
 Create a `.env` file in the root directory (see `.env.example` for a template):
 
 ```env
-# Gmail Configuration
+# Resend API Configuration
+RESEND_API_KEY=re_your-resend-api-key
+RESEND_FROM=Hemanshu Mahajan <contact@hemanshudev.cloud>
+RESEND_TO=your-email@gmail.com
 EMAIL_ADDRESS=your-email@gmail.com
-GMAIL_PASSKEY=your-gmail-app-password
 
 # Telegram Configuration
 TELEGRAM_BOT_TOKEN=your-telegram-bot-token
@@ -168,7 +179,7 @@ GEMINI_API_KEY=your-gemini-api-key
 GITHUB_TOKEN=your-github-personal-access-token
 ```
 
-> **⚠️ Security Note**: `GEMINI_API_KEY` and `GITHUB_TOKEN` intentionally omit the `VITE_` prefix — this ensures they are only available server-side and are never bundled into the client JavaScript.
+> **⚠️ Security Note**: `RESEND_API_KEY`, `GEMINI_API_KEY`, and `GITHUB_TOKEN` intentionally omit the `VITE_` prefix — this ensures they are only available server-side and are never bundled into the client JavaScript.
 
 ### 4. Run the Development Servers
 
@@ -237,7 +248,14 @@ The portfolio features a built-in terminal with AI capabilities and fun Easter e
 
 ```
 ├── src/
-│   ├── components/         # React components (Hero, About, Skills, Projects, etc.)
+│   ├── components/         # React components (Hero, Marquee, About, Skills, Projects, etc.)
+│   │   ├── CardSwap.tsx    # Animated card swap component
+│   │   ├── CursorTrail.tsx # Animated cursor particle trail
+│   │   ├── Marquee.tsx     # Auto-scrolling DevOps tool ticker
+│   │   ├── ShareButtons.tsx        # Social share (Twitter, LinkedIn, Facebook, copy link)
+│   │   ├── ProjectCardSkeleton.tsx # Skeleton loader for project cards
+│   │   ├── ProjectDetailSkeleton.tsx # Skeleton loader for project detail pages
+│   │   └── ui/             # shadcn/ui base components
 │   ├── data/
 │   │   └── projects.ts     # All project content (titles, tags, GitHub links, full README)
 │   ├── hooks/              # Custom React hooks (use-mobile, use-toast)
@@ -247,7 +265,8 @@ The portfolio features a built-in terminal with AI capabilities and fun Easter e
 │   ├── types/              # TypeScript type definitions
 │   └── utils/              # Helper utilities (validators)
 ├── api/                    # Vercel serverless functions
-│   ├── contact.js          # Contact form handler (Email + Telegram) with rate limiting
+│   ├── contact.js          # Contact form handler (Resend Email + Telegram) with rate limiting
+│   ├── cors.js             # Shared CORS origin validation middleware
 │   ├── github.js           # Server-side GitHub GraphQL proxy (contribution heatmap)
 │   ├── github-stats.js     # Server-side GitHub REST proxy (repo stars/forks)
 │   ├── gemini.js           # Server-side Gemini AI proxy (keeps API key secure)
@@ -265,6 +284,7 @@ The portfolio features a built-in terminal with AI capabilities and fun Easter e
 - **Code Splitting**: Manual Rollup chunks for `three`, `framer-motion`, `vendor`
 - **Suspense Boundaries**: Graceful loading states for async components
 - **Session-aware Loading Screen**: Shown only on page refresh, not on client-side navigation
+- **Skeleton Placeholders**: Project cards and detail pages display polished skeletons while loading
 
 ---
 
@@ -285,25 +305,28 @@ The project includes `vercel.json` for automatic configuration.
 - Global CDN and free SSL
 - Security headers (CSP, HSTS, X-Frame-Options, etc.)
 
-> **Important**: Ensure **all** environment variables (`GITHUB_TOKEN`, `GEMINI_API_KEY`, `EMAIL_ADDRESS`, `GMAIL_PASSKEY`, `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`) are set in **Vercel → Settings → Environment Variables** before deploying, then **redeploy** for them to take effect.
+> **Important**: Ensure **all** environment variables (`RESEND_API_KEY`, `GITHUB_TOKEN`, `GEMINI_API_KEY`, `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`) are set in **Vercel → Settings → Environment Variables** before deploying, then **redeploy** for them to take effect.
 
 ---
 
 ## Tutorials :wrench:
 
-### 📧 Gmail App Password Setup
+### 📧 Resend API Key Setup
 
-1. Go to [https://myaccount.google.com/](https://myaccount.google.com/)
-2. Navigate to **Security → 2-Step Verification** (enable if not already)
-3. Go to **Security → App Passwords**
-4. Select app: **Mail**, device: **Other (Custom name)**
-5. Generate and copy the 16-character password
+1. Sign up at [Resend](https://resend.com/)
+2. Navigate to **API Keys** in the dashboard
+3. Click **Create API Key**
+4. Copy the generated key (starts with `re_`)
+5. *(Optional)* Add and verify your custom domain under **Domains** for branded sender addresses
 6. Add to `.env`:
 
 ```env
-EMAIL_ADDRESS=your.email@gmail.com
-GMAIL_PASSKEY=abcd efgh ijkl mnop
+RESEND_API_KEY=re_your-resend-api-key
+RESEND_FROM=Hemanshu Mahajan <contact@hemanshudev.cloud>
+RESEND_TO=your-email@gmail.com
 ```
+
+> **Note**: If no custom domain is verified, Resend defaults to `onboarding@resend.dev` as the sender.
 
 ---
 
@@ -369,9 +392,8 @@ npm run dev -- --port 3000
 <summary><strong>❌ Contact form not sending emails</strong></summary>
 
 **Solution:**
-- Verify Gmail App Password is correct (16 characters, no spaces)
-- Ensure 2-Step Verification is enabled on your Google account
-- Confirm `EMAIL_ADDRESS` matches the Gmail account used to generate the app password
+- Verify `RESEND_API_KEY` is set in `.env` (starts with `re_`)
+- If using a custom sender address (`RESEND_FROM`), ensure the domain is verified in the Resend dashboard
 - Test the Telegram bot token and chat ID separately
 - Check the browser console and API server logs for errors
 </details>
@@ -435,6 +457,7 @@ npm run dev -- --port 3000
 | --- | --- |
 | `npm run dev` | Start Vite frontend development server (port 8080) |
 | `npm run build` | Build for production |
+| `npm run build:dev` | Build with development mode (unminified, source maps) |
 | `npm run preview` | Preview the production build locally |
 | `npm run lint` | Run ESLint |
 | `cd api && npm run dev` | Start local backend API server (contact + AI) |
