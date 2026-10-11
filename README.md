@@ -49,7 +49,7 @@ A professional portfolio website built with **React 18**, **Vite 7**, **TypeScri
 - ✅ **Interactive Commands**: Custom terminal commands (`matrix`, `hack`, `coffee`, `sudo hire`, etc.)
 - ✅ **Fully Responsive**: Optimized for all devices and screen sizes
 - ✅ **Dark Theme**: Beautiful gradient design with glowing effects
-- ✅ **Contact Form**: Integrated Email (Gmail) and Telegram notifications with rate limiting & honeypot bot detection
+- ✅ **Contact Form**: Integrated Email (Resend API) and Telegram notifications with rate limiting & honeypot bot detection
 - ✅ **GitHub Dashboard**: Real-time contribution analytics via secure server-side GitHub GraphQL proxy
 - ✅ **Dynamic Insights**: Personalized stats (Total Contributions, Active Days) with interactive heatmap
 - ✅ **Hybrid Rendering**: Smart fallback to image-based heatmap if API access is restricted
@@ -195,14 +195,16 @@ Open [http://localhost:8080](http://localhost:8080) in your browser.
 
 | Variable | Required | Scope | Description |
 | --- | --- | --- | --- |
-| `EMAIL_ADDRESS` | Yes | Server | Gmail address for sending contact emails |
-| `GMAIL_PASSKEY` | Yes | Server | Gmail app password (16 characters) |
+| `RESEND_API_KEY` | Yes | Server | Resend API key for sending contact form emails |
+| `RESEND_FROM` | Optional | Server | Sender address (defaults to `Portfolio Contact <onboarding@resend.dev>`) |
+| `RESEND_TO` | Optional | Server | Destination email (defaults to `EMAIL_ADDRESS`) |
+| `EMAIL_ADDRESS` | Optional | Server | Fallback recipient address |
 | `TELEGRAM_BOT_TOKEN` | Yes | Server | Token for Telegram bot notifications |
 | `TELEGRAM_CHAT_ID` | Yes | Server | Your Telegram chat ID |
 | `GEMINI_API_KEY` | Yes | Server | Google Gemini API key (AI terminal proxy) |
 | `GITHUB_TOKEN` | Yes | Server | GitHub PAT with `read:user` scope (heatmap proxy) |
 
-> All variables are server-side only — none are exposed in the client bundle. Both Email and Telegram run in parallel for faster delivery. At least one must be configured for the contact form to work.
+> All variables are server-side only — none are exposed in the client bundle. Both Resend Email and Telegram run in parallel for faster delivery. At least one must be configured for the contact form to work.
 
 ---
 

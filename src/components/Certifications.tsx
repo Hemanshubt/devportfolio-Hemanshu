@@ -5,18 +5,17 @@ import {
   ExternalLink,
   Trophy,
   ShieldCheck,
-  CheckCircle2,
   Copy,
   Check,
   Lock,
-  RefreshCw
+  Sparkles
 } from 'lucide-react';
 
 interface CredentialItem {
   id: string;
   name: string;
   issuer: string;
-  type: 'certification' | 'achievement';
+  type: 'cloud' | 'ai' | 'achievement';
   badge: string;
   isSvgImage?: boolean;
   color: string;
@@ -34,7 +33,7 @@ const credentialsData: CredentialItem[] = [
     id: 'aws-cloud-essentials',
     name: 'AWS Cloud Essentials',
     issuer: 'Amazon Web Services',
-    type: 'certification',
+    type: 'cloud',
     badge: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-plain-wordmark.svg',
     isSvgImage: true,
     color: '#FF9900',
@@ -50,7 +49,7 @@ const credentialsData: CredentialItem[] = [
     id: 'kubernetes-basics',
     name: 'Kubernetes Basics',
     issuer: 'KodeKloud',
-    type: 'certification',
+    type: 'cloud',
     badge: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/kubernetes/kubernetes-plain.svg',
     isSvgImage: true,
     color: '#326CE5',
@@ -61,6 +60,22 @@ const credentialsData: CredentialItem[] = [
     link: 'https://learn.kodekloud.com/certificate/2D1466DFC0C5-2D1460E91B48-2D145B4F88C5',
     skills: ['Pod Lifecycle', 'Deployments & Rollouts', 'Cluster Services & Ingress', 'ConfigMaps & Secrets'],
     description: 'Hands-on practical certification validating container orchestration, cluster workload scheduling, declarative manifests, and Kubernetes troubleshooting.'
+  },
+  {
+    id: 'claude-101',
+    name: 'Claude 101',
+    issuer: 'Claude Academy • Anthropic',
+    type: 'ai',
+    badge: 'https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/claude/default.svg',
+    isSvgImage: true,
+    color: '#D97757',
+    glowColor: 'rgba(217, 119, 87, 0.35)',
+    credentialId: 'b094b7c8ef6a8a1eb4bfda69fb31a0ff',
+    issueDate: 'Issued: Oct 2, 2026 • Verified',
+    verificationAuthority: 'Claude Academy (Anthropic Verified)',
+    link: 'https://academy.claude.com/verify/b094b7c8ef6a8a1eb4bfda69fb31a0ff',
+    skills: ['Prompt Engineering', 'AI Fluency Framework', 'Projects & Skills', 'Claude Code & Artifacts', 'Enterprise Connectors'],
+    description: 'Foundational certification covering effective prompting, AI Fluency, Projects, Artifacts, and Skills, through to Connectors, Enterprise Search, and workflows with Chat, Cowork, and Claude Code.'
   },
   {
     id: 'csi-project-competition',
@@ -80,17 +95,18 @@ const credentialsData: CredentialItem[] = [
   }
 ];
 
+type FilterCategory = 'all' | 'cloud' | 'ai' | 'achievement';
+
 export default function Certifications() {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
-  const [activeFilter, setActiveFilter] = useState<'all' | 'certification' | 'achievement'>('all');
+  const [activeFilter, setActiveFilter] = useState<FilterCategory>('all');
   const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [isVerifying, setIsVerifying] = useState(false);
-  const [verifyLogs, setVerifyLogs] = useState<string[]>([
-    '✓ SHA-256 signature chain validated with Credly & KodeKloud registries',
-    '✓ 3/3 active credentials cryptographically verified and in good standing'
-  ]);
+
+  const cloudCount = credentialsData.filter((item) => item.type === 'cloud').length;
+  const aiCount = credentialsData.filter((item) => item.type === 'ai').length;
+  const achievementCount = credentialsData.filter((item) => item.type === 'achievement').length;
 
   const filteredCredentials = credentialsData.filter((item) => {
     if (activeFilter === 'all') return true;
@@ -103,20 +119,6 @@ export default function Certifications() {
     navigator.clipboard.writeText(id);
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 2000);
-  };
-
-  const handleReverify = () => {
-    setIsVerifying(true);
-    setVerifyLogs(['Checking remote public key rings...', 'Connecting to verification authorities...']);
-    setTimeout(() => {
-      setVerifyLogs([
-        '✓ AWS Credly digital badge signature: VALID (200 OK)',
-        '✓ KodeKloud training registry status: ACTIVE (100% Verified)',
-        '✓ Computer Society of India certificate ledger: AUTHENTIC',
-        '✓ All credentials audited and tamper-evident.'
-      ]);
-      setIsVerifying(false);
-    }, 900);
   };
 
   return (
@@ -142,43 +144,50 @@ export default function Certifications() {
             Certifications & <span className="gradient-text">Badges</span>
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-base text-muted-foreground sm:text-lg">
-            Industry-validated certifications and competitive honors demonstrating verified competence in cloud architecture, DevOps, and container orchestration.
+            Industry-validated certifications and competitive honors demonstrating verified competence in cloud architecture, DevOps, AI engineering, and container orchestration.
           </p>
 
           {/* Filter Bar */}
           <div className="mt-8 flex items-center justify-center">
-            <div className="inline-flex items-center rounded-xl border border-white/10 bg-black/40 p-1.5 backdrop-blur-md">
+            <div className="inline-flex flex-wrap items-center justify-center gap-1 rounded-xl border border-white/10 bg-black/40 p-1.5 backdrop-blur-md">
               <button
                 onClick={() => setActiveFilter('all')}
-                className={`rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-all ${
-                  activeFilter === 'all'
+                className={`rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-all ${activeFilter === 'all'
                     ? 'bg-primary text-primary-foreground shadow-sm'
                     : 'text-muted-foreground hover:text-foreground'
-                }`}
+                  }`}
               >
                 All Records ({credentialsData.length})
               </button>
               <button
-                onClick={() => setActiveFilter('certification')}
-                className={`flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-all ${
-                  activeFilter === 'certification'
+                onClick={() => setActiveFilter('cloud')}
+                className={`flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-all ${activeFilter === 'cloud'
                     ? 'bg-primary text-primary-foreground shadow-sm'
                     : 'text-muted-foreground hover:text-foreground'
-                }`}
+                  }`}
               >
                 <Award className="h-3.5 w-3.5" />
-                <span>Cloud & DevOps (2)</span>
+                <span>Cloud & DevOps ({cloudCount})</span>
+              </button>
+              <button
+                onClick={() => setActiveFilter('ai')}
+                className={`flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-all ${activeFilter === 'ai'
+                    ? 'bg-primary text-primary-foreground shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'
+                  }`}
+              >
+                <Sparkles className="h-3.5 w-3.5 text-[#D97757]" />
+                <span>AI & Claude ({aiCount})</span>
               </button>
               <button
                 onClick={() => setActiveFilter('achievement')}
-                className={`flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-all ${
-                  activeFilter === 'achievement'
+                className={`flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-all ${activeFilter === 'achievement'
                     ? 'bg-primary text-primary-foreground shadow-sm'
                     : 'text-muted-foreground hover:text-foreground'
-                }`}
+                  }`}
               >
                 <Trophy className="h-3.5 w-3.5" />
-                <span>Honors & Awards (1)</span>
+                <span>Honors & Awards ({achievementCount})</span>
               </button>
             </div>
           </div>
@@ -255,7 +264,7 @@ export default function Certifications() {
                   </div>
 
                   {/* Description */}
-                  <p className="mt-4 text-xs text-muted-foreground leading-relaxed line-clamp-3">
+                  <p className="mt-4 text-xs text-muted-foreground leading-relaxed line-clamp-3" title={item.description}>
                     {item.description}
                   </p>
 
@@ -313,7 +322,7 @@ export default function Certifications() {
                       className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 font-mono text-xs font-semibold text-foreground transition-all duration-300 hover:border-primary/50 hover:bg-primary hover:text-primary-foreground group/btn"
                     >
                       <span>
-                        {item.type === 'certification' ? 'Verify Official Credential' : 'View Scanned Certificate'}
+                        {item.type !== 'achievement' ? 'Verify Official Credential' : 'View Scanned Certificate'}
                       </span>
                       <ExternalLink className="h-3.5 w-3.5 transition-transform group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5" />
                     </a>
@@ -322,76 +331,6 @@ export default function Certifications() {
               </motion.div>
             ))}
           </AnimatePresence>
-        </motion.div>
-
-        {/* Live Cryptographic Verification Audit Console */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="mx-auto mt-12 sm:mt-16 max-w-3xl"
-        >
-          <div className="overflow-hidden rounded-2xl border border-border/80 bg-[hsl(222,47%,4%)] shadow-2xl backdrop-blur-xl">
-            {/* Terminal Top Bar */}
-            <div className="flex items-center justify-between border-b border-white/5 bg-[hsl(222,47%,6%)] px-4 py-2.5 sm:px-6">
-              <div className="flex items-center gap-2">
-                <div className="h-3 w-3 rounded-full bg-[#ff5f57]" />
-                <div className="h-3 w-3 rounded-full bg-[#febc2e]" />
-                <div className="h-3 w-3 rounded-full bg-[#28c840]" />
-                <span className="ml-2 font-mono text-xs text-muted-foreground hidden sm:inline">
-                  pki-audit-service: ~/credentials/verify.sh
-                </span>
-                <span className="ml-2 font-mono text-xs text-muted-foreground sm:hidden">
-                  verify.sh
-                </span>
-              </div>
-
-              {/* Re-verify Button */}
-              <button
-                type="button"
-                onClick={handleReverify}
-                disabled={isVerifying}
-                className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 font-mono text-[11px] text-muted-foreground hover:border-primary/50 hover:text-primary transition-all active:scale-95 disabled:opacity-50"
-              >
-                <RefreshCw className={`h-3 w-3 ${isVerifying ? 'animate-spin text-primary' : ''}`} />
-                <span>{isVerifying ? 'Auditing...' : 'Re-verify Signatures'}</span>
-              </button>
-            </div>
-
-            {/* Terminal Body */}
-            <div className="p-4 sm:p-5 font-mono text-xs sm:text-sm space-y-2">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <span className="text-secondary font-bold">$</span>
-                <span className="text-foreground">cosign verify-blob --cert-identity hemanshu.devops</span>
-              </div>
-
-              <div className="space-y-1.5 pt-1 text-xs">
-                {verifyLogs.map((log, lIdx) => (
-                  <p
-                    key={lIdx}
-                    className={
-                      log.includes('✓')
-                        ? 'text-emerald-400 flex items-center gap-1.5'
-                        : 'text-muted-foreground animate-pulse'
-                    }
-                  >
-                    {log}
-                  </p>
-                ))}
-              </div>
-
-              <div className="pt-2 border-t border-white/5 flex flex-wrap items-center justify-between text-[11px] text-muted-foreground">
-                <div className="flex items-center gap-2">
-                  <span className="text-primary font-semibold">Ledger Authority:</span>
-                  <span>AWS Training & KodeKloud PKI</span>
-                </div>
-                <div className="flex items-center gap-1 text-secondary font-medium">
-                  <CheckCircle2 className="h-3.5 w-3.5" />
-                  <span>Tamper-Evident Records Active</span>
-                </div>
-              </div>
-            </div>
-          </div>
         </motion.div>
       </div>
     </section>
