@@ -161,7 +161,7 @@ export default function ProjectDetail() {
         {/* ─── Highlights & Features ─── */}
         <section className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-16 lg:px-8">
           {project.highlights && project.highlights.length > 0 && (
-            <div className="mb-16 grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div className="mb-8 grid grid-cols-1 gap-4 sm:mb-12 sm:grid-cols-3">
               {project.highlights.map((h: string, i: number) => (
                 <motion.div
                   key={i}
@@ -179,23 +179,47 @@ export default function ProjectDetail() {
             </div>
           )}
 
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-6 sm:gap-8 md:grid-cols-2 items-start">
             {/* Overview */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="rounded-2xl border border-[hsl(217,33%,12%)] bg-[hsl(222,47%,4%)] p-6 sm:p-8 hover:border-primary/20 transition-colors"
+              className="flex flex-col rounded-2xl border border-[hsl(217,33%,12%)] bg-[hsl(222,47%,4%)] p-6 sm:p-8 hover:border-primary/20 transition-colors"
             >
-              <div className="mb-5 flex items-center gap-3">
-                <div className={`flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10`}>
-                  <Layers className={`h-5 w-5 text-primary`} />
+              <div>
+                <div className="mb-5 flex items-center gap-3">
+                  <div className={`flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10`}>
+                    <Layers className={`h-5 w-5 text-primary`} />
+                  </div>
+                  <h2 className="text-xl font-bold text-foreground">Overview</h2>
                 </div>
-                <h2 className="text-xl font-bold text-foreground">Overview</h2>
+                <div className="space-y-4 text-sm leading-relaxed text-muted-foreground sm:text-base text-left">
+                  {typeof project.readme.overview === 'string' &&
+                    project.readme.overview.split('\n\n').map((paragraph: string, idx: number) => (
+                      <p key={idx}>{paragraph}</p>
+                    ))}
+                </div>
               </div>
-              <p className="text-sm leading-relaxed text-muted-foreground sm:text-base text-justify">
-                {project.readme.overview}
-              </p>
+
+              {/* Quick Tech Tags Footer */}
+              {project.tags && project.tags.length > 0 && (
+                <div className="mt-6 border-t border-white/5 pt-5">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/70">
+                    Core Technologies
+                  </span>
+                  <div className="mt-2.5 flex flex-wrap gap-1.5">
+                    {project.tags.slice(0, 6).map((tag: string, idx: number) => (
+                      <span
+                        key={idx}
+                        className="rounded-md border border-white/10 bg-white/5 px-2.5 py-1 font-mono text-xs text-foreground/80"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </motion.div>
 
             {/* Key Features */}
@@ -203,7 +227,7 @@ export default function ProjectDetail() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 }}
-              className="rounded-2xl border border-[hsl(217,33%,12%)] bg-[hsl(222,47%,4%)] p-6 sm:p-8 hover:border-primary/20 transition-colors"
+              className="flex flex-col rounded-2xl border border-[hsl(217,33%,12%)] bg-[hsl(222,47%,4%)] p-6 sm:p-8 hover:border-primary/20 transition-colors"
             >
               <div className="mb-5 flex items-center gap-3">
                 <div className={`flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10`}>
@@ -213,9 +237,9 @@ export default function ProjectDetail() {
               </div>
               <ul className="space-y-3">
                 {project.readme.features.map((feature: string, i: number) => (
-                  <li key={i} className="flex items-start gap-3 text-sm text-muted-foreground sm:text-base">
-                    <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full bg-primary`} />
-                    {feature}
+                  <li key={i} className="flex items-start gap-3 text-sm leading-relaxed text-muted-foreground sm:text-base text-left">
+                    <span className={`mt-2 h-2 w-2 shrink-0 rounded-full bg-primary`} />
+                    <span>{feature}</span>
                   </li>
                 ))}
               </ul>
@@ -237,7 +261,7 @@ export default function ProjectDetail() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.8 }}
-              className="prose prose-sm prose-invert prose-blue max-w-none text-justify sm:prose-base
+              className="prose prose-sm prose-invert prose-blue max-w-none text-left sm:prose-base
                 prose-headings:text-foreground prose-p:text-muted-foreground prose-li:text-muted-foreground
                 prose-strong:text-foreground prose-code:text-primary prose-code:bg-primary/5 prose-code:px-1 prose-code:rounded
                 prose-pre:bg-[hsl(222,47%,4%)] prose-pre:border prose-pre:border-white/5 prose-pre:overflow-x-auto

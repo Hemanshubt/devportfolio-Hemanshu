@@ -12,17 +12,16 @@ export const projects = [
         github: 'https://github.com/Hemanshubt/Job-Application-Tracker',
         image: '/image.png',
         readme: {
-            overview: 'Trackr is a high-performance, dark-dashboard Job Application Tracker engineered for modern tech job seekers. It features multi-stage Docker containerization, automated GitHub Actions CI/CD pipelines publishing to GitHub Container Registry (GHCR), an Nginx reverse proxy edge container, and Supabase PostgreSQL with database-level Row Level Security (RLS) policies.',
+            overview: 'Trackr is a high-performance, dark-dashboard Job Application & Pipeline Tracker engineered for modern tech job seekers. It streamlines technical job hunting with an agile Linear-inspired workflow—allowing candidates to track multi-stage hiring pipelines, manage recruiter communications, and analyze offer conversion rates.\n\nBuilt with cloud-native DevOps principles, the architecture features multi-stage Docker builds on Alpine Linux, automated GitHub Actions CI/CD with GHCR container registry publishing, an Nginx edge proxy, and Supabase PostgreSQL with Row Level Security (RLS).',
             features: [
-                'Production Multi-Stage Docker builds on Alpine Linux with unprivileged USER node execution and healthchecks',
-                'Nginx Edge reverse proxy with SPA client-side routing fallback, gzip compression, and internal API proxying',
-                'Automated GitHub Actions CI/CD pipeline with dual-tier caching (npm cache + Docker GHA layer cache)',
-                'Automated container publishing to GitHub Container Registry (GHCR) with semantic & commit-SHA tags',
-                'Interactive Kanban application pipeline with drag-and-drop status stages (Wishlist, Applied, Interview, Offer, Rejected)',
-                'Interview round scheduling with preparation notes, meeting links, and countdown timers',
-                'Comprehensive Recruiter CRM with contact tracking, company associations, and communication logs',
-                'PostgreSQL database with Row Level Security (RLS) policies for complete multi-tenant privacy',
-                'Express TypeScript backend with Zod schema validation, Helmet security headers, and Morgan logging'
+                'Interactive Kanban pipeline with drag-and-drop stages (Wishlist ➔ Offer)',
+                'Interview round scheduler with preparation debrief notes & countdown timers',
+                'Comprehensive Recruiter CRM with contact directories & communication history',
+                'Real-time application-to-offer funnel metrics & conversion analytics',
+                'Multi-Stage Docker builds on Alpine Linux with unprivileged USER node (~130MB)',
+                'Nginx Edge reverse proxy with SPA client-side routing & internal API proxying',
+                'Automated GitHub Actions CI/CD pipeline with GHCR container registry publishing',
+                'Supabase PostgreSQL with Row-Level Security (RLS) multi-tenant isolation'
             ],
             architecture: [
                 'Ingress: Nginx Reverse Proxy (Alpine ~25MB) serving static SPA bundles & routing /api',
@@ -231,15 +230,13 @@ sudo certbot --nginx -d trackr.yourdomain.com
 
 ## **🛡️ 5. Production Security Hardening Matrix**
 
-| Layer | Security Measure | Implementation Details |
-|---|---|---|
-| **Container** | Non-Root Execution | Node backend runs as unprivileged \`USER node\` (UID 1000), mitigating container breakout vulnerabilities. |
-| **Container** | Minimal Attack Surface | Alpine Linux bases eliminate unnecessary shells, package managers, and extraneous binaries. |
-| **Application** | HTTP Security Headers | Express utilizes \`helmet()\` for Strict-Transport-Security (HSTS), X-Frame-Options (DENY), and X-Content-Type-Options. |
-| **Application** | Strict Input Validation | 100% of incoming payloads validated using \`zod\` schemas before touching controllers or DB. |
-| **Network** | Isolated Docker Network | Backend container is only exposed to port 5000 as configured; frontend proxies API calls internally. |
-| **Database** | Row-Level Security (RLS) | Supabase PostgreSQL enforces tenant isolation: users can only read/write records matching \`auth.uid() = user_id\`. |
-| **Secrets** | Safe Environment Injection | API keys and secrets excluded from git and injected via Docker Compose or GitHub Secrets. |
+*   **🔒 Container Layer (Non-Root Execution)**: Node backend executes under an unprivileged \`USER node\` (UID 1000), mitigating container breakout vulnerabilities.
+*   **📦 Container Layer (Minimal Attack Surface)**: Lightweight Alpine Linux base eliminates unnecessary shells and packages, maintaining a tight ~130MB image footprint.
+*   **🛡️ Application Layer (HTTP Security Headers)**: Express utilizes \`helmet()\` for Strict-Transport-Security (HSTS), X-Frame-Options (DENY), and X-Content-Type-Options.
+*   **✅ Application Layer (Strict Input Validation)**: 100% of incoming payloads are strictly validated using \`zod\` schemas before touching controllers or the database.
+*   **🌐 Network Layer (Isolated Docker Bridge)**: Backend container communicates privately inside the \`trackr-net\` bridge; only Nginx edge ports (80/443) are publicly reachable.
+*   **🔑 Database Layer (Row-Level Security - RLS)**: Supabase PostgreSQL engine guarantees tenant isolation directly: users can only read and write records where \`auth.uid() = user_id\`.
+*   **🔐 Secrets Management (Safe Environment Injection)**: Production credentials and database keys are excluded from git and injected safely via Docker Compose or GitHub Secrets.
 
 ---
 
