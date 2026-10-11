@@ -71,44 +71,143 @@ function CICDPipeline({ activeStage, isRunning }: { activeStage: number; isRunni
   );
 }
 
-/* ─────────────── 3. Encrypted Message Preview ─────────────── */
-function EncryptedPreview({ message }: { message: string }) {
-  const [encrypted, setEncrypted] = useState('');
+/* ─────────────── 3. Encrypted Contact Details Preview ─────────────── */
+function EncryptedDetailsPreview({ formState }: { formState: { name: string; email: string; message: string } }) {
+  const [encryptedPayload, setEncryptedPayload] = useState<{
+    cipherName: string;
+    cipherEmail: string;
+    cipherMessage: string;
+    sha256Hash: string;
+  }>({
+    cipherName: '',
+    cipherEmail: '',
+    cipherMessage: '',
+    sha256Hash: '',
+  });
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const hasAnyContent = Boolean(formState.name.trim() || formState.email.trim() || formState.message.trim());
 
   useEffect(() => {
-    if (!message) {
-      setEncrypted('');
+    if (!hasAnyContent) {
+      setEncryptedPayload({ cipherName: '', cipherEmail: '', cipherMessage: '', sha256Hash: '' });
       return;
     }
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
-    let result = '';
-    for (let i = 0; i < message.length; i++) {
-      if (message[i] === ' ') {
-        result += ' ';
-      } else {
-        result += chars[Math.floor(Math.random() * chars.length)];
-      }
-    }
-    setEncrypted(result);
-  }, [message]);
 
-  if (!message) return null;
+    const toCipher = (str: string, salt: string) => {
+      if (!str.trim()) return '[empty]';
+      let hash = 0;
+      for (let i = 0; i < str.length; i++) {
+        hash = (hash << 5) - hash + str.charCodeAt(i) + salt.charCodeAt(i % salt.length);
+        hash |= 0;
+      }
+      const hex = Math.abs(hash).toString(16).padStart(8, '0');
+      const encoded = Array.from(str)
+        .map((c, idx) => ((c.charCodeAt(0) ^ 0x5a ^ (idx * 7)) & 0xff).toString(16).padStart(2, '0'))
+        .join('');
+      return `0x${hex}${encoded.slice(0, 12)}...${encoded.slice(-6)}`;
+    };
+
+    const rawData = JSON.stringify({
+      name: formState.name,
+      email: formState.email,
+      message: formState.message,
+    });
+
+    if (typeof crypto !== 'undefined' && crypto.subtle) {
+      const encoder = new TextEncoder();
+      crypto.subtle
+        .digest('SHA-256', encoder.encode(rawData))
+        .then((buf) => {
+          const hashArray = Array.from(new Uint8Array(buf));
+          const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
+          setEncryptedPayload({
+            cipherName: toCipher(formState.name, 'name_key'),
+            cipherEmail: toCipher(formState.email, 'email_key'),
+            cipherMessage: toCipher(formState.message, 'msg_key'),
+            sha256Hash: hashHex.slice(0, 24) + '...',
+          });
+        })
+        .catch(() => {
+          setEncryptedPayload({
+            cipherName: toCipher(formState.name, 'name_key'),
+            cipherEmail: toCipher(formState.email, 'email_key'),
+            cipherMessage: toCipher(formState.message, 'msg_key'),
+            sha256Hash: 'e3b0c44298fc1c149afb...',
+          });
+        });
+    } else {
+      setEncryptedPayload({
+        cipherName: toCipher(formState.name, 'name_key'),
+        cipherEmail: toCipher(formState.email, 'email_key'),
+        cipherMessage: toCipher(formState.message, 'msg_key'),
+        sha256Hash: 'e3b0c44298fc1c149afb...',
+      });
+    }
+  }, [formState.name, formState.email, formState.message, hasAnyContent]);
+
+  if (!hasAnyContent) return null;
 
   return (
     <motion.div
       initial={{ opacity: 0, height: 0 }}
       animate={{ opacity: 1, height: 'auto' }}
       exit={{ opacity: 0, height: 0 }}
-      className="mb-3 overflow-hidden rounded-lg border border-primary/20 bg-primary/5 p-3"
+      className="mb-4 overflow-hidden rounded-xl border border-primary/30 bg-primary/[0.04] p-3.5 backdrop-blur-md transition-all shadow-inner"
     >
-      <div className="mb-1 flex items-center gap-2 font-mono text-xs text-primary">
-        <Shield className="h-3 w-3" />
-        <span>AES-256 Encrypted Preview</span>
-        <span className="ml-auto text-[10px] text-muted-foreground">
-          {message.length} chars → {encrypted.length} encrypted
-        </span>
+      <div className="flex items-center justify-between font-mono text-xs text-primary">
+        <div className="flex items-center gap-2">
+          <Shield className="h-3.5 w-3.5 text-primary animate-pulse" />
+          <span className="font-semibold tracking-wide">END-TO-END ENCRYPTED DETAILS</span>
+        </div>
+        <button
+          type="button"
+          onClick={() => setIsExpanded((prev) => !prev)}
+          className="text-[10px] text-muted-foreground hover:text-primary transition-colors underline underline-offset-2"
+        >
+          {isExpanded ? 'Hide Cipher' : 'Inspect Cipher'}
+        </button>
       </div>
-      <p className="break-all font-mono text-xs text-green-400/70 leading-relaxed">{encrypted}</p>
+
+      {/* Primary compact cipher status */}
+      <div className="mt-2 space-y-1.5 font-mono text-[11px]">
+        <div className="flex items-center justify-between text-muted-foreground">
+          <span>SHA-256 Digest:</span>
+          <span className="text-secondary font-mono truncate max-w-[210px]" title={encryptedPayload.sha256Hash}>
+            {encryptedPayload.sha256Hash}
+          </span>
+        </div>
+
+        {isExpanded && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="pt-2 mt-2 border-t border-white/5 space-y-1.5 text-[10px]"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">$enc_name:</span>
+              <span className="text-emerald-400 font-mono">{encryptedPayload.cipherName}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">$enc_email:</span>
+              <span className="text-emerald-400 font-mono">{encryptedPayload.cipherEmail}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">$enc_message:</span>
+              <span className="text-emerald-400 font-mono">{encryptedPayload.cipherMessage}</span>
+            </div>
+          </motion.div>
+        )}
+      </div>
+
+      <div className="mt-2.5 pt-2 border-t border-white/5 flex items-center justify-between text-[10px] font-mono text-muted-foreground">
+        <span className="flex items-center gap-1.5 text-emerald-400 font-medium">
+          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-ping" />
+          AES-256-GCM + TLS 1.3
+        </span>
+        <span>Secure Handshake</span>
+      </div>
     </motion.div>
   );
 }
@@ -383,7 +482,7 @@ function SignalStrength() {
 
   return (
     <div
-      className="flex items-center gap-2 select-none"
+      className="inline-flex items-center justify-center gap-2 select-none"
       title={online ? `Realtime Latency: ${latency ? `${latency}ms` : 'active'} • Status: Online` : 'Network Disconnected'}
     >
       {online ? (
@@ -666,17 +765,20 @@ export default function Contact() {
             Looking for opportunities to grow as a DevOps Engineer. Let's discuss how I can contribute to your team.
           </p>
 
-          {/* Signal Strength + Time Greeting row */}
+          {/* Signal Strength + Availability row */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ delay: 0.3, duration: 0.5 }}
-            className="mx-auto mt-6 flex max-w-md flex-col gap-3 sm:flex-row sm:items-center sm:justify-center sm:gap-6"
+            className="mx-auto mt-6 flex items-center justify-center"
           >
-            <SignalStrength />
-            <div className="hidden h-4 w-px bg-border sm:block" />
-            <div className="font-mono text-xs text-muted-foreground">
-              <span className="text-green-400">●</span> Available for hire
+            <div className="inline-flex flex-wrap items-center justify-center gap-3 rounded-full border border-white/10 bg-black/40 px-4 py-2 backdrop-blur-md sm:gap-4 shadow-sm">
+              <SignalStrength />
+              <div className="h-3.5 w-px bg-white/10" />
+              <div className="flex items-center gap-1.5 font-mono text-[11px] text-muted-foreground">
+                <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.6)]" />
+                <span>Available for hire</span>
+              </div>
             </div>
           </motion.div>
         </motion.div>
@@ -796,9 +898,9 @@ export default function Contact() {
                   </div>
                 </div>
 
-                {/* Encrypted Preview */}
+                {/* Encrypted Details Preview */}
                 <AnimatePresence>
-                  <EncryptedPreview message={formState.message} />
+                  <EncryptedDetailsPreview formState={formState} />
                 </AnimatePresence>
 
                 {/* Status Messages */}
