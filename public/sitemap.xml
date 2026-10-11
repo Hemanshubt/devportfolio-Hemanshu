@@ -7,26 +7,32 @@
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://hemanshudev.cloud/project/two-tier-flaskapp</loc>
-    <lastmod>2026-02-21</lastmod>
+    <loc>https://hemanshudev.cloud/project/job-application-tracker</loc>
+    <lastmod>2026-10-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://hemanshudev.cloud/project/nodejs-todo-cicd</loc>
-    <lastmod>2026-02-21</lastmod>
+    <loc>https://hemanshudev.cloud/project/ai-chatbot-eks</loc>
+    <lastmod>2026-10-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://hemanshudev.cloud/project/scalable-aws-kubernetes</loc>
-    <lastmod>2026-02-21</lastmod>
+    <loc>https://hemanshudev.cloud/project/cloud-native-blog</loc>
+    <lastmod>2026-10-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://hemanshudev.cloud/project/cost-efficient-cicd</loc>
-    <lastmod>2026-02-21</lastmod>
+    <loc>https://hemanshudev.cloud/project/cloud-native-3tier-app</loc>
+    <lastmod>2026-10-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://hemanshudev.cloud/project/jenkins-docker-aws</loc>
+    <lastmod>2026-10-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>

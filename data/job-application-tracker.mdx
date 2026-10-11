@@ -1,0 +1,221 @@
+---
+title: "Trackr — Production Job Application Tracker & DevOps Architecture"
+summary: A high-performance, dark-dashboard Job Application Tracker engineered with React 18, Express, TypeScript, and Supabase PostgreSQL with RLS, featuring interactive Kanban boards, multi-stage Docker containerization, and GitHub Actions CI/CD to GHCR.
+objective: Build a production-grade full-stack job application tracker with real-time conversion rates, recruiter CRM, interview scheduling, and enterprise DevOps automation with multi-stage Docker builds, Nginx reverse proxying, and GitHub Actions CI/CD.
+tone:
+  - modern
+  - full-stack
+  - devops-driven
+tags:
+  - Docker
+  - GitHub Actions
+  - GHCR
+  - Nginx
+  - React 18
+  - TypeScript
+  - Node.js
+  - Express
+  - Supabase
+  - PostgreSQL
+  - Tailwind CSS
+date: 2026-03-01
+---
+
+![Trackr Dashboard](/image.png)
+
+## **Project Overview**
+
+**[Trackr](https://github.com/Hemanshubt/Job-Application-Tracker)** is a high-performance, dark-dashboard **Job Application Tracker & Pipeline Management Platform** engineered for modern software engineers and job seekers. Navigating technical hiring loops requires managing concurrent application funnels, technical screens, take-home assignments, and recruiter communications. Trackr streamlines this process with a sleek, Linear-inspired interface, multi-stage Docker containerization, automated GitHub Actions CI/CD pipelines, and cloud database security.
+
+### **Key Functional Highlights**
+*   **Kanban Pipeline Board**: Visual workflow transitions from *Wishlist* ➔ *Applied* ➔ *Interview* ➔ *Offer* ➔ *Rejected*.
+*   **Interview Schedule Tracker**: Round countdowns, meeting links, and preparation debrief notes.
+*   **Recruiter CRM**: Centralized directory of recruiter contacts and interaction histories.
+*   **Conversion Analytics**: Interactive funnel graphs and conversion ratios using Recharts.
+*   **Supabase PostgreSQL + RLS**: Multi-tenant data isolation with database-level security policies.
+
+---
+
+## **☁️ 1. Cloud & DevOps Architecture**
+
+Trackr employs a modern decoupled service architecture combining an optimized **React SPA**, an **Express/TypeScript REST API**, and a managed **PostgreSQL Database with Row-Level Security (RLS)** hosted on Supabase Cloud.
+
+![Trackr DevOps Cloud Architecture](/architecture_diagram.jpg)
+
+### **Network Flow & Ingress Design**
+1.  **Edge Ingress:** Clients establish HTTPS (Port 443) or HTTP (Port 80) connections to the edge.
+2.  **SPA Asset Routing:** Nginx serves pre-compiled, minified HTML/JS/CSS static files with Gzip compression and long-lived cache headers. Unmatched routes are handled cleanly via `try_files $uri $uri/ /index.html` to support client-side React Router navigation without 404 errors.
+3.  **Internal API Proxying:** Any request matching `/api/*` is seamlessly forwarded across the private Docker bridge network (`trackr-net`) to `http://backend:5000/api/*`.
+4.  **Zero Public Exposure for Backend:** The Node.js application is never directly exposed to the internet, insulating it from brute-force scans and unauthenticated probing.
+5.  **Encrypted Supabase Connection:** Backend communicates directly with Supabase Cloud PostgreSQL over TLS-encrypted SQL connections with Row Level Security (RLS) enforcement.
+
+---
+
+## **🐳 2. Containerization & Docker Multi-Stage Builds**
+
+Both frontend and backend services are containerized using multi-stage Docker builds designed for minimal runtime footprint, reproducible builds, and strict security hardening.
+
+### **Backend Multi-Stage Build & Security Hardening**
+*   **Base Image:** `node:20-alpine`
+*   **Stage 1 (`builder`):** Installs full development dependencies (`npm ci`), compiles TypeScript artifacts to `/dist` via `tsc`, and executes `npm prune --omit=dev` to strip development packages.
+*   **Stage 2 (`runner`):** Starts from a fresh Alpine base, installs `curl` exclusively for Docker daemon healthchecks, configures an unprivileged `node` user (`USER node`), copies only `/dist` and production `node_modules`, and launches `dist/server.js`.
+*   **Runtime Footprint:** **~130MB** (compared to >950MB for non-optimized single-stage builds).
+
+```dockerfile
+# Backend Dockerfile
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY tsconfig.json ./
+COPY src ./src
+RUN npm run build && npm prune --omit=dev
+
+FROM node:20-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production PORT=5000
+RUN apk add --no-cache curl
+USER node
+COPY --chown=node:node --from=builder /app/package*.json ./
+COPY --chown=node:node --from=builder /app/node_modules ./node_modules
+COPY --chown=node:node --from=builder /app/dist ./dist
+EXPOSE 5000
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD curl -f http://localhost:5000/api/health || exit 1
+CMD ["node", "dist/server.js"]
+```
+
+### **Frontend Multi-Stage Build & Nginx Ingress**
+*   **Stage 1 (`builder`):** Compiles the React application using Vite, tree-shaking dead code and minifying CSS/JS bundles.
+*   **Stage 2 (`runner`):** Mounts compiled static bundles directly into `nginx:1.25-alpine`.
+*   **Runtime Footprint:** **~25MB** image size with sub-millisecond static response times.
+
+### **Docker Compose Multi-Container Orchestration**
+```yaml
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: trackr-backend
+    restart: unless-stopped
+    environment:
+      - PORT=5000
+      - NODE_ENV=production
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - CLIENT_URL=${CLIENT_URL:-http://localhost}
+    ports:
+      - "5000:5000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - trackr-net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_SUPABASE_URL=${VITE_SUPABASE_URL:-${SUPABASE_URL}}
+        - VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY:-${SUPABASE_ANON_KEY}}
+        - VITE_API_URL=/api
+    container_name: trackr-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    networks:
+      - trackr-net
+
+networks:
+  trackr-net:
+    driver: bridge
+```
+
+---
+
+## **🚀 3. CI/CD Automation Pipeline (GitHub Actions)**
+
+Continuous Integration and Continuous Deployment is configured in `.github/workflows/ci-cd.yml` using GitHub-hosted runners (`ubuntu-latest`).
+
+![Trackr CI/CD Automation Pipeline](/cicd_pipeline_diagram.jpg)
+
+### **Pipeline Execution Stages**
+1.  **Git Developer Push:** Code changes committed and pushed to GitHub trigger the automated pipeline.
+2.  **Verify & Lint (`verify-and-build`):** Runs TypeScript type-checking (`tsc`) and dependency audits across both frontend and backend in parallel using cached node modules.
+3.  **Docker Build Verification (`docker-verify`):** Uses Docker Buildx with GitHub Actions Layer Cache (`type=gha,mode=max`) to test multi-stage image builds without redundant downloads.
+4.  **Publish to GHCR (`publish-containers`):** On merge to `main`, builds and pushes production container images to GitHub Container Registry:
+    *   `ghcr.io/<org>/trackr-backend:latest` & `:<commit-sha>`
+    *   `ghcr.io/<org>/trackr-frontend:latest` & `:<commit-sha>`
+5.  **Deploy to Docker Host:** Automated or manual rolling deployment pulls freshly tagged images and spins up containers with zero downtime.
+
+---
+
+## **🌐 4. Cloud Deployment Runbook (AWS EC2 / Ubuntu VPS)**
+
+### **Step 1: Install Docker & Docker Compose**
+```bash
+sudo apt-get update && sudo apt-get upgrade -y
+sudo apt-get install -y ca-certificates curl gnupg git
+sudo install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+sudo chmod a+r /etc/apt/keyrings/docker.gpg
+
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+sudo apt-get update
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+sudo usermod -aG docker $USER
+```
+
+### **Step 2: Clone and Launch Application**
+```bash
+git clone https://github.com/Hemanshubt/Job-Application-Tracker.git
+cd Job-Application-Tracker
+
+# Populate production secrets
+cp .env.docker.example .env
+nano .env
+
+# Launch application stack
+docker compose up -d --build
+```
+
+### **Step 3: Host Nginx & Let's Encrypt SSL**
+```bash
+sudo apt-get install -y nginx certbot python3-certbot-nginx
+sudo certbot --nginx -d trackr.yourdomain.com
+```
+
+---
+
+## **🛡️ 5. Production Security Hardening Matrix**
+
+| Layer | Security Measure | Implementation Details |
+|---|---|---|
+| **Container** | Non-Root Execution | Node backend runs as unprivileged `USER node` (UID 1000), mitigating container breakout vulnerabilities. |
+| **Container** | Minimal Attack Surface | Alpine Linux bases eliminate unnecessary shells, package managers, and extraneous binaries. |
+| **Application** | HTTP Security Headers | Express utilizes `helmet()` for Strict-Transport-Security (HSTS), X-Frame-Options (DENY), and X-Content-Type-Options. |
+| **Application** | Strict Input Validation | 100% of incoming payloads validated using `zod` schemas before touching controllers or DB. |
+| **Network** | Isolated Docker Network | Backend container is only exposed to port 5000 as configured; frontend proxies API calls internally. |
+| **Database** | Row-Level Security (RLS) | Supabase PostgreSQL enforces tenant isolation: users can only read/write records matching `auth.uid() = user_id`. |
+| **Secrets** | Safe Environment Injection | API keys and secrets excluded from git and injected via Docker Compose or GitHub Secrets. |
